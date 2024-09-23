@@ -42,7 +42,7 @@ DEFAULTS = {
     'quran letter spacing': -0.1,
     'quran and translation spacing': 30,
     'translation languages': '',
-    'translation color': 'FFFFFF',
+    'translation color': '#FFFFFF',
     'translation font size': 16,
     'translation x position': 40,
     'translation maximum width': 650,
