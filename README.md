@@ -23,13 +23,13 @@ Quran Image Generator
   <p align="center">
     Create custom Quran images in seconds!
     <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
+    <a href="#getting-started"><strong>How To Setup »</strong></a>
     <br />
     <br />
     <!--<a href="https://github.com/github_username/repo_name">View Demo</a>-->
-    <a href="https://github.com/github_username/repo_name/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/ZeyadAbbas/quran-image-generator/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
-    <a href="https://github.com/github_username/repo_name/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/ZeyadAbbas/quran-image-generator/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
@@ -224,6 +224,10 @@ Here is a list of supported languages, and their ISO codes, that you need for th
 | Ukrainian     | uk    | Dr. Mikhailo Yaqubovic                                 |
 | Yoruba        | yo    | Shaykh Abu Rahimah Mikael Aykyuni                      |
 
+
+The program gives you the ability to automatically post your images online once generated.
+You can set this option in the config file to either, true, false, or ask.
+You can also pick where you want to post the image.
 
 This is a list of currently supported post methods:
 * Instagram
