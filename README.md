@@ -77,6 +77,18 @@ These are some images made using this program, and there are countless other pos
 The aim of this program is to provide people with 0 prior coding knowledge 
 the ability to create custom Quran images to be shared online or for personal use.
 
+The program allows you to generate a quran verse, translations of your choice, and then post them 
+just by typing 3 sets of numbers: the chapter, the first verse, and the last verse.
+This makes the generation process incredibly easy, especially when you want to make a lot of them.
+
+Without this program, you would need to use something like [Photoshop](https://www.adobe.com/products/photoshop.html) 
+or [Pixlr](https://pixlr.com/editor/) to make something like it. Both these options are paid to an extent
+and take much more time to obtain the same result.
+
+That's where my problem was. I wanted to make these images, but I didn't want to do all the work every time.
+This is why I have created this program for the public use, so it's easy for myself and everyone
+who may want to do the same.
+
 The program should not take longer than 3 minutes to set up and configure. Once setup is done,
 you have the ability to create countless custom images. Below are all the steps to get started.
 
