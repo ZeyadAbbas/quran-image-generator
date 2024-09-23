@@ -30,7 +30,7 @@ def print_error(message):
 
 DEFAULTS = {
     'output path': 'outputs',
-    'resolution': '1080x1080',
+    'resolution': '1080 x 1080',
     'background color': '000000',
     'quran color': 'FFFFFF',
     'quran font': 'Arial',
@@ -52,11 +52,12 @@ DEFAULTS = {
     'translation letter spacing': 0.0,
     'show verse numbers': False,
     'verse number resolution': '55 x 55',
-    'verse number x offset': '10',
-    'verse number y offset': '38',
-    'space between verses': '70',
-    'generate random verses': 'false',
-    'total y offset': '-10',
+    'verse number x offset': 10,
+    'verse number y offset': 38,
+    'space between verses': 70,
+    'generate random verses': False,
+    'total y offset': -10,
+    'upload': False
 }
 
 
@@ -215,7 +216,7 @@ def translation_font_size():
         if translation_font_size < min or translation_font_size > max:
             raise Exception(f'Quran font size is out of bound ({min} - {max}).')
     except Exception as e:
-        default = 16
+        default = DEFAULTS['translation font size']
         if isinstance(e, ValueError):
             e = f'Input is not a number.'
         print_warning(f'{e} Resorted to using the default translation font size ({default})')
@@ -327,7 +328,7 @@ def translation_color():
         else:
             raise ValueError("Invalid HEX provided.")
     except ValueError as e:
-        translation_color = f"#FFFFFF"
+        translation_color = DEFAULTS['translation color']
 
     return translation_color
 
@@ -337,7 +338,7 @@ def quran_max_width():
     try:
         quran_max_width = int(config['quran maximum width'])
     except ValueError as e:
-        quran_max_width = 700
+        quran_max_width = DEFAULTS['quran maximum width']
 
     return quran_max_width
 
@@ -349,7 +350,7 @@ def quran_line_spacing():
         if quran_line_spacing < -2000 or quran_line_spacing > 200:
             raise ValueError("Input out of bound")
     except ValueError as e:
-        quran_line_spacing = 30
+        quran_line_spacing = DEFAULTS['quran line spacing']
 
     return quran_line_spacing
 
@@ -363,7 +364,7 @@ def quran_word_spacing():
 
         quran_word_spacing = ' ' * i_quran_word_spacing
     except ValueError as e:
-        quran_word_spacing = ' ' * 6
+        quran_word_spacing = ' ' * DEFAULTS['quran word spacing']
 
     return quran_word_spacing
 
@@ -375,7 +376,7 @@ def quran_letter_spacing():
         if quran_letter_spacing < -5.0 or quran_letter_spacing > 5.0:
             raise ValueError("Input out of bound")
     except ValueError as e:
-        quran_letter_spacing = -0.1
+        quran_letter_spacing = DEFAULTS['quran letter spacing']
 
     return quran_letter_spacing
 
@@ -387,7 +388,7 @@ def translation_max_width():
     try:
         translation_max_width = int(config['translation maximum width'])
     except ValueError as e:
-        translation_max_width = 650
+        translation_max_width = DEFAULTS['translation maximum width']
 
     return translation_max_width
 
@@ -399,7 +400,7 @@ def translation_line_spacing():
         if translation_line_spacing < -10 or translation_line_spacing > 200:
             raise ValueError("Input out of bound")
     except ValueError as e:
-        translation_line_spacing = 10
+        translation_line_spacing = DEFAULTS['translation line spacing']
 
     return translation_line_spacing
 
@@ -413,7 +414,7 @@ def translation_word_spacing():
 
         translation_word_spacing = ' ' * i_translation_word_spacing
     except ValueError as e:
-        translation_word_spacing = ' ' * 1
+        translation_word_spacing = ' ' * DEFAULTS['translation word spacing']
 
     return translation_word_spacing
 
@@ -425,7 +426,7 @@ def translation_letter_spacing():
         if translation_letter_spacing < -5.0 or translation_letter_spacing > 5.0:
             raise ValueError("Input out of bound")
     except ValueError as e:
-        translation_letter_spacing = 0.0
+        translation_letter_spacing = DEFAULTS['translation letter spacing']
 
     return translation_letter_spacing
 
@@ -437,7 +438,7 @@ def translation_language_spacing():
         if translation_language_spacing < -10 or translation_language_spacing > 200:
             raise ValueError("Input out of bound")
     except ValueError as e:
-        translation_language_spacing = 10
+        translation_language_spacing = DEFAULTS['translation language spacing']
 
     return translation_language_spacing
 
@@ -450,7 +451,7 @@ def translation_x_position():
         if config['translation x position'] == 'center':
             translation_x_position = 'center'
         else:
-            translation_x_position = 40
+            translation_x_position = DEFAULTS['translation x position']
 
     return translation_x_position
 
@@ -460,7 +461,7 @@ def quran_translation_spacing():
     try:
         quran_translation_spacing = int(config['quran and translation spacing'])
     except ValueError as e:
-        quran_translation_spacing = 50
+        quran_translation_spacing = DEFAULTS['quran and translation spacing']
 
     return quran_translation_spacing
 
@@ -472,7 +473,7 @@ def space_between_verses():
         if space_between_verses < -50 or space_between_verses > 1000:
             raise ValueError("Input out of bound")
     except ValueError as e:
-        space_between_verses = 150
+        space_between_verses = DEFAULTS['space between verses']
 
     return space_between_verses
 
@@ -488,7 +489,7 @@ def verse_numbers_visible():
         else:
             raise ValueError('Invalid input')
     except ValueError as e:
-        verse_numbers_visible = True
+        verse_numbers_visible = DEFAULTS['show verse numbers']
 
     return verse_numbers_visible
 
@@ -519,7 +520,7 @@ def verse_number_x_offset():
         if verse_number_x_offset < -20 or verse_number_x_offset > 500:
             raise ValueError("Input out of bound")
     except ValueError as e:
-        verse_number_x_offset = 10
+        verse_number_x_offset = DEFAULTS['verse number x offset']
 
     return verse_number_x_offset
 
@@ -531,7 +532,7 @@ def verse_number_y_offset():
         if verse_number_y_offset < -20 or verse_number_y_offset > 500:
             raise ValueError("Input out of bound")
     except ValueError as e:
-        verse_number_y_offset = 38
+        verse_number_y_offset = DEFAULTS['verse number y offset']
 
     return verse_number_y_offset
 
@@ -547,7 +548,7 @@ def generate_random_verses():
         else:
             raise ValueError('Invalid input')
     except ValueError as e:
-        generate_random_verses = True
+        generate_random_verses = DEFAULTS['generate random verses']
 
     return generate_random_verses
 
@@ -559,7 +560,7 @@ def total_y_offset():
         if total_y_offset < -2000 or total_y_offset > 5000:
             raise ValueError("Input out of bound")
     except ValueError as e:
-        total_y_offset = -20
+        total_y_offset = DEFAULTS['total y offset']
 
     return total_y_offset
 
@@ -577,7 +578,7 @@ def upload():
         else:
             raise ValueError('Invalid input')
     except ValueError as e:
-        upload = False
+        upload = DEFAULTS['upload']
 
     return upload
 

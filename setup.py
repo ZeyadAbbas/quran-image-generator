@@ -19,7 +19,8 @@ setup(
         "wand>=0.6.13",
         "pyyaml",
         "colorama",
-        "instagrapi>=2.0.0"
+        "instagrapi>=2.0.0",
+        'pillow'
     ],
     author="Zeyad Abbas",
     author_email="zeyadabbas238@gmail.com",

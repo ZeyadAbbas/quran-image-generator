@@ -115,11 +115,14 @@ If you don't have it installed then go to https://www.python.org/downloads/ to g
    It may tell you that you already have it installed, that's fine.
 
 
-2. Then download the program from this GitHub if you haven't already.
-Make sure you know where you downloaded it.
+2. Then download and extract the program from this GitHub if you haven't already.
+Make sure you know where you extracted it.
 
+3. You must download [ImageMagick](https://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows)
+to run the program.
 
-3. Open the program's folder that you just downloaded, press on the top address bar, and type `cmd`.
+4. Open the program's folder (that has all the python files) that you just downloaded, 
+press on the top address bar, and type `cmd`.
    <div style="display: flex; justify-content: space-around; align-items: center;">
      <img src="readme_images/explorer_bar.jfif" alt="Example 3" width="400" 
       style="margin-right: 0px; margin-top: 10px"/>
@@ -128,12 +131,12 @@ Make sure you know where you downloaded it.
    This will open a command prompt that only sees files within the program directory.
 
 
-4. To download all the necessary libraries for the program to function, run:
+5. To download all the necessary libraries for the program to function, run:
    ```sh
-   python install .
+   pip install .
    ```
    
-5. Now you should be ready to start the program. From now on all you have to do is
+6. Now you should be ready to start the program. From now on all you have to do is
 open the command prompt from your program directory like done in step 3, 
 then run:
    ```sh
@@ -150,6 +153,13 @@ then run:
 
 The program has a file that you need to open to customize the images, that file is `config.yaml`.
 In there, there are options to change with descriptions next to them acting as documentation.
+
+You have the ability to use any quran and translation fonts you like. However, there has been
+ones provided for you in `assets/fonts`. If you would like to add your own, you should follow
+the instructions in the config file.
+
+There is a config option for you to generate random Quran verses for you every time you run the program.
+This can be useful if you want daily Quran verses to be uploaded.
 
 The program uses the [Quran.com](https://quran.com/1) api to get all the verses and their translations,
 this means that if a language is supported by Quran.com, then it's supported by the program.
@@ -224,16 +234,24 @@ Here is a list of supported languages, and their ISO codes, that you need for th
 | Ukrainian     | uk    | Dr. Mikhailo Yaqubovic                                 |
 | Yoruba        | yo    | Shaykh Abu Rahimah Mikael Aykyuni                      |
 
+#### These languages were not proof read by me. I only speak Arabic and English.
+If you want to change the translation currently in use, you may change it in the 
+`translation_codes` folder.
+
 
 The program gives you the ability to automatically post your images online once generated.
 You can set this option in the config file to either, true, false, or ask.
 You can also pick where you want to post the image.
+
+To use this feature, you must be connected to WI-FI and you must provide your username and
+password in the appropriate fields in the config file.
 
 This is a list of currently supported post methods:
 * Instagram
   * Story (insta_story)
   * Post (insta_post)
 
+#### Your username and password cannot be viewed by me, or anyone online. The program only requires this to post your image.
 
 <p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
