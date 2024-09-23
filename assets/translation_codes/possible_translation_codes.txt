@@ -1,0 +1,319 @@
+en : English
+	85 : M.A.S. Abdel Haleem, Abdul Haleem
+	131 : Dr. Mustafa Khattab, The Clear Quran, Dr. Mustafa Khattab
+	84 : T. Usmani, Mufti Taqi Usmani
+	95 : A. Maududi (Tafhim commentary), Sayyid Abul Ala Maududi
+	19 : M. Pickthall, Mohammed Marmaduke William Pickthall
+	22 : A. Yusuf Ali, Abdullah Yusuf Ali
+	20 : Saheeh International
+	203 : Al-Hilali & Khan, Muhammad Taqi-ud-Din al-Hilali & Muhammad Muhsin Khan
+	57 : Transliteration
+
+
+ur : Urdu
+	234 : Fatah Muhammad Jalandhari
+	54 : Maulana Muhammad Junagarhi
+	156 : Fe Zilal al-Qur'an, Sayyid Ibrahim Qutb
+	151 : Shaykh al-Hind Mahmud al-Hasan(with Tafsir E Usmani), Shaykh al-Hind Mahmud al-Hasan
+	158 : Bayan-ul-Quran, Dr. Israr Ahmad
+	97 : Tafheem e Qur'an - Syed Abu Ali Maududi, Syed Abu Ali Maududi
+	819 : Maulana Wahiduddin Khan
+	831 : Abul Ala Maududi(Roman Urdu), Abul Ala Maududi
+
+
+bn : Bengali
+	161 : Taisirul Quran, Tawheed Publication
+	163 : Sheikh Mujibur Rahman, Darussalaam Publication
+	162 : Rawai Al-bayan, Bayaan Foundation
+	213 : Dr. Abu Bakr Muhammad Zakaria
+
+
+tr : Turkish
+	210 : Dar Al-Salam Center
+	77 : Turkish Translation(Diyanet), Diyanet Isleri
+	124 : Muslim Shahin
+	112 : Shaban Britch
+	52 : Elmalili Hamdi Yazir, Elmalili Hamdi Yazir
+
+
+es : Spanish
+	83 : Sheikh Isa Garcia
+	140 : Montada Islamic Foundation
+	199 : Noor International Center
+
+
+fr : French
+	136 : Montada Islamic Foundation
+	31 : Muhammad Hamidullah
+	779 : Rashid Maash
+
+
+bs : Bosnian
+	214 : Dar Al-Salam Center
+	25 : Muhamed Mehanović
+	126 : Besim Korkut
+
+
+ru : Russian
+	79 : Abu Adel
+	78 : Ministry of Awqaf, Egypt
+	45 : Russian Translation ( Elmir Kuliev ), Elmir Kuliev
+
+
+ml : Malayalam
+	80 : Muhammad Karakunnu and Vanidas Elayavoor
+	224 : Abdul-Hamid Haidar & Kanhi Muhammad
+	39 : Abdullah Muhammad Basmeih
+	37 : Malayalam Translation(Abdul Hameed and Kunhi), Cheriyamundam Abdul Hameed and Kunhi Mohammed Parappoor
+
+
+id : Indonesian
+	134 : King Fahad Quran Complex
+	141 : The Sabiq company
+	33 : Indonesian Islamic affairs ministry
+
+
+uz : Uzbek
+	55 : Muhammad Sodiq Muhammad Yusuf (Latin) , Muhammad Sodiq Muhammad Yusuf
+	101 : Alauddin Mansour
+	127 : Muhammad Sodik Muhammad Yusuf
+
+
+nl : Dutch
+	235 : Malak Faris Abdalsalaam
+	144 : Sofian S. Siregar
+
+
+de : German
+	208 : Abu Reda Muhammad ibn Ahmad
+	27 : Frank Bubenheim and Nadeem
+
+
+tg : Tajik
+	139 : Khawaja Mirof & Khawaja Mir
+	223 : Pioneers of Translation Center
+	74 : Tajik, AbdolMohammad Ayati
+
+
+ta : Tamil
+	229 : Sheikh Omar Sharif bin Abdul Salam
+	50 : Jan Trust Foundation
+	133 : Abdul Hameed Baqavi
+
+
+ja : Japanese
+	35 : Ryoichi Mita
+	218 : Saeed Sato
+
+
+it : Italian
+	153 : Hamza Roberto Piccardo
+	209 : Othman al-Sharif
+
+
+vi : Vietnamese
+	220 : Ruwwad Center, Translation Pioneers Center
+	221 : Hasan Abdul-Karim
+
+
+zh : Chinese
+	56 : Chinese Translation (Simplified) - Ma Jain, Ma Jian
+	109 : Muhammad Makin
+
+
+sq : Albanian
+	88 : Hasan Efendi Nahi
+	47 : Albanian
+	89 : Albanian Translation, Sherif Ahmeti
+
+
+fa : Persian
+	135 : IslamHouse.com
+	29 : Hussein Taji Kal Dari
+
+
+bg : Bulgarian
+	237 : Tzvetan Theophanov
+
+
+bm : Bambara
+	795 : Suliman Kanti
+	796 : Baba Mamady Jani
+
+
+ha : Hausa
+	32 : Hausa Translation(Abubakar Gumi), Abubakar Mahmoud Gumi
+	115 : Abubakar Mahmood Jummi
+
+
+pt : Portuguese
+	103 : Helmi Nasr
+	43 : Portuguese Translation( Samir ), Samir El-Hayek
+
+
+ro : Romanian
+	44 : Grigore, George Grigore
+	782 : Islamic and Cultural League
+
+
+hi : Hindi
+	122 : Maulana Azizul Haque al-Umari
+
+
+sw : Swahili
+	231 : Dr. Abdullah Muhammad Abu Bakr and Sheikh Nasir Khamis
+	49 : Ali Muhsin Al-Barwani
+
+
+kk : Kazakh
+	222 : Khalifa Altay
+	113 : Khalifah Altai
+
+
+th : Thai
+	230 : Society of Institutes and Universities
+	51 : Thai Translatio (King Fahad Quran Complex), King Fahad Quran Complex
+
+
+tl : Tagalog
+	211 : Dar Al-Salam Center
+
+
+km : Central Khmer
+	128 : Cambodian Muslim Community Development
+
+
+as : Assamese
+	120 : Shaykh Rafeequl Islam Habibur-Rahman
+
+
+ko : Korean
+	36 : Korean
+	219 : Hamed Choi
+
+
+so : Somali
+	46 : Mahmud Muhammad Abduh
+
+
+az : Azeri
+	75 : Alikhan Musayev
+	23 : Azerbaijani
+
+
+ku : Kurdish
+	81 : Burhan Muhammad-Amin
+	143 : Muhammad Saleh Bamoki
+
+
+dv : Divehi, Dhivehi, Maldivian
+	86 : Office of the president of Maldives
+	840 : Abu Bakr Ibrahim Ali (Bakurube), Abu Bakr Ibrahim Ali
+
+
+ms : Malay
+	39 : Abdullah Muhammad Basmeih
+
+
+prs : Dari
+	785 : Mawlawi Muhammad Anwar Badkhashani
+
+
+zgh : Amazigh
+	236 : Ramdane At Mansour
+
+
+am : Amharic
+	87 : Sadiq and Sani
+
+
+ce : Chechen
+	106 : Magomed Magomedov
+
+
+cs : Czech
+	26 : Czech
+
+
+fi : Finnish
+	30 : Finnish
+
+
+gu : Gujarati
+	225 : Rabila Al-Umry
+
+
+he : Hebrew
+	233 : Dar Al-Salam Center
+
+
+kn : Kannada
+	771 : Kannada Translation
+
+
+lg : Ganda
+	232 : African Development Foundation
+
+
+mr : Marathi
+	226 : Muhammad Shafi’i Ansari
+
+
+mrn : Maranao
+	38 : Maranao
+
+
+ne : Nepali
+	108 : Ahl Al-Hadith Central Society of Nepal
+
+
+no : Norwegian
+	41 : Norwegian
+
+
+om : Oromo
+	111 : Ghali Apapur Apaghuna
+
+
+pl : Polish
+	42 : Józef Bielawski
+
+
+ps : Pashto
+	118 : Zakaria Abulsalam
+
+
+rw : Kinyarwanda
+	774 : The Rwanda Muslims Association team
+
+
+sd : Sindhi
+	238 : Taj Mehmood Amroti
+
+
+si : Sinhala, Sinhalese
+	228 : Ruwwad Center, Translation Pioneers Center
+
+
+sv : Swedish
+	48 : Knut Bernström
+
+
+te : Telugu
+	227 : Maulana Abder-Rahim ibn Muhammad
+
+
+tt : Tatar
+	53 : Tatar
+
+
+ug : Uighur, Uyghur
+	76 : Muhammad Saleh
+
+
+uk : Ukrainian
+	217 : Dr. Mikhailo Yaqubovic
+
+
+yo : Yoruba
+	125 : Shaykh Abu Rahimah Mikael Aykyuni

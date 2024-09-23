@@ -9,8 +9,6 @@ Quran Image Generator
 <!-- [![Stargazers][stars-shield]][stars-url] -->
 <!-- [![Issues][issues-shield]][issues-url] -->
 <!-- [![MIT License][license-shield]](https://github.com/ZeyadAbbas/quran-image-generator/blob/master/LICENSE.txt) -->
-[![LinkedIn][linkedin-shield]](https://www.linkedin.com/in/zeyad-abbas-/)
-
 
 
 <!-- PROJECT LOGO -->
@@ -77,28 +75,13 @@ These are some images made using this program, and there are countless other pos
 </div>
 
 The aim of this program is to provide people with 0 prior coding knowledge 
-with the ability to create custom Quran images to be shared online or for personal use.
+the ability to create custom Quran images to be shared online or for personal use.
 
 The program should not take longer than 3 minutes to set up and configure. Once setup is done,
-you have the ability to create countless images. Below are all the steps to get started.
+you have the ability to create countless custom images. Below are all the steps to get started.
 
 ##### This program is in beta. It may return errors if not used properly. The code and the way it works is subject to change.
 <p align="right">(<a href="#about-the-project">back to top</a>)</p>
-
-
-
-<!--### Built With -->
-<!-- -->
-<!--* [![Next][Next.js]][Next-url] -->
-<!--* [![React][React.js]][React-url] -->
-<!--* [![Vue][Vue.js]][Vue-url] -->
-<!--* [![Angular][Angular.io]][Angular-url] -->
-<!--* [![Svelte][Svelte.dev]][Svelte-url] -->
-<!--* [![Laravel][Laravel.com]][Laravel-url] -->
-<!--* [![Bootstrap][Bootstrap.com]][Bootstrap-url] -->
-<!--* [![JQuery][JQuery.com]][JQuery-url] -->
-
-<!-- <p align="right">(<a href="#project-logo">back to top</a>)</p> -->
 
 
 
@@ -146,27 +129,6 @@ then run:
    ```
    This will start the program. Now you are ready to generate custom pictures.
 
-<!-- ### Installation -->
-<!-- --> 
-<!-- 1. Get a free API Key at [https://example.com](https://example.com) -->
-<!-- 2. Clone the repo -->
-<!--    ```sh -->
-<!--    git clone https://github.com/github_username/repo_name.git -->
-<!--    ``` -->
-<!-- 3. Install NPM packages -->
-<!--    ```sh -->
-<!--    npm install -->
-<!--    ``` -->
-<!-- 4. Enter your API in `config.js` -->
-<!--    ```js -->
-<!--    const API_KEY = 'ENTER YOUR API'; -->
-<!--    ``` -->
-<!-- 5. Change git remote url to avoid accidental pushes to base project -->
-<!--    ```sh -->
-<!--    git remote set-url origin github_username/repo_name -->
-<!--    git remote -v # confirm the changes -->
-<!--    ``` -->
-<!-- --> 
 <p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 
@@ -249,7 +211,13 @@ Here is a list of supported languages, and their ISO codes, that you need for th
 | Uyghur        | ug    | Muhammad Saleh                                         |
 | Ukrainian     | uk    | Dr. Mikhailo Yaqubovic                                 |
 | Yoruba        | yo    | Shaykh Abu Rahimah Mikael Aykyuni                      |
-<!-- _For more examples, please refer to the [Documentation](https://example.com)_ -->
+
+
+This is a list of currently supported post methods:
+* Instagram
+  * Story (insta_story)
+  * Post (insta_post)
+
 
 <p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
@@ -258,8 +226,10 @@ Here is a list of supported languages, and their ISO codes, that you need for th
 <!-- To Do -->
 ## To Do
 
+- [ ] Change the way read_config.py works
 - [ ] Add the ability to post automatically based on an interval
 - [ ] Add bounds to ensure no errors occur
+- [ ] Add more post method support
 - [ ] Create program to test all config options
 - [ ] Comment code
     - [ ] Add error logs
@@ -286,12 +256,6 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
-<!-- ### Top contributors: -->
-<!-- --> 
-<!-- <a href="https://github.com/github_username/repo_name/graphs/contributors"> -->
-<!--   <img src="https://contrib.rocks/image?repo=github_username/repo_name" alt="contrib.rocks image" /> -->
-<!-- </a> -->
-
 
 
 <!-- LICENSE -->
@@ -307,6 +271,8 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 ## Contact
 
 Zeyad Abbas - zeyadabbas238@gmail.com
+
+[![LinkedIn][linkedin-shield]](https://www.linkedin.com/in/zeyad-abbas-/)
 
 Project Link: [https://github.com/ZeyadAbbas/quran-image-generator](https://github.com/ZeyadAbbas/quran-image-generator)
 
@@ -327,15 +293,5 @@ Project Link: [https://github.com/ZeyadAbbas/quran-image-generator](https://gith
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
-[forks-url]: https://github.com/github_username/repo_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo_name.svg?style=for-the-badge
-[stars-url]: https://github.com/github_username/repo_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo_name/issues
-[license-shield]: https://img.shields.io/github/license/github_username/repo_name.svg?style=for-the-badge
-[license-url]: https://github.com/ZeyadAbbas/quran-image-generator/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/linkedin_username
