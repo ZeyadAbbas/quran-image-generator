@@ -43,19 +43,15 @@ Quran Image Generator
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
+      <!-- <ul> -->
+      <!--   <li><a href="#installation">Installation</a></li> -->
+      <!-- </ul> -->
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#to-do">To Do</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -87,7 +83,7 @@ The program should not take longer than 3 minutes to set up and configure. Once 
 you have the ability to create countless images. Below are all the steps to get started.
 
 ##### This program is in beta. It may return errors if not used properly. The code and the way it works is subject to change.
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 
 
@@ -102,7 +98,7 @@ you have the ability to create countless images. Below are all the steps to get 
 <!--* [![Bootstrap][Bootstrap.com]][Bootstrap-url] -->
 <!--* [![JQuery][JQuery.com]][JQuery-url] -->
 
-<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
+<!-- <p align="right">(<a href="#project-logo">back to top</a>)</p> -->
 
 
 
@@ -171,7 +167,7 @@ then run:
 <!--    git remote -v # confirm the changes -->
 <!--    ``` -->
 <!-- --> 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 
 
@@ -186,15 +182,76 @@ this means that if a language is supported by Quran.com, then it's supported by 
 
 Here is a list of supported languages, and their ISO codes, that you need for the config file to use them.
 
-| Language | Code    | Translation Name |
-|----------|---------|------------------|
-| Sufian   | Skamsit | Strranslit       |
-|          |         |                  |
-|          |         |                  |
+| Language      | Code  | Translation Name                                       |
+|---------------|-------|--------------------------------------------------------|
+| English       | en    | Dr. Mustafa Khattab, The Clear Quran                   |
+| Urdu          | ur    | Tafheem e Qur'an - Syed Abu Ali Maududi                |
+| Bengali       | bn    | Dr. Abu Bakr Muhammad Zakaria                          |
+| Turkish       | tr    | Elmalili Hamdi Yazir                                   |
+| Spanish       | es    | Sheikh Isa Garcia                                      |
+| French        | fr    | Muhammad Hamidullah                                    |
+| Bosnian       | bs    | Besim Korkut                                           |
+| Russian       | ru    | Russian Translation (Elmir Kuliev)                     |
+| Malayalam     | ml    | Malayalam Translation (Abdul Hameed and Kunhi)         |
+| Indonesian    | id    | Indonesian Islamic affairs ministry                    |
+| Uzbek         | uz    | Muhammad Sodik Muhammad Yusuf                          |
+| Dutch         | nl    | Sofian S. Siregar                                      |
+| German        | de    | Frank Bubenheim and Nadeem                             |
+| Tajik         | tj    | Tajik, AbdolMohammad Ayati                             |
+| Tamil         | ta    | Abdul Hameed Baqavi                                    |
+| Japanese      | ja    | Ryoichi Mita                                           |
+| Italian       | it    | Hamza Roberto Piccardo                                 |
+| Vietnamese    | vi    | Ruwwad Center, Translation Pioneers Center             |
+| Chinese       | zh    | Chinese Translation (Simplified) - Ma Jain             |
+| Albanian      | sq    | Albanian Translation, Sherif Ahmeti                    |
+| Persian       | fa    | Hussein Taji Kal Dari                                  |
+| Bulgarian     | bg    | Tzvetan Theophanov                                     |
+| Bambara       | bm    | Suliman Kanti                                          |
+| Hausa         | ha    | Hausa Translation (Abubakar Gumi)                      |
+| Portuguese    | pt    | Portuguese Translation (Samir), Samir El-Hayek         |
+| Romanian      | ro    | Grigore, George Grigore                                |
+| Hindi         | hi    | Maulana Azizul Haque al-Umari                          |
+| Swahili       | sw    | Dr. Abdullah Muhammad Abu Bakr and Sheikh Nasir Khamis |
+| Kazakh        | kk    | Khalifah Altai                                         |
+| Thai          | th    | Thai Translation (King Fahad Quran Complex)            |
+| Tagalog       | tl    | Dar Al-Salam Center                                    |
+| Central Khmer | km    | Cambodian Muslim Community Development                 |
+| Assamese      | as    | Shaykh Rafeequl Islam Habibur-Rahman                   |
+| Korean        | ko    | Hamed Choi                                             |
+| Somali        | so    | Mahmud Muhammad Abduh                                  |
+| Azeri         | az    | Alikhan Musayev                                        |
+| Kurdish       | ku    | Muhammad Saleh Bamoki                                  |
+| Malay         | ms    | Abdullah Muhammad Basmeih                              |
+| Dari          | prs   | Mawlawi Muhammad Anwar Badkhashani                     |
+| Amazigh       | zgh   | Ramdane At Mansour                                     |
+| Amharic       | am    | Sadiq and Sani                                         |
+| Chechen       | ce    | Magomed Magomedov                                      |
+| Divehi        | dv    | Office of the president of Maldives                    |
+| Czech         | cs    | Czech                                                  |
+| Finnish       | fi    | Finnish                                                |
+| Gujarati      | gu    | Rabila Al-Umry                                         |
+| Hebrew        | he    | Dar Al-Salam Center                                    |
+| Kannada       | kn    | Kannada Translation                                    |
+| Ganda         | lg    | African Development Foundation                         |
+| Marathi       | mr    | Muhammad Shafi’i Ansari                                |
+| Maranao       | mrn   | Maranao                                                |
+| Nepali        | ne    | Ahl Al-Hadith Central Society of Nepal                 |
+| Norwegian     | no    | Norwegian                                              |
+| Oromo         | om    | Ghali Apapur Apaghuna                                  |
+| Polish        | pl    | Józef Bielawski                                        |
+| Pashto        | ps    | Zakaria Abulsalam                                      |
+| Kinyarwanda   | rw    | The Rwanda Muslims Association team                    |
+| Sindhi        | sd    | Taj Mehmood Amroti                                     |
+| Sinhala       | si    | Ruwwad Center, Translation Pioneers Center             |
+| Swedish       | sv    | Knut Bernström                                         |
+| Telugu        | te    | Maulana Abder-Rahim ibn Muhammad                       |
+| Tatar         | tt    | Tatar                                                  |
+| Uyghur        | ug    | Muhammad Saleh                                         |
+| Ukrainian     | uk    | Dr. Mikhailo Yaqubovic                                 |
+| Yoruba        | yo    | Shaykh Abu Rahimah Mikael Aykyuni                      |
+<!-- _For more examples, please refer to the [Documentation](https://example.com)_ -->
 
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 
 
@@ -209,7 +266,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 See the [open issues](https://github.com/ZeyadAbbas/quran-image-generator/issues) for a full list of proposed features (and known issues).
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 
 
@@ -227,7 +284,7 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 <!-- ### Top contributors: -->
 <!-- --> 
@@ -242,7 +299,7 @@ Don't forget to give the project a star! Thanks again!
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 
 
@@ -253,7 +310,7 @@ Zeyad Abbas - zeyadabbas238@gmail.com
 
 Project Link: [https://github.com/ZeyadAbbas/quran-image-generator](https://github.com/ZeyadAbbas/quran-image-generator)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 
 
@@ -264,7 +321,7 @@ Project Link: [https://github.com/ZeyadAbbas/quran-image-generator](https://gith
 * [me_quran Quran Font](https://tanzil.net/docs/me_quran_font)
 * [Different Language Fonts](https://fonts.google.com/noto)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 
 
@@ -282,23 +339,3 @@ Project Link: [https://github.com/ZeyadAbbas/quran-image-generator](https://gith
 [license-url]: https://github.com/ZeyadAbbas/quran-image-generator/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/linkedin_username
-[ex1]: readme_images/ex1.png
-[ex2]: readme_images/ex2.png
-[ex3]: readme_images/ex3.png
-[ex4]: readme_images/ex4.png
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
