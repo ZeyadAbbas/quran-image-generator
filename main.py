@@ -57,7 +57,7 @@ def run():
             chapter, starting_verse, ending_verse = get_randoms()
         else:
             chapter, starting_verse, ending_verse = get_inputs()
-
+        config.load_config()
         gen = QuranImageGenerator(chapter, starting_verse, ending_verse)
         gen.fetch_verses()
         gen.create_image()
@@ -77,7 +77,6 @@ def run():
             if reload == 'n':
                 exit()
             elif reload == 'y':
-                config.load_config()
                 break
 
 

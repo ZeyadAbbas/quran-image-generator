@@ -64,8 +64,9 @@ Quran Image Generator
 
 These are some images made using this program, and there are countless other possibilities.
 <div style="display: flex; justify-content: space-around; align-items: center;">
-  <img src="readme_images/ex1.png" alt="Example 1" width="300" style="margin-right: 30px;"/>
-  <img src="readme_images/ex3.png" alt="Example 2" width="300" style="margin-right: 30px;"/>
+  <img src="readme_images/ex1.png" alt="Example 1" width="250" style="margin-right: 40px;"/>
+  <img src="readme_images/ex3.png" alt="Example 2" width="250" style="margin-right: 40px;"/>
+  <img src="readme_images/ex5.png" alt="Example 2" width="250"/>
   
 </div>
 

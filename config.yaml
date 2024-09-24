@@ -10,10 +10,10 @@
                             # If you do not put anything in this field, or if the path you provided is invalid...
                             # The program will generate a folder called "outputs" in the project directory (the folder this file is in)
 
-'resolution': ''           # Set the resolution (size).
-                           # Should be in the format [width x height] or use [bg] to fit to the size of the background image (if you set one).
-                           # If you do not put anything in this field, or if what you provided is invalid...
-                           # The resolution will be set to the default resolution (1080 x 1080)
+'resolution': '1080 x 1920'          # Set the resolution (size).
+                                     # Should be in the format [width x height] or use [bg] to fit to the size of the background image (if you set one).
+                                     # If you do not put anything in this field, or if what you provided is invalid...
+                                     # The resolution will be set to the default resolution (1080 x 1080)
 
 'background image': ''           # Set a background image.
                                  # Should be in the format [path_to_image].
@@ -26,10 +26,10 @@
                                  # If you do not put anything in this field, or if the HEX you provided is invalid...
                                  # The background color will be set to the default color (black)
 
-'quran font': ''           # Set the Quran font.
-                           # Should be in the format [path_to_font]
-                           # If you do not put anything in this field, or if the path you provided is invalid...
-                           # The quran font will be set to the default font (Arial)
+'quran font': 'assets/fonts/quran_font.ttf'          # Set the Quran font.
+                                                     # Should be in the format [path_to_font]
+                                                     # If you do not put anything in this field, or if the path you provided is invalid...
+                                                     # The quran font will be set to the default font (Arial)
 
 'quran color': ''            # Set the Quran color.
                              # Should be in the format [#HEX], the hex code should look something like #FF00FF or #e6c134.
@@ -38,12 +38,12 @@
                              # The quran color will be set to the default color (white)
 
 'quran font size': ''             # Set the font size of the Quran text.
-                                  # Should be in the format [number], this number should be between 1 and 259.
+                                  # Should be in the format [number].
                                   # If you do not put anything in this field, or if what you provided is invalid...
                                   # The quran font size will be set to the default size (34)
 
 'quran x position': ''            # Set the X position (from right to left) of the Quran verse.
-                                  # Should be in the format [number], this number should be less than the quran maximum width field.
+                                  # Should be in the format [number].
                                   # You can also use [center] to center the text right in the middle of the image at all times.
                                   # If you do not put anything in this field, or if what you provided is invalid...
                                   # The quran x position will be set to the default x position (30)
@@ -58,26 +58,26 @@
                                       # Try making the number bigger until you can see the text.
 
 'quran line spacing': ''            # Set the space between the Quran lines.
-                                    # Should be in the format [number], this number should be between 1 and 200.
+                                    # Should be in the format [number].
                                     # If you do not put anything in this field, or if what you provided is invalid...
                                     # The quran line spacing will be set to the default spacing (30)
 
 'quran word spacing': ''           # Set the space between the Quran words.
-                                   # Should be in the format [number], this number should be between 1 and 20.
+                                   # Should be in the format [number].
                                    # If you do not put anything in this field, or if what you provided is invalid...
                                    # The quran word spacing will be set to the default spacing (6)
 
 'quran letter spacing': ''            # Set the space between the Quran verse letters.
-                                      # Should be in the format [decimal_number], this number should be between -5.0 and 5.0.
+                                      # Should be in the format [decimal_number].
                                       # If you do not put anything in this field, or if what you provided is invalid...
                                       # The quran letter spacing will be set to the default spacing (-0.1)
 
 'quran and translation spacing': ''           # Set the space between the Quran verse and the translation.
-                                              # Should be in the format [number], this number should be between less than the height of the image.
+                                              # Should be in the format [number].
                                               # If you do not put anything in this field, or if what you provided is invalid...
                                               # The quran and translation spacing will be set to the default spacing (30)
 
-'translation languages': ''            # Set the languages (and their fonts) of the translation.
+'translation languages': 'en'            # Set the languages (and their fonts) of the translation.
                                        # Should be in the format [language1:language1_font:language1_font_size, language2:language2_font...]
                                        # Language font and language font size are both optional for each language.
                                        # You are allowed to use a maximum of 3 languages at once.
@@ -100,13 +100,13 @@
                                    # If you do not put anything in this field, or if the HEX you provided is invalid...
                                    # The translation color will be set to the default color (white / #FFFFFF)
 
-'translation font size': ''           # Set the font size of the translation text.
-                                      # Should be in the format [number], this number should be between 1 and 259.
+'translation font size': '18'           # Set the font size of the translation text.
+                                      # Should be in the format [number].
                                       # If you do not put anything in this field, or if what you provided is invalid...
                                       # The translation font size will be set to the default size (16)
 
 'translation x position': ''            # Set the X position (from left to right) of the translation.
-                                        # Should be in the format [number], this number should be less than the translation maximum width field.
+                                        # Should be in the format [number].
                                         # You can also use [center] to center the text right in the middle of the image at all times.
                                         # If you do not put anything in this field, or if what you provided is invalid...
                                         # The translation x position will be set to the default x position (40)
@@ -121,27 +121,27 @@
                                          # Try making the number bigger until you can see the text.
 
 'translation language spacing': ''           # Set the space between each language in the translations.
-                                             # Should be in the format [number], this number should be between -10 and 200.
+                                             # Should be in the format [number].
                                              # If you do not put anything in this field, or if what you provided is invalid...
                                              # The translation word spacing will be set to the default spacing (10)
 
 
 'translation line spacing': ''            # Set the space between the translation lines.
-                                          # Should be in the format [number], this number should be between -10 and 200.
+                                          # Should be in the format [number].
                                           # If you do not put anything in this field, or if what you provided is invalid...
                                           # The translation word spacing will be set to the default spacing (10)
 
 'translation word spacing': ''           # Set the space between the translation words.
-                                         # Should be in the format [number], this number should be between 1 and 20.
+                                         # Should be in the format [number].
                                          # If you do not put anything in this field, or if what you provided is invalid...
                                          # The translation word spacing will be set to the default spacing (1)
 
 'translation letter spacing': ''            # Set the space between the translation letters.
-                                            # Should be in the format [decimal_number], this number should be between -5.0 and 5.0.
+                                            # Should be in the format [decimal_number].
                                             # If you do not put anything in this field, or if what you provided is invalid...
                                             # The translation letter spacing will be set to the default spacing (0.0)
 
-'show verse numbers': ''           # Whether to show verse numbers at the end of the verse.
+'show verse numbers': 'true'           # Whether to show verse numbers at the end of the verse.
                                    # Should be in the format [true/false].
                                    # If you do not put anything in this field, or if what you provided is invalid...
                                    # The verse numbers will be shown by default (false)
@@ -151,22 +151,22 @@
                                          # If you do not put anything in this field, or if what you provided is invalid...
                                          # The resolution will be set to the default resolution (55 x 55)
 
-'verse number x offset': ''           # Set the X position (horizontal) offset for the verse number from the left edge.
+'verse number x offset': '5'           # Set the X position (horizontal) offset for the verse number from the left edge.
                                       # Should be in the format [number]. This number sets how far the verse number is from the left.
                                       # If you do not put anything in this field, or if what you provided is invalid...
                                       # The verse number x offset will be set to the default x offset (10)
 
-'verse number y offset': ''           # Set the Y position (vertical) offset for the verse number from the top edge.
+'verse number y offset': '-10'           # Set the Y position (vertical) offset for the verse number from the top edge.
                                       # Should be in the format [number]. This number sets how far the verse number is from the top.
                                       # If you do not put anything in this field, or if what you provided is invalid...
-                                      # The verse number y offset will be set to the default y offset (38)
+                                      # The verse number y offset will be set to the default y offset (-20)
 
 'space between verses': ''            # Set the space between consecutive verses.
                                       # Should be in the format [number], this number should be between -10 and 200.
                                       # If you do not put anything in this field, or if what you provided is invalid...
                                       # The space between verses will be set to the default spacing (70)
 
-'generate random verses': ''           # Whether to generate random verses or not.
+'generate random verses': 'true'           # Whether to generate random verses or not.
                                        # Should be in the format [true/false].
                                        # If you do not put anything in this field, or if what you provided is invalid...
                                        # Random verses will not be generated by default (false)

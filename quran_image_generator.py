@@ -93,8 +93,9 @@ class QuranImageGenerator:
                                     x_offset = config.verse_number_x_offset()
                                     y_offset = config.verse_number_y_offset()
                                     verse_number_image.resize(verse_number_width, verse_number_height)
-                                    image.composite(verse_number_image, int(x_pos - x_offset - width),
-                                                    int(line_y_pos - y_offset))
+
+                                    image.composite(verse_number_image, int(x_pos - x_offset - verse_number_width),
+                                                    int((line_y_pos - line.height) + y_offset))
                             except Exception as e:
                                 print(f"Error loading {png_path}: {e}")
 
