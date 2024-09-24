@@ -62,19 +62,6 @@ Quran Image Generator
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-These are some images made using this program, and there are countless other possibilities.
-<div style="display: flex; justify-content: space-around; align-items: center;">
-  <img src="readme_images/ex1.png" alt="Example 1" width="265" style="margin-right: 70px;"/>
-  <img src="readme_images/ex3.png" alt="Example 2" width="265" style="margin-right: 70px;"/>
-  <img src="readme_images/ex5.png" alt="Example 2" width="265"/>
-  
-</div>
-
-<div style="display: flex; justify-content: space-around; align-items: center;">
-  <img src="readme_images/ex2.png" alt="Example 3" width="350" style="margin-right: 30px; margin-top: 60px"/>
-  <img src="readme_images/ex4.png" alt="Example 4" width="350" style="margin-top: 60px"/>
-</div>
-
 The aim of this program is to provide people with 0 prior coding knowledge 
 the ability to create custom Quran images to be shared online or for personal use.
 
@@ -85,6 +72,18 @@ This makes the generation process incredibly easy, especially when you want to m
 Without this program, you would need to use something like [Photoshop](https://www.adobe.com/products/photoshop.html) 
 or [Pixlr](https://pixlr.com/editor/) to make something like it. Both these options are paid to an extent
 and take much more time to obtain the same result.
+
+These are some images made using this program, and there are countless other possibilities.
+<div style="display: flex; justify-content: space-around; align-items: center;">
+  <img src="readme_images/ex1.png" alt="Example 1" width="265" style="margin-right: 70px;"/>
+  <img src="readme_images/ex3.png" alt="Example 2" width="265" style="margin-right: 70px;"/>
+  <img src="readme_images/ex5.png" alt="Example 2" width="265"/>
+</div>
+<div style="display: flex; justify-content: space-around; align-items: center;">
+  <img src="readme_images/ex2.png" alt="Example 3" width="350" style="margin-right: 30px; margin-top: 60px"/>
+  <img src="readme_images/ex4.png" alt="Example 4" width="350" style="margin-top: 60px"/>
+</div>
+
 
 That's where my problem was. I wanted to make these images, but I didn't want to do all the work every time.
 This is why I have created this program for the public use, so it's easy for myself and everyone
