@@ -114,12 +114,15 @@ If you don't have it installed then go to https://www.python.org/downloads/ to g
     ```
    It may tell you that you already have it installed, that's fine.
 
+    If it says you don't have `pip` installed, then you must follow [this guide](https://stackoverflow.com/a/56678271)
+    to get set up with `pip`.
+
 
 2. Then download and extract the program from this GitHub if you haven't already.
 Make sure you know where you extracted it.
 
 3. You must download [ImageMagick](https://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows)
-to run the program.
+to run the program if you don't already have it.
 
 4. Open the program's folder (that has all the python files) that you just downloaded, 
 press on the top address bar, and type `cmd`.
@@ -137,7 +140,7 @@ press on the top address bar, and type `cmd`.
    ```
    
 6. Now you should be ready to start the program. From now on all you have to do is
-open the command prompt from your program directory like done in step 3, 
+open the command prompt from your program directory like done in step 4, 
 then run:
    ```sh
    python main.py
@@ -160,6 +163,16 @@ the instructions in the config file.
 
 There is a config option for you to generate random Quran verses for you every time you run the program.
 This can be useful if you want daily Quran verses to be uploaded.
+
+The program lets you:
+* Pick the verses
+* Generate random verses
+* Post image online
+* Change Quran text size, color, width
+* Pick multiple languages to translate to
+* Change translation text size, color, width
+* Show verse numbers
+* Make everything fully customizable
 
 The program uses the [Quran.com](https://quran.com/1) api to get all the verses and their translations,
 this means that if a language is supported by Quran.com, then it's supported by the program.
