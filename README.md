@@ -64,15 +64,15 @@ Quran Image Generator
 
 These are some images made using this program, and there are countless other possibilities.
 <div style="display: flex; justify-content: space-around; align-items: center;">
-  <img src="readme_images/ex1.png" alt="Example 1" width="250" style="margin-right: 40px;"/>
-  <img src="readme_images/ex3.png" alt="Example 2" width="250" style="margin-right: 40px;"/>
+  <img src="readme_images/ex1.png" alt="Example 1" width="250" style="margin-right: 70px;"/>
+  <img src="readme_images/ex3.png" alt="Example 2" width="250" style="margin-right: 70px;"/>
   <img src="readme_images/ex5.png" alt="Example 2" width="250"/>
   
 </div>
 
 <div style="display: flex; justify-content: space-around; align-items: center;">
-  <img src="readme_images/ex2.png" alt="Example 3" width="350" style="margin-right: 30px; margin-top: 60px"/>
-  <img src="readme_images/ex4.png" alt="Example 4" width="350" style="margin-right: 30px; margin-top: 60px"/>
+  <img src="readme_images/ex2.png" alt="Example 3" width="350" style="margin-left: 100px; margin-right: 30px; margin-top: 60px"/>
+  <img src="readme_images/ex4.png" alt="Example 4" width="350" style="margin-top: 60px"/>
 </div>
 
 The aim of this program is to provide people with 0 prior coding knowledge 
