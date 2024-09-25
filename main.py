@@ -62,9 +62,7 @@ def run():
         gen.fetch_verses()
         gen.create_image()
         gen.open_image()
-        if config.upload():
-            gen.post(config.username(), config.password())
-        elif config.upload() == 'ask':
+        if config.upload() == 'ask':
             while True:
                 reload = input('Post? [y/n]: ').lower()
                 if reload == 'n':
@@ -72,6 +70,9 @@ def run():
                 elif reload == 'y':
                     gen.post(config.username(), config.password())
                     break
+        elif config.upload():
+            gen.post(config.username(), config.password())
+
         while True:
             reload = input('Generate another? [y/n]: ').lower()
             if reload == 'n':
