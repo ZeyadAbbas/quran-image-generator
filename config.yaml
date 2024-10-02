@@ -4,7 +4,8 @@
 # For example, if it says "should be in the format [filepath]" then what you should input filepath in '' without the [].
 # The [] is just to indicate what should go in the ''.
 
-'output path': ''           # Where to output the files generated from running this program.
+'output path': ''            # !!! WARNING: do not modify output path if you did the Docker installation. !!!!
+                            # Where to output the files generated from running this program.
                             # Should be in the format [C:\Users\your name\Desktop\VIDEOS], VIDEOS being the final destination folder to upload to.
                             # If you don't know how to get the path of your folder, open the folder and then follow step 5 on this link: https://shorturl.at/zPseg
                             # If you do not put anything in this field, or if the path you provided is invalid...
@@ -15,7 +16,8 @@
                                      # If you do not put anything in this field, or if what you provided is invalid...
                                      # The resolution will be set to the default resolution (1080 x 1080)
 
-'background image': ''           # Set a background image.
+'background image': ''           # !!! WARNING: if you are using Docker, the image directory should be within the local repository.
+                                 # Set a background image.
                                  # Should be in the format [path_to_image].
                                  # If you do not put anything in this field, or if the path you provided is invalid...
                                  # The background image will not be set to anything, will resort to using the background color

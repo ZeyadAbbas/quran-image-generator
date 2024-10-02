@@ -103,7 +103,34 @@ you have the ability to create countless custom images. Below are all the steps 
 These instructions are all you need to get the program up and running. 
 They also include all the information about the configuration options.
 
-### Installation
+### Installation with Docker (recommended)
+
+
+1. Make sure you have [Docker](https://www.docker.com/) installed and running in the background.
+2. Clone the github repo. 
+    ```sh
+    git clone https://github.com/ZeyadAbbas/quran-image-generator.git
+    ```
+3. cd into the directory.
+    ```sh
+    cd quran-image-generator 
+    ```
+4. Build the docker image.
+    ```sh
+    docker build -t quran-app .
+    ```
+5. Go through `config.yaml` and set your preferences.
+  - IMPORTANT:
+    - Make sure to NOT change the `output path` option.
+    - If you want to use a background image, **make sure that its path is within your local repo**, not outside of it, or else Docker won't be able to access it.
+6. Run the docker container in interactive mode (make sure you are still inside the local repo):
+    ```sh
+    docker run -it --rm -v ./:/app quran-app
+    ```
+7. You will be prompted on the terminal, follow the instructions.
+8. The generated images can be found in the `outputs` directory inside the local repo.
+
+### Installation without Docker
 
 You must have Python installed to run this program. \
 If you don't have it installed then go to https://www.python.org/downloads/ to get the latest version of Python.
