@@ -4,7 +4,7 @@
 # For example, if it says "should be in the format [filepath]" then what you should input filepath in '' without the [].
 # The [] is just to indicate what should go in the ''.
 
-'output path': ''            # !!! WARNING: do not modify output path if you did the Docker installation. !!!!
+'output path': ''           # !!! WARNING: Do not modify output path if you did the Docker installation. !!!
                             # Where to output the files generated from running this program.
                             # Should be in the format [C:\Users\your name\Desktop\VIDEOS], VIDEOS being the final destination folder to upload to.
                             # If you don't know how to get the path of your folder, open the folder and then follow step 5 on this link: https://shorturl.at/zPseg
@@ -16,7 +16,7 @@
                                      # If you do not put anything in this field, or if what you provided is invalid...
                                      # The resolution will be set to the default resolution (1080 x 1080)
 
-'background image': ''           # !!! WARNING: if you are using Docker, the image directory should be within the local repository.
+'background image': ''           # !!! WARNING: The image directory should be within the local repository if you did the Docker installation. !!!
                                  # Set a background image.
                                  # Should be in the format [path_to_image].
                                  # If you do not put anything in this field, or if the path you provided is invalid...
@@ -128,7 +128,7 @@
                                              # The translation word spacing will be set to the default spacing (10)
 
 
-'translation line spacing': ''            # Set the space between the translation lines.
+'translation line spacing': '0'            # Set the space between the translation lines.
                                           # Should be in the format [number].
                                           # If you do not put anything in this field, or if what you provided is invalid...
                                           # The translation word spacing will be set to the default spacing (10)
