@@ -117,7 +117,7 @@ They also include all the information about the configuration options.
     ```
 4. Build the docker image.
     ```sh
-    docker build -t quran-app .
+    docker build -t quran-image-generator .
     ```
 5. Go through `config.yaml` and set your preferences.
   - IMPORTANT:
@@ -125,7 +125,7 @@ They also include all the information about the configuration options.
     - If you want to use a background image, **make sure that its path is within your local repo**, not outside of it, or else Docker won't be able to access it.
 6. Run the docker container in interactive mode (make sure you are still inside the local repo):
     ```sh
-    docker run -it --rm -v ./:/app quran-app
+    docker run -it --rm --name QIG -v "%cd%:/app" quran-image-generator
     ```
 7. You will be prompted on the terminal, follow the instructions.
 8. The generated images can be found in the `outputs` directory inside the local repo.
