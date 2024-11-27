@@ -1,0 +1,200 @@
+# PLEASE READ THESE INSTRUCTIONS BEFORE GOING THROUGH THE CONFIG FILE.
+# All inputs should be in '' which have been already placed for you, please don't delete them even if you won't use them.
+# if you see [] anywhere, please disregard the [].
+# For example, if it says "should be in the format [filepath]" then what you should input filepath in '' without the [].
+# The [] is just to indicate what should go in the ''.
+
+'output path': ''           # !!! WARNING: Do not modify output path if you did the Docker installation. !!!
+                            # Where to output the files generated from running this program.
+                            # Should be in the format [C:\Users\your name\Desktop\VIDEOS], VIDEOS being the final destination folder to upload to.
+                            # If you don't know how to get the path of your folder, open the folder and then follow step 5 on this link: https://shorturl.at/zPseg
+                            # If you do not put anything in this field, or if the path you provided is invalid...
+                            # The program will generate a folder called "outputs" in the project directory (the folder this file is in)
+
+'resolution': '1080 x 1920'          # Set the resolution (size).
+                                     # Should be in the format [width x height] or use [bg] to fit to the size of the background image (if you set one).
+                                     # If you do not put anything in this field, or if what you provided is invalid...
+                                     # The resolution will be set to the default resolution (1080 x 1080)
+
+'background image': ''           # !!! WARNING: The image directory should be within the local repository if you did the Docker installation. !!!
+                                 # Set a background image.
+                                 # Should be in the format [path_to_image].
+                                 # If you do not put anything in this field, or if the path you provided is invalid...
+                                 # The background image will not be set to anything, will resort to using the background color
+
+'background color': ''           # Set a solid background color.
+                                 # Should be in the format [#HEX], the hex code should look something like #FF00FF or #e6c134.
+                                 # You can find the hex code of the color you want at https://imagecolorpicker.com
+                                 # If you do not put anything in this field, or if the HEX you provided is invalid...
+                                 # The background color will be set to the default color (black)
+
+'quran font': 'assets/fonts/quran_font.ttf'          # Set the Quran font.
+                                                     # Should be in the format [path_to_font]
+                                                     # If you do not put anything in this field, or if the path you provided is invalid...
+                                                     # The quran font will be set to the default font (Arial)
+
+'quran color': ''            # Set the Quran color.
+                             # Should be in the format [#HEX], the hex code should look something like #FF00FF or #e6c134.
+                             # You can find the hex code of the color you want at https://imagecolorpicker.com
+                             # If you do not put anything in this field, or if the HEX you provided is invalid...
+                             # The quran color will be set to the default color (white)
+
+'quran font size': ''             # Set the font size of the Quran text.
+                                  # Should be in the format [number].
+                                  # If you do not put anything in this field, or if what you provided is invalid...
+                                  # The quran font size will be set to the default size (34)
+
+'quran x position': ''            # Set the X position (from right to left) of the Quran verse.
+                                  # Should be in the format [number].
+                                  # You can also use [center] to center the text right in the middle of the image at all times.
+                                  # If you do not put anything in this field, or if what you provided is invalid...
+                                  # The quran x position will be set to the default x position (30)
+
+'quran maximum width': ''             # Set the maximum width Quran verses can be on each line.
+                                      # Should be in the format [number], this number should be less than the width of the image.
+                                      # This will make each line of the Quran verses longer / shorter...
+                                      # Will move the rest of the words to the line below if they don't all fit.
+                                      # If you do not put anything in this field, or if what you provided is invalid...
+                                      # The quran verse maximum width will be set to the default width (700)
+                                      # If you are experiencing issues with setting the width...
+                                      # Try making the number bigger until you can see the text.
+
+'quran line spacing': ''            # Set the space between the Quran lines.
+                                    # Should be in the format [number].
+                                    # If you do not put anything in this field, or if what you provided is invalid...
+                                    # The quran line spacing will be set to the default spacing (30)
+
+'quran word spacing': ''           # Set the space between the Quran words.
+                                   # Should be in the format [number].
+                                   # If you do not put anything in this field, or if what you provided is invalid...
+                                   # The quran word spacing will be set to the default spacing (6)
+
+'quran letter spacing': ''            # Set the space between the Quran verse letters.
+                                      # Should be in the format [decimal_number].
+                                      # If you do not put anything in this field, or if what you provided is invalid...
+                                      # The quran letter spacing will be set to the default spacing (-0.1)
+
+'quran and translation spacing': ''           # Set the space between the Quran verse and the translation.
+                                              # Should be in the format [number].
+                                              # If you do not put anything in this field, or if what you provided is invalid...
+                                              # The quran and translation spacing will be set to the default spacing (30)
+
+'translation languages': 'en'            # Set the languages (and their fonts) of the translation.
+                                       # Should be in the format [language1:language1_font:language1_font_size, language2:language2_font...]
+                                       # Language font and language font size are both optional for each language.
+                                       # You are allowed to use a maximum of 3 languages at once.
+                                       # You can find a list of accepted languages on the GitHub page and in the README.md file.
+                                       # If you do not put anything in this field, or if the languages you provided are invalid...
+                                       # The translation language will resort to not showing anything
+                                       # Each translation font will be set to the default font for it (found in assets/fonts/multilingual_fonts)
+                                       # If you are experiencing issues with setting the font...
+                                       # Download a font that supports your language from Google
+                                       # Then set each font in the 'translation languages' option above this one by following the instructions
+                                       # Place the font file in the fonts folder inside the assets folder
+                                       # Then write the file name (and the extension) after the language code (ex: [fr:assets/fonts/french_font.ttf])
+                                       # The reason you may need to do this is that not all font files have multiple language support.
+                                       # Make sure the file extension (.ttf / .otf) is set correctly in this file
+                                       # More info on the GitHub page and in the README.md file
+
+'translation color': ''            # Set the translation color.
+                                   # Should be in the format [#HEX], the hex code should look something like #FF00FF or #e6c134.
+                                   # You can find the hex code of the color you want at https://imagecolorpicker.com
+                                   # If you do not put anything in this field, or if the HEX you provided is invalid...
+                                   # The translation color will be set to the default color (white / #FFFFFF)
+
+'translation font size': '18'           # Set the font size of the translation text.
+                                      # Should be in the format [number].
+                                      # If you do not put anything in this field, or if what you provided is invalid...
+                                      # The translation font size will be set to the default size (16)
+
+'translation x position': ''            # Set the X position (from left to right) of the translation.
+                                        # Should be in the format [number].
+                                        # You can also use [center] to center the text right in the middle of the image at all times.
+                                        # If you do not put anything in this field, or if what you provided is invalid...
+                                        # The translation x position will be set to the default x position (40)
+
+'translation maximum width': ''          # Set the maximum width translations can be on each line.
+                                         # Should be in the format [number], this number should be less than the width of the image.
+                                         # This will make each line of the translations longer / shorter...
+                                         # Will move the rest of the words to the line below if they don't all fit.
+                                         # If you do not put anything in this field, or if what you provided is invalid...
+                                         # The translation maximum width will be set to the default width (650)
+                                         # If you are experiencing issues with setting the width...
+                                         # Try making the number bigger until you can see the text.
+
+'translation language spacing': ''           # Set the space between each language in the translations.
+                                             # Should be in the format [number].
+                                             # If you do not put anything in this field, or if what you provided is invalid...
+                                             # The translation word spacing will be set to the default spacing (10)
+
+
+'translation line spacing': '0'            # Set the space between the translation lines.
+                                          # Should be in the format [number].
+                                          # If you do not put anything in this field, or if what you provided is invalid...
+                                          # The translation word spacing will be set to the default spacing (10)
+
+'translation word spacing': ''           # Set the space between the translation words.
+                                         # Should be in the format [number].
+                                         # If you do not put anything in this field, or if what you provided is invalid...
+                                         # The translation word spacing will be set to the default spacing (1)
+
+'translation letter spacing': ''            # Set the space between the translation letters.
+                                            # Should be in the format [decimal_number].
+                                            # If you do not put anything in this field, or if what you provided is invalid...
+                                            # The translation letter spacing will be set to the default spacing (0.0)
+
+'show verse numbers': 'true'           # Whether to show verse numbers at the end of the verse.
+                                   # Should be in the format [true/false].
+                                   # If you do not put anything in this field, or if what you provided is invalid...
+                                   # The verse numbers will be shown by default (false)
+
+'verse number resolution': ''            # Set the resolution (size) of the verse number.
+                                         # Should be in the format [width x height].
+                                         # If you do not put anything in this field, or if what you provided is invalid...
+                                         # The resolution will be set to the default resolution (55 x 55)
+
+'verse number x offset': '10'           # Set the X position (horizontal) offset for the verse number from the left edge.
+                                      # Should be in the format [number]. This number sets how far the verse number is from the right.
+                                      # If you do not put anything in this field, or if what you provided is invalid...
+                                      # The verse number x offset will be set to the default x offset (10)
+
+'verse number y offset': '-5'           # Set the Y position (vertical) offset for the verse number from the top edge.
+                                      # Should be in the format [number]. This number sets how far the verse number is from the top.
+                                      # If you do not put anything in this field, or if what you provided is invalid...
+                                      # The verse number y offset will be set to the default y offset (-20)
+
+'space between verses': ''            # Set the space between consecutive verses.
+                                      # Should be in the format [number], this number should be between -10 and 200.
+                                      # If you do not put anything in this field, or if what you provided is invalid...
+                                      # The space between verses will be set to the default spacing (70)
+
+'generate random verses': ''           # Whether to generate random verses or not.
+                                       # Should be in the format [true/false].
+                                       # If you do not put anything in this field, or if what you provided is invalid...
+                                       # Random verses will not be generated by default (false)
+
+'total y offset': ''            # Set the Y position (vertical) offset for all content in the image.
+                                # Should be in the format [number]. This number adjusts the overall vertical placement of the content.
+                                # If you do not put anything in this field, or if what you provided is invalid...
+                                # The total Y offset will be set to the default value (-10)
+
+'upload': ''            # Whether to upload the generated image automatically.
+                        # Should be in the format [true/false/ask]. The ask option will prompt you after every image.
+                        # If you do not put anything in this field, or if what you provided is invalid...
+                        # Upload will be set to the default value (false)
+
+'username': ''            # The username to be used for uploading the file (if upload is set to true).
+                          # Should be in the format [text]. Enter your username in the '' provided.
+                          # If you do not put anything in this field, or if what you provided is invalid...
+                          # The username will remain blank and upload will fail if enabled.
+
+'password': ''        # The password to be used for uploading the file (if upload is set to true).
+                      # Should be in the format [text]. Enter your password in the '' provided.
+                      # If you do not put anything in this field, or if what you provided is invalid...
+                      # The password will remain blank and upload will fail if enabled.
+
+'post method': ''           # The method/platform to use for posting the generated content.
+                            # Should be in the format [method_name].
+                            # For a list of supported upload methods, check the README.md file.
+                            # If you do not put anything in this field, or if what you provided is invalid...
+                            # The method will remain blank and upload will fail if enabled
