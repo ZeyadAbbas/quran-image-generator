@@ -1,3 +1,30 @@
+Metadata-Version: 2.2
+Name: quran_post_generator
+Version: 0.1.0
+Summary: Generate endless fully customizable designs of Quran verses to post online
+Home-page: https://github.com/ZeyadAbbas/quran-image-generator
+Author: Zeyad Abbas
+Author-email: zeyadabbas238@gmail.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+License-File: LICENSE.txt
+Requires-Dist: requests
+Requires-Dist: wand>=0.6.13
+Requires-Dist: pyyaml
+Requires-Dist: colorama
+Requires-Dist: instagrapi>=2.0.0
+Requires-Dist: pillow
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
 <!--
 Zeyad Abbas
 Quran Image Generator
@@ -344,14 +371,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-<div>
-    <a href="https://www.linkedin.com/in/zeyad-abbas-/">
-        <img src="https://skillicons.dev/icons?i=linkedin" />
-    </a>
-    <a href="mailto:zeyadabbas238@gmail.com">
-        <img src="https://skillicons.dev/icons?i=gmail" />
-    </a>
-</div>
+Zeyad Abbas - zeyadabbas238@gmail.com
+
+[![LinkedIn][linkedin-shield]](https://www.linkedin.com/in/zeyad-abbas-/)
 
 Project Link: [https://github.com/ZeyadAbbas/quran-image-generator](https://github.com/ZeyadAbbas/quran-image-generator)
 
