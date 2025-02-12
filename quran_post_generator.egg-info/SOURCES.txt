@@ -1,8 +1,0 @@
-LICENSE.txt
-README.md
-setup.py
-quran_post_generator.egg-info/PKG-INFO
-quran_post_generator.egg-info/SOURCES.txt
-quran_post_generator.egg-info/dependency_links.txt
-quran_post_generator.egg-info/requires.txt
-quran_post_generator.egg-info/top_level.txt

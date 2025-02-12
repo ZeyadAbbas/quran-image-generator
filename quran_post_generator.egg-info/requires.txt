@@ -1,6 +1,0 @@
-requests
-wand>=0.6.13
-pyyaml
-colorama
-instagrapi>=2.0.0
-pillow
