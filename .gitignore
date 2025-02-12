@@ -3,3 +3,4 @@ outputs
 __pycache__
 .idea
 background
+*.egg-info
