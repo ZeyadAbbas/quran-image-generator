@@ -10,6 +10,7 @@ Quran Image Generator
 <!-- [![Issues][issues-shield]][issues-url] -->
 <!-- [![MIT License][license-shield]](https://github.com/ZeyadAbbas/quran-image-generator/blob/master/LICENSE.txt) -->
 
+#### ⛔ Due to breaking changes to the Quran.com API, this project NO LONGER WORKS. Updates will be made accordingly. ⛔ 
 
 <!-- PROJECT LOGO -->
 <br />
