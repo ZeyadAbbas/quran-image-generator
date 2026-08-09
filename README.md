@@ -1,3 +1,5 @@
+
+
 <!--
 Zeyad Abbas
 Quran Image Generator
@@ -185,8 +187,8 @@ Only follow this installation if you know what Docker is used for.
 The program has a file that you need to open to customize the images, that file is `config.yaml`.
 In there, there are options to change with descriptions next to them acting as documentation.
 
-You have the ability to use any quran and translation fonts you like. However, there has been
-ones provided for you in `assets/fonts`. If you would like to add your own, you should follow
+You have the ability to use any quran and translation fonts you like. However, fonts have been
+provided for you in `assets/fonts`. If you would like to add your own, you should follow
 the instructions in the config file.
 
 There is a config option for you to generate random Quran verses for you every time you run the program.
@@ -222,7 +224,7 @@ Here is a list of supported languages, and their ISO codes, that you need for th
 | Uzbek         | uz    | Muhammad Sodik Muhammad Yusuf                          |
 | Dutch         | nl    | Sofian S. Siregar                                      |
 | German        | de    | Frank Bubenheim and Nadeem                             |
-| Tajik         | tj    | Tajik, AbdolMohammad Ayati                             |
+| Tajik         | tg    | Tajik, AbdolMohammad Ayati                             |
 | Tamil         | ta    | Abdul Hameed Baqavi                                    |
 | Japanese      | ja    | Ryoichi Mita                                           |
 | Italian       | it    | Hamza Roberto Piccardo                                 |
