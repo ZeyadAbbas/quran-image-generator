@@ -225,6 +225,31 @@ def test_interactive_mode_keeps_prompt_and_repeat_flow(monkeypatch, tmp_path):
     assert generated == [GenerationRequest(1, 1, 1)]
 
 
+def test_missing_quran_api_credentials_fail_before_interactive_prompt(
+    monkeypatch, tmp_path, capsys
+):
+    config_path = _write_config(
+        tmp_path / "config.yaml",
+        **{"translation languages": "", "upload": False},
+    )
+    monkeypatch.delenv("QF_CLIENT_ID", raising=False)
+    monkeypatch.delenv("QF_CLIENT_SECRET", raising=False)
+    monkeypatch.setattr(
+        builtins,
+        "input",
+        lambda prompt="": pytest.fail(f"credential failure prompted: {prompt}"),
+    )
+
+    with pytest.raises(SystemExit) as caught:
+        cli.main(["--config", str(config_path)])
+
+    assert caught.value.code == 2
+    error = capsys.readouterr().err
+    assert "QF_CLIENT_ID" in error
+    assert "QF_CLIENT_SECRET" in error
+    assert "https://api-docs.quran.foundation/request-access/" in error
+
+
 @pytest.mark.parametrize(
     ("platform", "command"),
     (("darwin", "open"), ("linux", "xdg-open")),
