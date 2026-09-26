@@ -7,7 +7,7 @@ reads configuration, inspects images, or creates directories.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from difflib import get_close_matches
 from math import isfinite
 from pathlib import Path
@@ -16,6 +16,11 @@ from typing import Any, Literal
 
 import yaml
 
+from .models import (
+    TranslationResource,
+    TranslationSelector,
+    TranslationSelectorKind,
+)
 from .resources import PACKAGE_DIRECTORY, asset_path
 
 Position = int | Literal["center"]
@@ -112,10 +117,32 @@ class Dimensions:
 
 @dataclass(frozen=True, slots=True)
 class TranslationSettings:
-    language_code: str
-    resource_id: str
-    font: Path | str
+    selector: TranslationSelector
+    font: Path | str | None
     font_size: int
+    resource: TranslationResource | None = None
+
+    @property
+    def resource_id(self) -> str:
+        if self.resource is None:
+            raise RuntimeError(
+                f"translation {self.selector.label} has not been resolved "
+                "against the Quran Foundation catalog"
+            )
+        return self.resource.resource_id
+
+    def resolve(self, resource: TranslationResource) -> TranslationSettings:
+        """Attach an exact catalog identity and choose its bundled font."""
+
+        font = self.font
+        if font is None:
+            multilingual_directory = asset_path("fonts", "multilingual_fonts")
+            for suffix in (".ttf", ".otf"):
+                candidate = multilingual_directory / f"{resource.language_code}{suffix}"
+                if candidate.is_file():
+                    font = candidate.resolve()
+                    break
+        return replace(self, font=font or "Arial", resource=resource)
 
 
 @dataclass(frozen=True, slots=True)
@@ -163,9 +190,7 @@ def _raw_value(data: Mapping[str, Any], field: str) -> Any:
     return DEFAULTS[field] if _is_blank(value) else value
 
 
-def _add_issue(
-    issues: list[ValidationIssue], field: str, message: str
-) -> None:
+def _add_issue(issues: list[ValidationIssue], field: str, message: str) -> None:
     issues.append(ValidationIssue(field, message))
 
 
@@ -263,7 +288,9 @@ def _parse_color(
         text = ""
 
     text = text.removeprefix("#")
-    if len(text) != 6 or any(character not in "0123456789abcdefABCDEF" for character in text):
+    if len(text) != 6 or any(
+        character not in "0123456789abcdefABCDEF" for character in text
+    ):
         if isinstance(raw, str):
             _add_issue(
                 issues,
@@ -428,46 +455,24 @@ def _parse_resolution(
             with WandImage(filename=str(background_image)) as image:
                 width, height = image.width, image.height
         except (OSError, WandException):
-            _add_issue(issues, field, f"could not read dimensions from {background_image}")
+            _add_issue(
+                issues, field, f"could not read dimensions from {background_image}"
+            )
             return Dimensions(1080, 1080)
         return Dimensions(width, height)
     return _dimensions_from_value(raw, field, str(DEFAULTS[field]), issues)
 
 
-def _load_language_codes(
-    language_codes_path: Path, issues: list[ValidationIssue]
-) -> Mapping[str, str]:
-    try:
-        with language_codes_path.open("r", encoding="utf-8") as file:
-            loaded = yaml.safe_load(file)
-    except OSError as error:
-        _add_issue(
-            issues,
-            "translation languages",
-            f"could not read language catalog '{language_codes_path}': {error}",
-        )
-        return {}
-    except yaml.YAMLError as error:
-        _add_issue(
-            issues,
-            "translation languages",
-            f"language catalog is malformed: {error}",
-        )
-        return {}
-    if not isinstance(loaded, Mapping):
-        _add_issue(issues, "translation languages", "language catalog must be a mapping")
-        return {}
-    return {str(code): str(resource_id) for code, resource_id in loaded.items()}
-
-
 def _translation_entries(
     raw: Any, issues: list[ValidationIssue]
-) -> list[tuple[str, Any, Any]]:
+) -> list[tuple[TranslationSelector, Any, Any]]:
     field = "translation languages"
     if _is_blank(raw):
         return []
     if isinstance(raw, str):
-        entries: Sequence[Any] = [item.strip() for item in raw.split(",") if item.strip()]
+        entries: Sequence[Any] = [
+            item.strip() for item in raw.split(",") if item.strip()
+        ]
     elif isinstance(raw, Sequence) and not isinstance(raw, (bytes, bytearray)):
         entries = raw
     else:
@@ -478,11 +483,47 @@ def _translation_entries(
         )
         return []
 
-    parsed: list[tuple[str, Any, Any]] = []
+    parsed: list[tuple[TranslationSelector, Any, Any]] = []
     for index, entry in enumerate(entries):
         entry_field = f"{field}[{index}]"
+        selector_kind: TranslationSelectorKind
         if isinstance(entry, Mapping):
-            code = entry.get("code", "")
+            allowed_fields = {
+                "id",
+                "slug",
+                "language",
+                "code",
+                "font",
+                "font size",
+                "font_size",
+            }
+            unknown_fields = tuple(
+                key
+                for key in entry
+                if not isinstance(key, str) or key not in allowed_fields
+            )
+            if unknown_fields:
+                joined = ", ".join(repr(key) for key in unknown_fields)
+                _add_issue(
+                    issues,
+                    entry_field,
+                    f"contains unrecognized field(s): {joined}",
+                )
+
+            selectors: list[tuple[TranslationSelectorKind, Any]] = []
+            for kind in ("id", "slug", "language"):
+                if kind in entry and not _is_blank(entry[kind]):
+                    selectors.append((kind, entry[kind]))
+            if "code" in entry and not _is_blank(entry["code"]):
+                selectors.append(("language", entry["code"]))
+            if len(selectors) != 1:
+                _add_issue(
+                    issues,
+                    entry_field,
+                    "must contain exactly one selector: id, slug, or language",
+                )
+                continue
+            selector_kind, selector_value = selectors[0]
             font = entry.get("font")
             font_size = entry.get("font size", entry.get("font_size"))
         elif isinstance(entry, str):
@@ -494,7 +535,8 @@ def _translation_entries(
                     "must use code, code:font, code:size, or code:font:size",
                 )
                 continue
-            code = parts[0]
+            selector_kind = "language"
+            selector_value = parts[0]
             font = None
             font_size = None
             if len(parts) == 2:
@@ -508,28 +550,42 @@ def _translation_entries(
         else:
             _add_issue(issues, entry_field, "must be text or a mapping")
             continue
-        if not isinstance(code, str) or not code.strip():
-            _add_issue(issues, entry_field, "must include a language code")
+
+        if (
+            selector_kind == "id"
+            and isinstance(selector_value, int)
+            and not isinstance(selector_value, bool)
+        ):
+            selector_text = str(selector_value)
+        elif isinstance(selector_value, str):
+            selector_text = selector_value
+        else:
+            _add_issue(
+                issues,
+                entry_field,
+                f"{selector_kind} selector must be text"
+                if selector_kind != "id"
+                else "id selector must be a positive whole number",
+            )
             continue
-        parsed.append((code.strip(), font, font_size))
+        try:
+            selector = TranslationSelector(selector_kind, selector_text)
+        except ValueError as error:
+            _add_issue(issues, entry_field, str(error))
+            continue
+        parsed.append((selector, font, font_size))
     return parsed
 
 
 def _translation_font(
     raw: Any,
-    language_code: str,
     base_directory: Path,
     application_directory: Path,
     field: str,
     issues: list[ValidationIssue],
-) -> Path | str:
+) -> Path | str | None:
     if _is_blank(raw):
-        multilingual_directory = asset_path("fonts", "multilingual_fonts")
-        for suffix in (".ttf", ".otf"):
-            candidate = multilingual_directory / f"{language_code}{suffix}"
-            if candidate.is_file():
-                return candidate.resolve()
-        return "Arial"
+        return None
     if not isinstance(raw, (str, Path)):
         _add_issue(issues, field, "font must be 'Arial' or a .ttf/.otf file path")
         return "Arial"
@@ -558,7 +614,6 @@ def _parse_translations(
     base_directory: Path,
     application_directory: Path,
     default_font_size: int,
-    language_codes_path: Path,
     issues: list[ValidationIssue],
 ) -> tuple[TranslationSettings, ...]:
     field = "translation languages"
@@ -568,22 +623,17 @@ def _parse_translations(
     if len(entries) > 3:
         _add_issue(issues, field, "supports at most three languages")
         entries = entries[:3]
-    language_codes = _load_language_codes(language_codes_path, issues)
     translations: list[TranslationSettings] = []
-    seen_codes: set[str] = set()
-    for index, (language_code, raw_font, raw_font_size) in enumerate(entries):
+    seen_selectors: set[tuple[str, str]] = set()
+    for index, (selector, raw_font, raw_font_size) in enumerate(entries):
         entry_field = f"{field}[{index}]"
-        if language_code in seen_codes:
-            _add_issue(issues, entry_field, f"duplicates language code '{language_code}'")
+        selector_identity = (selector.kind, selector.value.casefold())
+        if selector_identity in seen_selectors:
+            _add_issue(issues, entry_field, f"duplicates selector '{selector.label}'")
             continue
-        seen_codes.add(language_code)
-        resource_id = language_codes.get(language_code)
-        if resource_id is None:
-            _add_issue(issues, entry_field, f"unknown language code '{language_code}'")
-            continue
+        seen_selectors.add(selector_identity)
         font = _translation_font(
             raw_font,
-            language_code,
             base_directory,
             application_directory,
             f"{entry_field}.font",
@@ -599,12 +649,14 @@ def _parse_translations(
                 except ValueError:
                     parsed_font_size = None
             if parsed_font_size is None or parsed_font_size <= 0:
-                _add_issue(issues, f"{entry_field}.font size", "must be a positive whole number")
+                _add_issue(
+                    issues,
+                    f"{entry_field}.font size",
+                    "must be a positive whole number",
+                )
             else:
                 font_size = parsed_font_size
-        translations.append(
-            TranslationSettings(language_code, resource_id, font, font_size)
-        )
+        translations.append(TranslationSettings(selector, font, font_size))
     return tuple(translations)
 
 
@@ -656,7 +708,6 @@ def load_settings(
     config_path: str | Path = "config.yaml",
     *,
     create_output_dir: bool = True,
-    language_codes_path: str | Path | None = None,
 ) -> Settings:
     """Load and validate a YAML file, returning one immutable settings object.
 
@@ -670,16 +721,13 @@ def load_settings(
     data = _load_yaml(source_path)
     base_directory = source_path.parent
     application_directory = PACKAGE_DIRECTORY
-    catalog_path = (
-        Path(language_codes_path).expanduser().resolve(strict=False)
-        if language_codes_path is not None
-        else asset_path("translation_codes", "translation_codes.yaml")
-    )
     issues: list[ValidationIssue] = []
     _validate_top_level_keys(data, issues)
 
     output_path = _parse_output_path(data, base_directory, issues)
-    background_image = _parse_optional_file(data, "background image", base_directory, issues)
+    background_image = _parse_optional_file(
+        data, "background image", base_directory, issues
+    )
     resolution = _parse_resolution(data, background_image, issues)
     background_color = _parse_color(data, "background color", issues)
     quran_font = _parse_font(
@@ -699,15 +747,12 @@ def load_settings(
     quran_translation_spacing = _parse_int(
         data, "quran and translation spacing", issues, minimum=0
     )
-    translation_font_size = _parse_int(
-        data, "translation font size", issues, minimum=1
-    )
+    translation_font_size = _parse_int(data, "translation font size", issues, minimum=1)
     translations = _parse_translations(
         data,
         base_directory,
         application_directory,
         translation_font_size,
-        catalog_path,
         issues,
     )
     translation_color = _parse_color(data, "translation color", issues)
@@ -752,7 +797,11 @@ def load_settings(
             output_path.mkdir(parents=True, exist_ok=True)
         except OSError as error:
             raise SettingsValidationError(
-                [ValidationIssue("output path", f"could not create '{output_path}': {error}")]
+                [
+                    ValidationIssue(
+                        "output path", f"could not create '{output_path}': {error}"
+                    )
+                ]
             ) from error
 
     return Settings(

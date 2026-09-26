@@ -213,82 +213,37 @@ The program lets you:
 * Show verse numbers
 * Make everything fully customizable
 
-The program uses the [Quran.com](https://quran.com/1) api to get all the verses and their translations,
-this means that if a language is supported by Quran.com, then it's supported by the program.
+Translations come from Quran Foundation's live resource catalog, so the project no
+longer maintains a hard-coded language table. After setting `QF_CLIENT_ID` and
+`QF_CLIENT_SECRET` as described in `.env.example`, list the currently available
+translator identities with:
 
-Here is a list of supported languages, and their ISO codes, that you need for the config file to use them.
+```sh
+quran-image-generator --list-translations
+```
 
-| Language      | Code  | Translation Name                                       |
-|---------------|-------|--------------------------------------------------------|
-| English       | en    | Dr. Mustafa Khattab, The Clear Quran                   |
-| Urdu          | ur    | Tafheem e Qur'an - Syed Abu Ali Maududi                |
-| Bengali       | bn    | Dr. Abu Bakr Muhammad Zakaria                          |
-| Turkish       | tr    | Elmalili Hamdi Yazir                                   |
-| Spanish       | es    | Sheikh Isa Garcia                                      |
-| French        | fr    | Muhammad Hamidullah                                    |
-| Bosnian       | bs    | Besim Korkut                                           |
-| Russian       | ru    | Russian Translation (Elmir Kuliev)                     |
-| Malayalam     | ml    | Malayalam Translation (Abdul Hameed and Kunhi)         |
-| Indonesian    | id    | Indonesian Islamic affairs ministry                    |
-| Uzbek         | uz    | Muhammad Sodik Muhammad Yusuf                          |
-| Dutch         | nl    | Sofian S. Siregar                                      |
-| German        | de    | Frank Bubenheim and Nadeem                             |
-| Tajik         | tj    | Tajik, AbdolMohammad Ayati                             |
-| Tamil         | ta    | Abdul Hameed Baqavi                                    |
-| Japanese      | ja    | Ryoichi Mita                                           |
-| Italian       | it    | Hamza Roberto Piccardo                                 |
-| Vietnamese    | vi    | Ruwwad Center, Translation Pioneers Center             |
-| Chinese       | zh    | Chinese Translation (Simplified) - Ma Jain             |
-| Albanian      | sq    | Albanian Translation, Sherif Ahmeti                    |
-| Persian       | fa    | Hussein Taji Kal Dari                                  |
-| Bulgarian     | bg    | Tzvetan Theophanov                                     |
-| Bambara       | bm    | Suliman Kanti                                          |
-| Hausa         | ha    | Hausa Translation (Abubakar Gumi)                      |
-| Portuguese    | pt    | Portuguese Translation (Samir), Samir El-Hayek         |
-| Romanian      | ro    | Grigore, George Grigore                                |
-| Hindi         | hi    | Maulana Azizul Haque al-Umari                          |
-| Swahili       | sw    | Dr. Abdullah Muhammad Abu Bakr and Sheikh Nasir Khamis |
-| Kazakh        | kk    | Khalifah Altai                                         |
-| Thai          | th    | Thai Translation (King Fahad Quran Complex)            |
-| Tagalog       | tl    | Dar Al-Salam Center                                    |
-| Central Khmer | km    | Cambodian Muslim Community Development                 |
-| Assamese      | as    | Shaykh Rafeequl Islam Habibur-Rahman                   |
-| Korean        | ko    | Hamed Choi                                             |
-| Somali        | so    | Mahmud Muhammad Abduh                                  |
-| Azeri         | az    | Alikhan Musayev                                        |
-| Kurdish       | ku    | Muhammad Saleh Bamoki                                  |
-| Malay         | ms    | Abdullah Muhammad Basmeih                              |
-| Dari          | prs   | Mawlawi Muhammad Anwar Badkhashani                     |
-| Amazigh       | zgh   | Ramdane At Mansour                                     |
-| Amharic       | am    | Sadiq and Sani                                         |
-| Chechen       | ce    | Magomed Magomedov                                      |
-| Divehi        | dv    | Office of the president of Maldives                    |
-| Czech         | cs    | Czech                                                  |
-| Finnish       | fi    | Finnish                                                |
-| Gujarati      | gu    | Rabila Al-Umry                                         |
-| Hebrew        | he    | Dar Al-Salam Center                                    |
-| Kannada       | kn    | Kannada Translation                                    |
-| Ganda         | lg    | African Development Foundation                         |
-| Marathi       | mr    | Muhammad Shafi’i Ansari                                |
-| Maranao       | mrn   | Maranao                                                |
-| Nepali        | ne    | Ahl Al-Hadith Central Society of Nepal                 |
-| Norwegian     | no    | Norwegian                                              |
-| Oromo         | om    | Ghali Apapur Apaghuna                                  |
-| Polish        | pl    | Józef Bielawski                                        |
-| Pashto        | ps    | Zakaria Abulsalam                                      |
-| Kinyarwanda   | rw    | The Rwanda Muslims Association team                    |
-| Sindhi        | sd    | Taj Mehmood Amroti                                     |
-| Sinhala       | si    | Ruwwad Center, Translation Pioneers Center             |
-| Swedish       | sv    | Knut Bernström                                         |
-| Telugu        | te    | Maulana Abder-Rahim ibn Muhammad                       |
-| Tatar         | tt    | Tatar                                                  |
-| Uyghur        | ug    | Muhammad Saleh                                         |
-| Ukrainian     | uk    | Dr. Mikhailo Yaqubovic                                 |
-| Yoruba        | yo    | Shaykh Abu Rahimah Mikael Aykyuni                      |
+One validated catalog snapshot is cached for the life of the process. Use
+`--list-translations --refresh-catalog` to force a replacement; a failed refresh
+leaves the last valid snapshot intact.
 
-#### These languages were not proof read by me. I only speak Arabic and English.
-If you want to change the translation currently in use, you may change it in the 
-`translation_codes` folder.
+Use the reported ID or slug in `config.yaml` so the chosen translator remains
+explicit:
+
+```yaml
+'translation languages':
+  - 'id': 131
+    'font size': 18
+  - 'slug': 'another-catalog-slug'
+    'font': 'Arial'
+```
+
+Up to three resources may be selected and their order is preserved. A
+`{'language': 'en'}` selector is also accepted, but only when the live catalog has
+exactly one resource for that language. If several translators are available, the
+program stops before fetching verses and lists exact IDs/slugs to choose from.
+Use an empty list to disable translations. Catalog and verse failures stop the
+generation before an image is rendered; requested translations are never silently
+omitted.
 
 
 Instagram publishing is optional and is only attempted when `--publish post` or

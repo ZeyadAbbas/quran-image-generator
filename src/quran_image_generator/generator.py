@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -61,20 +62,33 @@ class QuranImageGenerator:
         *,
         open_output: bool = False,
     ) -> GenerationResult:
+        runtime_settings = self._settings
+        if self._settings.translations:
+            resources = self._content_client.resolve_translations(
+                tuple(
+                    translation.selector for translation in self._settings.translations
+                )
+            )
+            runtime_settings = replace(
+                self._settings,
+                translations=tuple(
+                    translation.resolve(resource)
+                    for translation, resource in zip(
+                        self._settings.translations, resources, strict=True
+                    )
+                ),
+            )
         resource_ids = tuple(
-            translation.resource_id
-            for translation in self._settings.translations
+            translation.resource_id for translation in runtime_settings.translations
         )
         passage = self._content_client.fetch_passage(request, resource_ids)
         if not passage.verses:
             return GenerationResult(path=None, passage=passage)
 
-        image_layout = self._layout_builder(
-            passage, self._settings, self._measurer
-        )
-        destination = _output_path(passage, self._settings.output_path)
+        image_layout = self._layout_builder(passage, runtime_settings, self._measurer)
+        destination = _output_path(passage, runtime_settings.output_path)
         rendered_path = Path(
-            self._renderer.render(image_layout, self._settings, destination)
+            self._renderer.render(image_layout, runtime_settings, destination)
         )
         result = GenerationResult(path=rendered_path, passage=passage)
         print("\nImage Created.\n")
