@@ -1,0 +1,14 @@
+*
+!.dockerignore
+!Dockerfile
+!LICENSE.txt
+!README.md
+!config.yaml
+!pyproject.toml
+!scripts/
+!scripts/offline_render_smoke.py
+!src/
+!src/**
+!tests/
+!tests/fixtures/
+!tests/fixtures/verse_one_translation.json

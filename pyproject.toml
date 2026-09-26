@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=77"]
+requires = ["setuptools>=77,<83"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,7 @@ name = "quran-image-generator"
 version = "0.1.0"
 description = "Generate customizable images from Quran passages"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.15"
 license = "MIT"
 license-files = ["LICENSE.txt"]
 authors = [
@@ -15,17 +15,30 @@ authors = [
 ]
 classifiers = [
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Operating System :: OS Independent",
 ]
 dependencies = [
-  "requests",
-  "Wand>=0.6.13",
-  "PyYAML",
+  "PyYAML>=6.0.2,<7",
+  "requests>=2.32.5,<3",
+  "Wand>=0.6.13,<0.8",
 ]
 
 [project.optional-dependencies]
 instagram = ["instagrapi>=3.0.14,<4"]
-test = ["pytest>=8,<10"]
+test = ["pytest>=8.4,<10"]
+dev = [
+  "build>=1.3,<2",
+  "mypy>=1.18,<3",
+  "pytest>=8.4,<10",
+  "ruff>=0.12,<1",
+  "types-PyYAML>=6.0.12,<7",
+  "types-requests>=2.32,<3",
+]
 
 [project.scripts]
 quran-image-generator = "quran_image_generator.cli:main"
@@ -50,3 +63,29 @@ quran_image_generator = [
   "assets/translation_codes/*.yaml",
   "assets/verse_numbers/*.png",
 ]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+extend-exclude = ["readme_images"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src/quran_image_generator"]
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+show_error_codes = true
+warn_return_any = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+# Wand does not publish type information and Instagram support stays optional.
+[[tool.mypy.overrides]]
+module = ["wand.*", "instagrapi"]
+ignore_missing_imports = true

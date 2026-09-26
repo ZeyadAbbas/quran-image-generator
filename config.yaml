@@ -7,7 +7,7 @@
 # Instagram publishing is requested with --publish post/story; credentials belong only in
 # QIG_INSTAGRAM_USERNAME and QIG_INSTAGRAM_PASSWORD, never in this file.
 
-'output path': ''           # !!! WARNING: Do not modify output path if you did the Docker installation. !!!
+'output path': ''           # The container command overrides this with its /output mount.
                             # Where to output the files generated from running this program.
                             # Should be in the format [C:\Users\your name\Desktop\VIDEOS], VIDEOS being the final destination folder to upload to.
                             # If you don't know how to get the path of your folder, open the folder and then follow step 5 on this link: https://shorturl.at/zPseg
@@ -18,7 +18,7 @@
                                      # Should be in the format [width x height] or use [bg] to fit to the size of the background image (if you set one).
                                      # If blank or omitted, the default is 1080 x 1080.
 
-'background image': ''           # !!! WARNING: The image directory should be within the local repository if you did the Docker installation. !!!
+'background image': ''           # In a container, mount the file read-only and use its container path.
                                  # Set a background image.
                                  # Should be in the format [path_to_image].
                                  # If blank or omitted, no image is used and the background color is shown.
