@@ -136,7 +136,7 @@ def build_generator(settings: Settings) -> QuranImageGenerator:
 
     return QuranImageGenerator(
         settings=settings,
-        content_client=QuranContentClient(),
+        content_client=QuranContentClient.from_environment(),
         measurer=WandTextMeasurer(),
         renderer=WandImageRenderer(),
         publisher=InstagramPublisher(

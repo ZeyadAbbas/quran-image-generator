@@ -3,58 +3,121 @@ from types import SimpleNamespace
 
 import pytest
 
-from quran_image_generator.content import QuranContentClient, parse_verse
+from quran_image_generator.content import (
+    QuranApiConfig,
+    QuranContentClient,
+    parse_verse,
+)
 from quran_image_generator.models import GenerationRequest
+
+
+class _FixtureSession:
+    def __init__(self, content_for_url):
+        self.content_for_url = content_for_url
+        self.get_calls = []
+        self.post_calls = []
+
+    def post(self, uri, **kwargs):
+        self.post_calls.append((uri, kwargs))
+        return SimpleNamespace(
+            status_code=200,
+            json=lambda: {
+                "access_token": "fixture-token",
+                "token_type": "bearer",
+                "expires_in": 3600,
+            },
+        )
+
+    def get(self, uri, **kwargs):
+        self.get_calls.append((uri, kwargs))
+        return SimpleNamespace(
+            status_code=200,
+            json=lambda: self.content_for_url(uri),
+        )
+
+
+def _client(session):
+    return QuranContentClient(
+        QuranApiConfig("prelive", "fixture-client", "fixture-secret"),
+        session=session,
+        monotonic=lambda: 0.0,
+    )
 
 
 def test_api_call_builds_expected_request(load_json_fixture):
     payload = load_json_fixture("verse_one_translation.json")
-    captured = {}
-
-    def fake_get(uri, **kwargs):
-        captured["uri"] = uri
-        captured.update(kwargs)
-        return SimpleNamespace(json=lambda: payload)
-
-    client = QuranContentClient(http_get=fake_get)
+    session = _FixtureSession(lambda _uri: payload)
+    client = _client(session)
 
     assert client.api_call("verses/by_key/1:1", ("131", "31")) == payload
-    assert captured == {
-        "uri": "https://api.quran.com/api/v4/verses/by_key/1:1",
-        "headers": {"Accept": "application/json"},
-        "data": {},
-        "params": {
-            "translations": "131, 31",
-            "words": 1,
-            "word_fields": "text_uthmani",
-        },
-    }
+    assert session.get_calls == [
+        (
+            (
+                "https://apis-prelive.quran.foundation/content/api/v4/"
+                "verses/by_key/1:1"
+            ),
+            {
+                "headers": {
+                    "Accept": "application/json",
+                    "x-auth-token": "fixture-token",
+                    "x-client-id": "fixture-client",
+                },
+                "timeout": 30,
+                "params": {
+                    "translations": "131,31",
+                    "words": True,
+                    "word_fields": "text_uthmani",
+                },
+            },
+        )
+    ]
 
 
 def test_fetch_passage_gets_verses_then_chapter(load_json_fixture):
     verse_payload = load_json_fixture("verse_one_translation.json")
     chapter_payload = load_json_fixture("chapter.json")
-    requests = []
+    session = _FixtureSession(
+        lambda uri: chapter_payload if uri.endswith("chapters/1") else verse_payload
+    )
 
-    def fake_get(uri, **kwargs):
-        requests.append((uri, kwargs["params"]["translations"]))
-        payload = chapter_payload if uri.endswith("chapters/1") else verse_payload
-        return SimpleNamespace(json=lambda: payload)
-
-    passage = QuranContentClient(http_get=fake_get).fetch_passage(
+    passage = _client(session).fetch_passage(
         GenerationRequest(1, 1, 1), ("131",)
     )
 
-    assert requests == [
-        ("https://api.quran.com/api/v4/verses/by_key/1:1", "131"),
-        ("https://api.quran.com/api/v4/chapters/1", "131"),
+    assert [call[0] for call in session.get_calls] == [
+        "https://apis-prelive.quran.foundation/content/api/v4/verses/by_key/1:1",
+        "https://apis-prelive.quran.foundation/content/api/v4/chapters/1",
     ]
+    assert session.get_calls[0][1]["params"] == {
+        "translations": "131",
+        "words": True,
+        "word_fields": "text_uthmani",
+    }
+    assert session.get_calls[1][1] == {
+        "headers": {
+            "Accept": "application/json",
+            "x-auth-token": "fixture-token",
+            "x-client-id": "fixture-client",
+        },
+        "timeout": 30,
+    }
     assert passage.chapter_name == "Al-Fatihah"
     assert [verse.key for verse in passage.verses] == ["1:1"]
     assert [
         translation.resource_id
         for translation in passage.verses[0].translations
     ] == ["131"]
+
+
+def test_verse_without_translations_omits_translation_parameter(load_json_fixture):
+    payload = load_json_fixture("verse_no_translations.json")
+    session = _FixtureSession(lambda _uri: payload)
+
+    assert _client(session).api_call("verses/by_key/1:1", ()) == payload
+    assert session.get_calls[0][1]["params"] == {
+        "words": True,
+        "word_fields": "text_uthmani",
+    }
 
 
 def test_parses_verse_words(load_json_fixture):

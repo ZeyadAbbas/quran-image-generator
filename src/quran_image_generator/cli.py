@@ -200,6 +200,7 @@ def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
         try:
             settings = load_settings(args.config, create_output_dir=False)
             settings = _settings_with_output_directory(settings, args.output_dir)
+            generator = build_generator(settings)
         except (OSError, SettingsValidationError, ValueError) as error:
             parser.exit(2, f"{error}\n")
 
@@ -215,7 +216,6 @@ def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
         if open_output is None:
             open_output = not one_shot
 
-        generator = build_generator(settings)
         result = generator.generate(
             request,
             publish=settings.upload is True,
