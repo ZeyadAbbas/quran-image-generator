@@ -153,6 +153,29 @@ def test_official_uthmani_word_field_is_preferred_with_legacy_fallback():
     assert parse_verse(payload, ()).words == ("official", "fallback")
 
 
+def test_null_and_blank_uthmani_values_use_legacy_text():
+    payload = {
+        "verse": {
+            "verse_number": 1,
+            "verse_key": "1:1",
+            "words": [
+                {
+                    "char_type_name": "word",
+                    "text_uthmani": None,
+                    "text": "legacy",
+                },
+                {
+                    "char_type_name": "word",
+                    "text_uthmani": "",
+                    "text": "fallback",
+                },
+            ],
+        }
+    }
+
+    assert parse_verse(payload, ()).words == ("legacy", "fallback")
+
+
 def test_translation_markup_preserves_readable_text_and_removes_footnote():
     payload = {
         "verse": {
@@ -174,6 +197,35 @@ def test_translation_markup_preserves_readable_text_and_removes_footnote():
     verse = parse_verse(payload, ("131",))
 
     assert verse.translations[0].text == "Read this now."
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        (
+            "before <sup foot_note=1>hidden<wbr>note</sup> after",
+            "before after",
+        ),
+        ("2<sup>nd</sup> place", "2nd place"),
+        (
+            "before <sup footnote=1>hidden</em>still hidden</sup> after",
+            "before after",
+        ),
+    ],
+)
+def test_translation_footnote_suppression_is_tag_aware(text, expected):
+    payload = {
+        "verse": {
+            "verse_number": 1,
+            "verse_key": "1:1",
+            "words": [],
+            "translations": [{"resource_id": 131, "text": text}],
+        }
+    }
+
+    verse = parse_verse(payload, ("131",))
+
+    assert verse.translations[0].text == expected
 
 
 @pytest.mark.xfail(

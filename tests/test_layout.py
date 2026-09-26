@@ -2,6 +2,7 @@ import pytest
 
 from layout import (
     LayoutOverflowError,
+    TextMetrics,
     build_layout,
     layout_quran_text,
     layout_translation_text,
@@ -11,12 +12,19 @@ from settings import Dimensions, TranslationSettings
 
 
 class FixedMeasurer:
-    def __init__(self, width, height):
+    def __init__(self, width, height, descender=0, ascender=None):
         self.width = width
         self.height = height
+        self.ascender = height if ascender is None else ascender
+        self.descender = descender
 
     def measure(self, text, style):
-        return self.width, self.height
+        return TextMetrics(
+            self.width,
+            self.height,
+            self.ascender,
+            self.descender,
+        )
 
 
 def passage_with(*verses):
@@ -168,6 +176,40 @@ def test_build_layout_preserves_centering_and_baseline(settings_factory):
     ]
 
 
+def test_descender_is_included_below_the_shared_draw_baseline(settings_factory):
+    passage = passage_with(Verse(1, "1:1", ("gypq",), ()))
+    settings = settings_factory(resolution=Dimensions(100, 100))
+
+    image_layout = build_layout(
+        passage, settings, FixedMeasurer(30, 8, 4)
+    )
+
+    assert image_layout.content_bounds is not None
+    line = image_layout.lines[0]
+    assert line.top == 44
+    assert line.y == 52
+    assert line.bottom == 56
+    assert image_layout.content_bounds.top == 44
+    assert image_layout.content_bounds.bottom == 56
+    assert image_layout.content_height == 12
+
+
+def test_descender_contributes_to_vertical_overflow(settings_factory):
+    passage = passage_with(Verse(1, "1:1", ("gypq",), ()))
+    settings = settings_factory(
+        resolution=Dimensions(100, 100),
+        total_y_offset=45,
+    )
+
+    with pytest.raises(LayoutOverflowError) as caught:
+        build_layout(passage, settings, FixedMeasurer(30, 8, 4))
+
+    assert caught.value.axis == "vertical"
+    assert caught.value.actual == (89, 101)
+    assert caught.value.allowed == (0, 100)
+    assert caught.value.overflow == 1
+
+
 def test_multilanguage_spacing_matches_positioned_bounds(settings_factory):
     translations = (
         TranslationSettings("en", "131", "Fixture Sans", 18),
@@ -187,7 +229,7 @@ def test_multilanguage_spacing_matches_positioned_bounds(settings_factory):
 
     assert image_layout.content_bounds is not None
     top = image_layout.content_bounds.top
-    relative_tops = [line.y - line.height - top for line in image_layout.lines]
+    relative_tops = [line.top - top for line in image_layout.lines]
     assert relative_tops == [0, 42, 61]
     assert image_layout.content_height == 73
     assert image_layout.content_bounds.height == 73
@@ -205,7 +247,7 @@ def test_multiple_verses_use_only_interverse_spacing(settings_factory):
 
     assert image_layout.content_bounds is not None
     top = image_layout.content_bounds.top
-    relative_tops = [line.y - line.height - top for line in image_layout.lines]
+    relative_tops = [line.top - top for line in image_layout.lines]
     assert relative_tops == [0, 32]
     assert image_layout.content_height == 44
 
@@ -308,13 +350,13 @@ def test_reported_bounds_match_every_positioned_element(settings_factory):
     lefts = [line.x for line in image_layout.lines] + [
         marker.x for marker in image_layout.markers
     ]
-    tops = [line.y - line.height for line in image_layout.lines] + [
+    tops = [line.top for line in image_layout.lines] + [
         marker.y for marker in image_layout.markers
     ]
     rights = [line.x + line.width for line in image_layout.lines] + [
         marker.x + marker.width for marker in image_layout.markers
     ]
-    bottoms = [line.y for line in image_layout.lines] + [
+    bottoms = [line.bottom for line in image_layout.lines] + [
         marker.y + marker.height for marker in image_layout.markers
     ]
     assert image_layout.content_bounds.left == min(lefts)

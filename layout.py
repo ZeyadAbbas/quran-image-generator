@@ -21,10 +21,33 @@ class TextStyle:
 
 
 @dataclass(frozen=True, slots=True)
-class MeasuredLine:
-    text: str
+class TextMetrics:
     width: float
     height: float
+    ascender: float
+    descender: float
+
+
+@dataclass(frozen=True, slots=True)
+class MeasuredLine:
+    text: str
+    metrics: TextMetrics
+
+    @property
+    def width(self) -> float:
+        return self.metrics.width
+
+    @property
+    def ascender(self) -> float:
+        return self.metrics.ascender
+
+    @property
+    def descender(self) -> float:
+        return self.metrics.descender
+
+    @property
+    def height(self) -> float:
+        return self.metrics.height
 
 
 @dataclass(frozen=True, slots=True)
@@ -39,9 +62,32 @@ class PositionedLine:
     text: str
     x: float
     y: float
-    width: float
-    height: float
+    metrics: TextMetrics
     style: TextStyle
+
+    @property
+    def width(self) -> float:
+        return self.metrics.width
+
+    @property
+    def ascender(self) -> float:
+        return self.metrics.ascender
+
+    @property
+    def descender(self) -> float:
+        return self.metrics.descender
+
+    @property
+    def height(self) -> float:
+        return self.metrics.height
+
+    @property
+    def top(self) -> float:
+        return self.y - self.ascender
+
+    @property
+    def bottom(self) -> float:
+        return self.y + self.descender
 
 
 @dataclass(frozen=True, slots=True)
@@ -144,8 +190,7 @@ def _translation_style(
 
 
 def _measure_line(text: str, style: TextStyle, measurer: Any) -> MeasuredLine:
-    width, height = measurer.measure(text, style)
-    return MeasuredLine(text, width, height)
+    return MeasuredLine(text, measurer.measure(text, style))
 
 
 def _block_height(lines: tuple[MeasuredLine, ...], spacing: int) -> float:
@@ -348,8 +393,7 @@ def _position_text_block(
             line.text,
             x_position,
             baseline,
-            line.width,
-            line.height,
+            line.metrics,
             block.style,
         )
         positioned_lines.append(last_positioned)
@@ -367,13 +411,11 @@ def _content_bounds(
         return None
 
     left_edges = [line.x for line in lines] + [marker.x for marker in markers]
-    top_edges = [line.y - line.height for line in lines] + [
-        marker.y for marker in markers
-    ]
+    top_edges = [line.top for line in lines] + [marker.y for marker in markers]
     right_edges = [line.x + line.width for line in lines] + [
         marker.x + marker.width for marker in markers
     ]
-    bottom_edges = [line.y for line in lines] + [
+    bottom_edges = [line.bottom for line in lines] + [
         marker.y + marker.height for marker in markers
     ]
     return Bounds(
@@ -394,8 +436,7 @@ def _shift_vertical(
             line.text,
             line.x,
             line.y + amount,
-            line.width,
-            line.height,
+            line.metrics,
             line.style,
         )
         for line in lines

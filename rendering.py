@@ -7,7 +7,7 @@ from pathlib import Path
 from wand.drawing import Drawing
 from wand.image import Image
 
-from layout import ImageLayout, TextStyle
+from layout import ImageLayout, TextMetrics, TextStyle
 from settings import Settings
 
 VERSE_NUMBERS_FOLDER = Path("assets/verse_numbers")
@@ -23,11 +23,16 @@ def _apply_style(draw: Drawing, style: TextStyle) -> None:
 
 
 class WandTextMeasurer:
-    def measure(self, text: str, style: TextStyle) -> tuple[float, float]:
+    def measure(self, text: str, style: TextStyle) -> TextMetrics:
         with Image(width=1, height=1) as image, Drawing() as draw:
             _apply_style(draw, style)
             metrics = draw.get_font_metrics(image, text)
-        return metrics.text_width, metrics.text_height
+        return TextMetrics(
+            width=metrics.text_width,
+            height=metrics.text_height,
+            ascender=max(0.0, metrics.ascender),
+            descender=max(0.0, -metrics.descender),
+        )
 
 
 class WandImageRenderer:
