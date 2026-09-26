@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 import requests
 
-from layout import TextMetrics
-from settings import Dimensions, Settings
+from quran_image_generator.layout import TextMetrics
+from quran_image_generator.settings import Dimensions, Settings
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 

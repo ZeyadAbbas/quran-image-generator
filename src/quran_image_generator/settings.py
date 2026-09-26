@@ -16,6 +16,8 @@ from typing import Any, Literal
 
 import yaml
 
+from .resources import PACKAGE_DIRECTORY, asset_path
+
 Position = int | Literal["center"]
 UploadMode = bool | Literal["ask"]
 
@@ -354,6 +356,7 @@ def _parse_font(
     data: Mapping[str, Any],
     field: str,
     base_directory: Path,
+    application_directory: Path,
     issues: list[ValidationIssue],
 ) -> Path | str:
     raw = _raw_value(data, field)
@@ -364,6 +367,13 @@ def _parse_font(
     if text.lower() == "arial":
         return "Arial"
     path = _resolve_path(text, base_directory)
+    if not path.is_file():
+        package_relative = (application_directory / text).resolve(strict=False)
+        bundled_font = asset_path("fonts", text).resolve(strict=False)
+        if package_relative.is_file():
+            path = package_relative
+        elif bundled_font.is_file():
+            path = bundled_font
     if path.suffix.lower() not in {".ttf", ".otf"}:
         _add_issue(issues, field, "must point to a .ttf or .otf font")
         return "Arial"
@@ -529,7 +539,7 @@ def _translation_font(
     issues: list[ValidationIssue],
 ) -> Path | str:
     if _is_blank(raw):
-        multilingual_directory = application_directory / "assets" / "fonts" / "multilingual_fonts"
+        multilingual_directory = asset_path("fonts", "multilingual_fonts")
         for suffix in (".ttf", ".otf"):
             candidate = multilingual_directory / f"{language_code}{suffix}"
             if candidate.is_file():
@@ -542,8 +552,13 @@ def _translation_font(
     if text.lower() == "arial":
         return "Arial"
     path = _resolve_path(text, base_directory)
-    if not path.exists() and Path(text).parent == Path("."):
-        path = (application_directory / "assets" / "fonts" / text).resolve(strict=False)
+    if not path.is_file():
+        package_relative = (application_directory / text).resolve(strict=False)
+        bundled_font = asset_path("fonts", text).resolve(strict=False)
+        if package_relative.is_file():
+            path = package_relative
+        elif bundled_font.is_file():
+            path = bundled_font
     if path.suffix.lower() not in {".ttf", ".otf"}:
         _add_issue(issues, field, "font must point to a .ttf or .otf file")
         return "Arial"
@@ -662,11 +677,11 @@ def load_settings(
     source_path = Path(config_path).expanduser().resolve(strict=False)
     data = _load_yaml(source_path)
     base_directory = source_path.parent
-    application_directory = Path(__file__).resolve().parent
+    application_directory = PACKAGE_DIRECTORY
     catalog_path = (
         Path(language_codes_path).expanduser().resolve(strict=False)
         if language_codes_path is not None
-        else application_directory / "assets" / "translation_codes" / "translation_codes.yaml"
+        else asset_path("translation_codes", "translation_codes.yaml")
     )
     issues: list[ValidationIssue] = []
     _validate_top_level_keys(data, issues)
@@ -675,7 +690,13 @@ def load_settings(
     background_image = _parse_optional_file(data, "background image", base_directory, issues)
     resolution = _parse_resolution(data, background_image, issues)
     background_color = _parse_color(data, "background color", issues)
-    quran_font = _parse_font(data, "quran font", base_directory, issues)
+    quran_font = _parse_font(
+        data,
+        "quran font",
+        base_directory,
+        application_directory,
+        issues,
+    )
     quran_color = _parse_color(data, "quran color", issues)
     quran_font_size = _parse_int(data, "quran font size", issues, minimum=1)
     quran_x_position = _parse_position(data, "quran x position", issues)

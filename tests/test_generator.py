@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from layout import LayoutOverflowError, TextMetrics
-from models import GenerationRequest, Passage, Verse
-from quran_image_generator import InstagramPublisher, QuranImageGenerator
-from settings import Dimensions
+from quran_image_generator.generator import InstagramPublisher, QuranImageGenerator
+from quran_image_generator.layout import LayoutOverflowError, TextMetrics
+from quran_image_generator.models import GenerationRequest, Passage, Verse
+from quran_image_generator.settings import Dimensions
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -157,14 +157,14 @@ def test_instagram_dependency_is_only_required_when_posting(monkeypatch):
 
 def test_core_imports_do_not_require_wand_or_instagram(tmp_path):
     environment = os.environ.copy()
-    environment["PYTHONPATH"] = str(PROJECT_ROOT)
+    environment["PYTHONPATH"] = str(PROJECT_ROOT / "src")
     script = (
         "import builtins; original = builtins.__import__; "
         "builtins.__import__ = lambda name, *a, **k: "
         "(_ for _ in ()).throw(ImportError(name)) "
         "if name.split('.')[0] in {'wand', 'instagrapi'} "
         "else original(name, *a, **k); "
-        "import models, content, layout, quran_image_generator"
+        "from quran_image_generator import content, generator, layout, models"
     )
 
     completed = subprocess.run(

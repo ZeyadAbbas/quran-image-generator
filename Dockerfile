@@ -16,4 +16,4 @@ COPY . .
 
 RUN pip install .
 
-CMD ["python", "main.py"]
+CMD ["quran-image-generator", "--no-open"]

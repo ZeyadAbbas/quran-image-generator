@@ -3,8 +3,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from content import QuranContentClient, parse_verse
-from models import GenerationRequest
+from quran_image_generator.content import QuranContentClient, parse_verse
+from quran_image_generator.models import GenerationRequest
 
 
 def test_api_call_builds_expected_request(load_json_fixture):

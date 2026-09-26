@@ -12,7 +12,7 @@ from typing import Any
 
 import requests
 
-from models import GenerationRequest, Passage, Verse, VerseTranslation
+from .models import GenerationRequest, Passage, Verse, VerseTranslation
 
 QURAN_API_BASE_URL = "https://api.quran.com/api/v4"
 
