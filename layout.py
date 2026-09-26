@@ -26,6 +26,20 @@ class TextMetrics:
     height: float
     ascender: float
     descender: float
+    top_extent: float | None = None
+    bottom_extent: float | None = None
+
+    @property
+    def visual_top_extent(self) -> float:
+        if self.top_extent is None:
+            return self.ascender
+        return self.top_extent
+
+    @property
+    def visual_bottom_extent(self) -> float:
+        if self.bottom_extent is None:
+            return self.descender
+        return self.bottom_extent
 
 
 @dataclass(frozen=True, slots=True)
@@ -83,11 +97,11 @@ class PositionedLine:
 
     @property
     def top(self) -> float:
-        return self.y - self.ascender
+        return self.y - self.metrics.visual_top_extent
 
     @property
     def bottom(self) -> float:
-        return self.y + self.descender
+        return self.y + self.metrics.visual_bottom_extent
 
 
 @dataclass(frozen=True, slots=True)
@@ -193,6 +207,19 @@ def _measure_line(text: str, style: TextStyle, measurer: Any) -> MeasuredLine:
     return MeasuredLine(text, measurer.measure(text, style))
 
 
+def _measure_final_lines(
+    lines: tuple[MeasuredLine, ...],
+    style: TextStyle,
+    measurer: Any,
+) -> tuple[MeasuredLine, ...]:
+    measure_ink = getattr(measurer, "measure_ink", None)
+    if not callable(measure_ink):
+        return lines
+    return tuple(
+        MeasuredLine(line.text, measure_ink(line.text, style)) for line in lines
+    )
+
+
 def _block_height(lines: tuple[MeasuredLine, ...], spacing: int) -> float:
     if not lines:
         return 0
@@ -258,6 +285,7 @@ def layout_quran_text(
         measurer,
         final_line_reserve=_marker_reserve(settings),
     )
+    measured_lines = _measure_final_lines(measured_lines, style, measurer)
     return TextBlock(
         lines=measured_lines,
         height=_block_height(measured_lines, settings.quran_line_spacing),
@@ -281,6 +309,7 @@ def layout_translation_text(
         style,
         measurer,
     )
+    measured_lines = _measure_final_lines(measured_lines, style, measurer)
     return TextBlock(
         lines=measured_lines,
         height=_block_height(measured_lines, settings.translation_line_spacing),

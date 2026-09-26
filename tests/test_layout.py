@@ -210,6 +210,39 @@ def test_descender_contributes_to_vertical_overflow(settings_factory):
     assert caught.value.overflow == 1
 
 
+def test_final_line_ink_measurement_controls_reported_bounds(settings_factory):
+    class InkMeasurer:
+        def __init__(self):
+            self.ink_calls = []
+
+        def measure(self, text, style):
+            return TextMetrics(30, 8, 6, 2)
+
+        def measure_ink(self, text, style):
+            self.ink_calls.append(text)
+            return TextMetrics(
+                30,
+                8,
+                6,
+                2,
+                top_extent=10,
+                bottom_extent=7,
+            )
+
+    passage = passage_with(Verse(1, "1:1", ("marked",), ()))
+    settings = settings_factory(resolution=Dimensions(100, 100))
+    measurer = InkMeasurer()
+
+    image_layout = build_layout(passage, settings, measurer)
+
+    assert measurer.ink_calls == ["marked"]
+    assert image_layout.content_bounds is not None
+    line = image_layout.lines[0]
+    assert line.top == line.y - 10
+    assert line.bottom == line.y + 7
+    assert image_layout.content_bounds.height == 17
+
+
 def test_multilanguage_spacing_matches_positioned_bounds(settings_factory):
     translations = (
         TranslationSettings("en", "131", "Fixture Sans", 18),

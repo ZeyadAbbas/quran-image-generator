@@ -1,11 +1,14 @@
+from dataclasses import replace
 from math import ceil, floor
 from pathlib import Path
 
+import pytest
 from wand.image import Image as WandImage
 
 import rendering
 from layout import (
     ImageLayout,
+    LayoutOverflowError,
     PositionedLine,
     TextMetrics,
     TextStyle,
@@ -17,6 +20,20 @@ from rendering import WandImageRenderer, WandTextMeasurer
 from settings import Dimensions
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _trimmed_pixel_bounds(path):
+    with (
+        WandImage(filename=str(path)) as rendered,
+        rendered.clone() as trimmed,
+    ):
+        trimmed.trim()
+        return (
+            trimmed.page_x,
+            trimmed.page_y,
+            trimmed.page_x + trimmed.width,
+            trimmed.page_y + trimmed.height,
+        )
 
 
 def test_wand_renderer_draws_text_and_saves_destination(
@@ -110,7 +127,7 @@ def test_wand_bounds_include_pixels_rendered_below_the_baseline(
 ):
     font = PROJECT_ROOT / "assets" / "fonts" / "multilingual_fonts" / "am.ttf"
     settings = settings_factory(
-        resolution=Dimensions(400, 200),
+        resolution=Dimensions(400, 300),
         quran_font=font,
         quran_font_size=80,
         quran_max_width=350,
@@ -128,18 +145,52 @@ def test_wand_bounds_include_pixels_rendered_below_the_baseline(
     line = image_layout.lines[0]
     assert line.descender > 0
     assert line.bottom > line.y
-    with (
-        WandImage(filename=str(destination)) as rendered,
-        rendered.clone() as trimmed,
-    ):
-        trimmed.trim()
-        pixel_bounds = (
-            trimmed.page_x,
-            trimmed.page_y,
-            trimmed.page_x + trimmed.width,
-            trimmed.page_y + trimmed.height,
-        )
+    pixel_bounds = _trimmed_pixel_bounds(destination)
 
     assert pixel_bounds[3] > int(line.y)
     assert pixel_bounds[1] >= floor(image_layout.content_bounds.top) - 1
     assert pixel_bounds[3] <= ceil(image_layout.content_bounds.bottom) + 1
+
+
+def test_quran_combining_marks_are_bounded_and_unsafe_shift_is_rejected(
+    settings_factory, tmp_path
+):
+    font = PROJECT_ROOT / "assets" / "fonts" / "quran_font.ttf"
+    settings = settings_factory(
+        resolution=Dimensions(900, 300),
+        quran_font=font,
+        quran_font_size=80,
+        quran_max_width=850,
+        background_color="#000000",
+        quran_color="#FFFFFF",
+        show_verse_numbers=False,
+    )
+    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+    passage = Passage(1, "Test", (Verse(1, "1:1", (text,), ()),))
+    image_layout = build_layout(passage, settings, WandTextMeasurer())
+    destination = tmp_path / "quran-combining-marks.png"
+
+    WandImageRenderer().render(image_layout, settings, destination)
+
+    assert image_layout.content_bounds is not None
+    line = image_layout.lines[0]
+    pixel_bounds = _trimmed_pixel_bounds(destination)
+    assert pixel_bounds[1] < floor(line.y - line.ascender)
+    assert pixel_bounds[3] > ceil(line.y + line.descender)
+    assert pixel_bounds[1] >= floor(image_layout.content_bounds.top) - 1
+    assert pixel_bounds[3] <= ceil(image_layout.content_bounds.bottom) + 1
+    assert abs(pixel_bounds[1] - image_layout.content_bounds.top) <= 1
+    assert abs(pixel_bounds[3] - image_layout.content_bounds.bottom) <= 1
+
+    # This moves the old ascender-only top just inside the canvas, even though
+    # the real Arabic ink would cross the edge. The complete envelope must
+    # reject it before rendering.
+    unsafe_offset = -floor(line.y - line.ascender)
+    assert pixel_bounds[1] + unsafe_offset < 0
+    unsafe_settings = replace(settings, total_y_offset=unsafe_offset)
+
+    with pytest.raises(LayoutOverflowError) as caught:
+        build_layout(passage, unsafe_settings, WandTextMeasurer())
+
+    assert caught.value.axis == "vertical"
+    assert caught.value.actual[0] < 0
