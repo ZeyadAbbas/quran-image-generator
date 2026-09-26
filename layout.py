@@ -239,27 +239,28 @@ def _translation_style(
     )
 
 
-def _measure_line(text: str, style: TextStyle, measurer: Any) -> MeasuredLine:
-    return MeasuredLine(text, measurer.measure(text, style))
+def _block_height(lines: tuple[MeasuredLine, ...], spacing: int) -> float:
+    if not lines:
+        return 0
+    return sum(line.height for line in lines) + spacing * (len(lines) - 1)
+
+
+def _measure_line(
+    text: str,
+    style: TextStyle,
+    measure_text: Any,
+) -> MeasuredLine:
+    return MeasuredLine(text, measure_text(text, style))
 
 
 def _measure_final_lines(
     lines: tuple[MeasuredLine, ...],
     style: TextStyle,
-    measurer: Any,
+    measure_ink: Any,
 ) -> tuple[MeasuredLine, ...]:
-    measure_ink = getattr(measurer, "measure_ink", None)
-    if not callable(measure_ink):
-        return lines
     return tuple(
-        MeasuredLine(line.text, measure_ink(line.text, style)) for line in lines
+        _measure_line(line.text, style, measure_ink) for line in lines
     )
-
-
-def _block_height(lines: tuple[MeasuredLine, ...], spacing: int) -> float:
-    if not lines:
-        return 0
-    return sum(line.height for line in lines) + spacing * (len(lines) - 1)
 
 
 def _wrap_words(
@@ -268,6 +269,7 @@ def _wrap_words(
     measurer: Any,
     *,
     final_line_reserve: int = 0,
+    measure_text: Any | None = None,
 ) -> tuple[MeasuredLine, ...]:
     """Greedily wrap without emitting empty lines or splitting a token.
 
@@ -279,26 +281,81 @@ def _wrap_words(
     normalized_words = tuple(word for word in words if word)
     lines: list[MeasuredLine] = []
     current_line = ""
+    measure = measurer.measure if measure_text is None else measure_text
 
     for index, word in enumerate(normalized_words):
         candidate = (
             current_line + style.word_spacing + word if current_line else word
         )
-        candidate_metrics = _measure_line(candidate, style, measurer)
+        candidate_metrics = _measure_line(candidate, style, measure)
         available_width = style.max_width
         if index == len(normalized_words) - 1:
             available_width -= final_line_reserve
 
-        if not current_line or candidate_metrics.width <= available_width:
+        if not current_line or candidate_metrics.visual_width <= available_width:
             current_line = candidate
             continue
 
-        lines.append(_measure_line(current_line, style, measurer))
+        lines.append(_measure_line(current_line, style, measure))
         current_line = word
 
     if current_line:
-        lines.append(_measure_line(current_line, style, measurer))
+        lines.append(_measure_line(current_line, style, measure))
     return tuple(lines)
+
+
+def _lines_fit_width(
+    lines: tuple[MeasuredLine, ...],
+    style: TextStyle,
+    final_line_reserve: int,
+) -> bool:
+    return all(
+        line.visual_width
+        <= style.max_width
+        - (final_line_reserve if index == len(lines) - 1 else 0)
+        for index, line in enumerate(lines)
+    )
+
+
+def _wrap_and_measure_words(
+    words: tuple[str, ...],
+    style: TextStyle,
+    measurer: Any,
+    *,
+    final_line_reserve: int = 0,
+) -> tuple[MeasuredLine, ...]:
+    measured_lines = _wrap_words(
+        words,
+        style,
+        measurer,
+        final_line_reserve=final_line_reserve,
+    )
+    measure_ink = getattr(measurer, "measure_ink", None)
+    if not callable(measure_ink):
+        return measured_lines
+
+    measured_lines = _measure_final_lines(
+        measured_lines,
+        style,
+        measure_ink,
+    )
+    if len(measured_lines) == 1 and _lines_fit_width(
+        measured_lines,
+        style,
+        final_line_reserve,
+    ):
+        return measured_lines
+
+    # The first pass uses cheap advance widths. Reflow with cached raster
+    # widths only at a real wrap boundary or when shaped ink overhangs an
+    # otherwise accepted one-line plan.
+    return _wrap_words(
+        words,
+        style,
+        measurer,
+        final_line_reserve=final_line_reserve,
+        measure_text=measure_ink,
+    )
 
 
 def _marker_reserve(settings: Settings) -> int:
@@ -315,13 +372,12 @@ def layout_quran_text(
     words: tuple[str, ...], settings: Settings, measurer: Any
 ) -> TextBlock:
     style = _quran_style(settings)
-    measured_lines = _wrap_words(
+    measured_lines = _wrap_and_measure_words(
         words,
         style,
         measurer,
         final_line_reserve=_marker_reserve(settings),
     )
-    measured_lines = _measure_final_lines(measured_lines, style, measurer)
     return TextBlock(
         lines=measured_lines,
         height=_block_height(measured_lines, settings.quran_line_spacing),
@@ -340,12 +396,11 @@ def layout_translation_text(
         if item.resource_id == translation.resource_id
     )
     style = _translation_style(settings, translation_settings)
-    measured_lines = _wrap_words(
+    measured_lines = _wrap_and_measure_words(
         tuple(translation.text.split()),
         style,
         measurer,
     )
-    measured_lines = _measure_final_lines(measured_lines, style, measurer)
     return TextBlock(
         lines=measured_lines,
         height=_block_height(measured_lines, settings.translation_line_spacing),

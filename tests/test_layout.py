@@ -247,7 +247,7 @@ def test_final_line_ink_measurement_controls_reported_bounds(settings_factory):
 
     image_layout = build_layout(passage, settings, measurer)
 
-    assert measurer.ink_calls == ["marked"]
+    assert set(measurer.ink_calls) == {"marked"}
     assert image_layout.content_bounds is not None
     line = image_layout.lines[0]
     assert line.top == line.y - 10
@@ -401,6 +401,67 @@ def test_marker_reserve_validates_final_visual_width(settings_factory):
     assert caught.value.actual == (0, 110)
     assert caught.value.allowed == (0, 109)
     assert caught.value.overflow == 1
+
+
+def test_visual_width_reflow_handles_both_metric_directions_and_marker_reserve(
+    settings_factory,
+):
+    class ThresholdMeasurer:
+        def __init__(self):
+            self.advance_widths = {
+                "a": 30,
+                "b": 30,
+                "c": 30,
+                "a b": 60,
+                "a b c": 90,
+                "x": 30,
+                "y": 30,
+                "x y": 61,
+            }
+            self.visual_widths = {
+                **self.advance_widths,
+                "a b c": 93,
+                "x y": 60,
+            }
+
+        def measure(self, text, style):
+            return TextMetrics(self.advance_widths[text], 10, 10, 0)
+
+        def measure_ink(self, text, style):
+            return TextMetrics(
+                self.advance_widths[text],
+                10,
+                10,
+                0,
+                right_offset=self.visual_widths[text],
+            )
+
+    measurer = ThresholdMeasurer()
+    overhanging = layout_quran_text(
+        ("a", "b", "c"),
+        settings_factory(quran_max_width=92),
+        measurer,
+    )
+    narrower_ink = layout_quran_text(
+        ("x", "y"),
+        settings_factory(quran_max_width=60),
+        measurer,
+    )
+    marked = layout_quran_text(
+        ("a", "b", "c"),
+        settings_factory(
+            quran_max_width=112,
+            show_verse_numbers=True,
+            verse_number_resolution=Dimensions(20, 20),
+            verse_number_x_offset=0,
+        ),
+        measurer,
+    )
+
+    assert [line.text for line in overhanging.lines] == ["a b", "c"]
+    assert [line.text for line in narrower_ink.lines] == ["x y"]
+    assert [line.text for line in marked.lines] == ["a b", "c"]
+    assert marked.lines[-1].visual_width <= 92
 
 
 def test_right_aligned_overflow_is_reported_instead_of_mirrored(
