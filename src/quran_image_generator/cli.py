@@ -207,6 +207,7 @@ def _publish_generated_image(image_path: Path, target_value: str) -> None:
 
 
 def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
+    from .content import QuranApiError
     from .generator import build_generator
     from .models import GenerationRequest
     from .settings import SettingsValidationError, load_settings
@@ -240,7 +241,10 @@ def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
         if open_output is None:
             open_output = not one_shot
 
-        result = generator.generate(request, open_output=open_output)
+        try:
+            result = generator.generate(request, open_output=open_output)
+        except QuranApiError as error:
+            parser.exit(1, f"Quran API error: {error}\n")
 
         if args.publish is not None:
             from .publishing import PublishingError

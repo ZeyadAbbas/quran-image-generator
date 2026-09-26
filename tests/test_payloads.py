@@ -5,6 +5,7 @@ import pytest
 
 from quran_image_generator.content import (
     QuranApiConfig,
+    QuranApiPayloadError,
     QuranContentClient,
     parse_verse,
 )
@@ -21,6 +22,7 @@ class _FixtureSession:
         self.post_calls.append((uri, kwargs))
         return SimpleNamespace(
             status_code=200,
+            headers={"Content-Type": "application/json"},
             json=lambda: {
                 "access_token": "fixture-token",
                 "token_type": "bearer",
@@ -32,6 +34,7 @@ class _FixtureSession:
         self.get_calls.append((uri, kwargs))
         return SimpleNamespace(
             status_code=200,
+            headers={"Content-Type": "application/json"},
             json=lambda: self.content_for_url(uri),
         )
 
@@ -46,6 +49,9 @@ def _client(session):
 
 def test_api_call_builds_expected_request(load_json_fixture):
     payload = load_json_fixture("verse_one_translation.json")
+    payload["verse"]["translations"].append(
+        {"resource_id": 31, "text": "second translation"}
+    )
     session = _FixtureSession(lambda _uri: payload)
     client = _client(session)
 
@@ -62,7 +68,7 @@ def test_api_call_builds_expected_request(load_json_fixture):
                     "x-auth-token": "fixture-token",
                     "x-client-id": "fixture-client",
                 },
-                "timeout": 30,
+                "timeout": (5.0, 30.0),
                 "params": {
                     "translations": "131,31",
                     "words": 1,
@@ -99,7 +105,7 @@ def test_fetch_passage_gets_verses_then_chapter(load_json_fixture):
             "x-auth-token": "fixture-token",
             "x-client-id": "fixture-client",
         },
-        "timeout": 30,
+        "timeout": (5.0, 30.0),
     }
     assert passage.chapter_name == "Al-Fatihah"
     assert [verse.key for verse in passage.verses] == ["1:1"]
@@ -118,6 +124,100 @@ def test_verse_without_translations_omits_translation_parameter(load_json_fixtur
         "words": 1,
         "word_fields": "text_uthmani",
     }
+
+
+@pytest.mark.parametrize(
+    ("payload", "resource_ids", "message"),
+    [
+        ({}, (), "verse object"),
+        (
+            {
+                "verse": {
+                    "verse_number": True,
+                    "verse_key": "1:1",
+                    "words": [],
+                }
+            },
+            (),
+            "verse_number",
+        ),
+        (
+            {
+                "verse": {
+                    "verse_number": 1,
+                    "verse_key": "",
+                    "words": [],
+                }
+            },
+            (),
+            "verse_key",
+        ),
+        (
+            {
+                "verse": {
+                    "verse_number": 1,
+                    "verse_key": "1:1",
+                    "words": "not-a-list",
+                }
+            },
+            (),
+            "words",
+        ),
+        (
+            {
+                "verse": {
+                    "verse_number": 1,
+                    "verse_key": "1:1",
+                    "words": [{"char_type_name": "word"}],
+                }
+            },
+            (),
+            "include text",
+        ),
+        (
+            {
+                "verse": {
+                    "verse_number": 1,
+                    "verse_key": "1:1",
+                    "words": [],
+                    "translations": [{"resource_id": 131}],
+                }
+            },
+            (),
+            "translation text",
+        ),
+        (
+            {
+                "verse": {
+                    "verse_number": 1,
+                    "verse_key": "1:1",
+                    "words": [],
+                    "translations": [],
+                }
+            },
+            ("131",),
+            "requested translation",
+        ),
+    ],
+)
+def test_verse_response_fields_are_validated_before_mapping(
+    payload, resource_ids, message
+):
+    session = _FixtureSession(lambda _uri: payload)
+
+    with pytest.raises(QuranApiPayloadError, match=message):
+        _client(session).api_call("verses/by_key/1:1", resource_ids)
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [{}, {"chapter": {}}, {"chapter": {"name_simple": ""}}],
+)
+def test_chapter_response_fields_are_validated_before_mapping(payload):
+    session = _FixtureSession(lambda _uri: payload)
+
+    with pytest.raises(QuranApiPayloadError, match="chapter|name_simple"):
+        _client(session).api_call("chapters/1")
 
 
 def test_parses_verse_words(load_json_fixture):
