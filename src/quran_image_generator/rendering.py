@@ -8,10 +8,11 @@ from pathlib import Path
 from wand.drawing import Drawing
 from wand.image import Image
 
-from layout import ImageLayout, TextMetrics, TextStyle
-from settings import Settings
+from .layout import ImageLayout, TextMetrics, TextStyle
+from .resources import asset_path
+from .settings import Settings
 
-VERSE_NUMBERS_FOLDER = Path("assets/verse_numbers")
+VERSE_NUMBERS_FOLDER = asset_path("verse_numbers")
 
 
 def _apply_style(draw: Drawing, style: TextStyle) -> None:

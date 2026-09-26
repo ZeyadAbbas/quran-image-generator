@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import os
+import subprocess
+import sys
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from layout import build_layout
-from models import GenerationRequest, GenerationResult, Passage
-from settings import Settings
+from .layout import build_layout
+from .models import GenerationRequest, GenerationResult, Passage
+from .settings import Settings
 
 
 def _output_path(passage: Passage, output_directory: Path) -> Path:
@@ -24,7 +26,13 @@ def _output_path(passage: Passage, output_directory: Path) -> Path:
 
 
 def _open_image(path: Path) -> None:
-    os.system(f'start "" "{path}"')
+    resolved = str(path.resolve())
+    if sys.platform == "win32":
+        os.startfile(resolved)  # type: ignore[attr-defined]
+    elif sys.platform == "darwin":
+        subprocess.Popen(["open", resolved])
+    else:
+        subprocess.Popen(["xdg-open", resolved])
 
 
 class InstagramPublisher:
@@ -123,8 +131,8 @@ class QuranImageGenerator:
 def build_generator(settings: Settings) -> QuranImageGenerator:
     """Construct the concrete command-line application without doing I/O."""
 
-    from content import QuranContentClient
-    from rendering import WandImageRenderer, WandTextMeasurer
+    from .content import QuranContentClient
+    from .rendering import WandImageRenderer, WandTextMeasurer
 
     return QuranImageGenerator(
         settings=settings,

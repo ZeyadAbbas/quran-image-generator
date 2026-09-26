@@ -1,14 +1,14 @@
 import pytest
 
-from layout import (
+from quran_image_generator.layout import (
     LayoutOverflowError,
     TextMetrics,
     build_layout,
     layout_quran_text,
     layout_translation_text,
 )
-from models import Passage, Verse, VerseTranslation
-from settings import Dimensions, TranslationSettings
+from quran_image_generator.models import Passage, Verse, VerseTranslation
+from quran_image_generator.settings import Dimensions, TranslationSettings
 
 
 class FixedMeasurer:

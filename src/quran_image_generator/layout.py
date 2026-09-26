@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from models import Passage, Verse, VerseTranslation
-from settings import Settings, TranslationSettings
+from .models import Passage, Verse, VerseTranslation
+from .settings import Settings, TranslationSettings
 
 
 @dataclass(frozen=True, slots=True)

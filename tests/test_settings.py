@@ -10,8 +10,12 @@ from pathlib import Path
 
 import yaml
 
-import read_config
-from settings import DEFAULTS, SettingsValidationError, load_settings
+from quran_image_generator import read_config
+from quran_image_generator.settings import (
+    DEFAULTS,
+    SettingsValidationError,
+    load_settings,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -258,13 +262,16 @@ class SettingsTests(unittest.TestCase):
     def test_importing_compatibility_module_has_no_filesystem_side_effect(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             environment = os.environ.copy()
-            environment["PYTHONPATH"] = str(PROJECT_ROOT)
+            environment["PYTHONPATH"] = str(PROJECT_ROOT / "src")
 
             completed = subprocess.run(
                 [
                     sys.executable,
                     "-c",
-                    "import sys; import read_config; assert 'wand.image' not in sys.modules",
+                    (
+                        "import sys; from quran_image_generator import read_config; "
+                        "assert 'wand.image' not in sys.modules"
+                    ),
                 ],
                 cwd=temporary_directory,
                 env=environment,

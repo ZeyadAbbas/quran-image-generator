@@ -1,12 +1,11 @@
 from dataclasses import replace
 from math import ceil, floor
-from pathlib import Path
 
 import pytest
 from wand.image import Image as WandImage
 
-import rendering
-from layout import (
+from quran_image_generator import rendering
+from quran_image_generator.layout import (
     ImageLayout,
     LayoutOverflowError,
     PositionedLine,
@@ -15,11 +14,10 @@ from layout import (
     VerseMarker,
     build_layout,
 )
-from models import Passage, Verse
-from rendering import WandImageRenderer, WandTextMeasurer
-from settings import Dimensions
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+from quran_image_generator.models import Passage, Verse
+from quran_image_generator.rendering import WandImageRenderer, WandTextMeasurer
+from quran_image_generator.resources import asset_path
+from quran_image_generator.settings import Dimensions
 
 
 def _trimmed_pixel_bounds(path):
@@ -113,7 +111,7 @@ def test_wand_renderer_draws_text_and_saves_destination(
     assert saved_paths == [str(destination)]
     assert created_images[1].kwargs == {"filename": str(settings.background_image)}
     assert created_images[2].kwargs == {
-        "filename": str(Path("assets/verse_numbers/1.png"))
+        "filename": str(asset_path("verse_numbers", "1.png"))
     }
     assert composites == [
         (created_images[0], created_images[1], 0, 0),
@@ -125,7 +123,7 @@ def test_wand_renderer_draws_text_and_saves_destination(
 def test_wand_bounds_include_pixels_rendered_below_the_baseline(
     settings_factory, tmp_path
 ):
-    font = PROJECT_ROOT / "assets" / "fonts" / "multilingual_fonts" / "am.ttf"
+    font = asset_path("fonts", "multilingual_fonts", "am.ttf")
     settings = settings_factory(
         resolution=Dimensions(400, 300),
         quran_font=font,
@@ -155,7 +153,7 @@ def test_wand_bounds_include_pixels_rendered_below_the_baseline(
 def test_quran_combining_marks_are_bounded_and_unsafe_shift_is_rejected(
     settings_factory, tmp_path
 ):
-    font = PROJECT_ROOT / "assets" / "fonts" / "quran_font.ttf"
+    font = asset_path("fonts", "quran_font.ttf")
     settings = settings_factory(
         resolution=Dimensions(900, 300),
         quran_font=font,
@@ -199,7 +197,7 @@ def test_quran_combining_marks_are_bounded_and_unsafe_shift_is_rejected(
 def test_quran_visual_right_edge_aligns_without_silent_clipping(
     settings_factory, tmp_path
 ):
-    font = PROJECT_ROOT / "assets" / "fonts" / "quran_font.ttf"
+    font = asset_path("fonts", "quran_font.ttf")
     edge_settings = settings_factory(
         resolution=Dimensions(900, 300),
         quran_font=font,
@@ -244,7 +242,7 @@ def test_quran_visual_right_edge_aligns_without_silent_clipping(
 def test_quran_wrapping_uses_final_visual_width_near_the_limit(
     settings_factory,
 ):
-    font = PROJECT_ROOT / "assets" / "fonts" / "quran_font.ttf"
+    font = asset_path("fonts", "quran_font.ttf")
     common = {
         "resolution": Dimensions(900, 400),
         "quran_font": font,

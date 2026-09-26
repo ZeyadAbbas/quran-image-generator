@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quran-image-generator"
+version = "0.1.0"
+description = "Generate customizable images from Quran passages"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+authors = [
+  { name = "Zeyad Abbas", email = "zeyadabbas238@gmail.com" },
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "requests",
+  "Wand>=0.6.13",
+  "PyYAML",
+]
+
+[project.optional-dependencies]
+instagram = ["instagrapi>=2.0.0"]
+test = ["pytest>=8,<10"]
+
+[project.scripts]
+quran-image-generator = "quran_image_generator.cli:main"
+
+[project.urls]
+Repository = "https://github.com/ZeyadAbbas/quran-image-generator"
+Issues = "https://github.com/ZeyadAbbas/quran-image-generator/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+quran_image_generator = [
+  "assets/*.txt",
+  "assets/fonts/*.ttf",
+  "assets/fonts/multilingual_fonts/*.ttf",
+  "assets/translation_codes/*.txt",
+  "assets/translation_codes/*.yaml",
+  "assets/verse_numbers/*.png",
+]

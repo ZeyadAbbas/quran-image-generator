@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-import read_config as config
-from settings import SettingsValidationError
+from quran_image_generator import read_config as config
+from quran_image_generator.settings import SettingsValidationError
 
 
 def write_config(tmp_path, values):

@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from settings import DEFAULTS as _DEFAULTS
-from settings import Settings, load_settings
+from .settings import DEFAULTS as _DEFAULTS
+from .settings import Settings, load_settings
 
 DEFAULTS = _DEFAULTS
 _settings: Settings | None = None
