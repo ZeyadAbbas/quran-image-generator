@@ -19,9 +19,12 @@ setup(
         "wand>=0.6.13",
         "pyyaml",
         "colorama",
-        "instagrapi>=2.0.0",
         'pillow'
     ],
+    extras_require={
+        "instagram": ["instagrapi>=2.0.0"],
+        "test": ["pytest>=8,<10"],
+    },
     author="Zeyad Abbas",
     author_email="zeyadabbas238@gmail.com",
     description="Generate endless fully customizable designs of Quran verses to post online",
