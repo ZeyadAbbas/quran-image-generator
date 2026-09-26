@@ -246,6 +246,56 @@ def test_missing_quran_api_credentials_fail_before_interactive_prompt(
     assert "https://api-docs.quran.foundation/request-access/" in error
 
 
+def test_quran_api_failure_exits_cleanly_before_publish(
+    monkeypatch, tmp_path, capsys
+):
+    from quran_image_generator.content import QuranApiTransportError
+
+    config_path = _write_config(
+        tmp_path / "config.yaml", **{"translation languages": ""}
+    )
+
+    class FailingGenerator:
+        def generate(self, request, *, open_output):
+            raise QuranApiTransportError(
+                "Quran Foundation Content API", "/verses/by_key/1:1", 3
+            )
+
+    monkeypatch.setattr(
+        generator_module,
+        "build_generator",
+        lambda settings: FailingGenerator(),
+    )
+    monkeypatch.setattr(
+        cli,
+        "_publish_generated_image",
+        lambda path, target: pytest.fail(f"unexpected publish: {path} {target}"),
+    )
+
+    with pytest.raises(SystemExit) as caught:
+        cli.main(
+            [
+                "--config",
+                str(config_path),
+                "--chapter",
+                "1",
+                "--start",
+                "1",
+                "--end",
+                "1",
+                "--publish",
+                "post",
+            ]
+        )
+
+    assert caught.value.code == 1
+    captured = capsys.readouterr()
+    assert "Quran API error:" in captured.err
+    assert "after 3 attempt(s)" in captured.err
+    assert "Traceback" not in captured.err
+    assert "Image Created" not in captured.out
+
+
 @pytest.mark.parametrize("target", ["post", "story"])
 def test_explicit_publish_runs_once_after_successful_generation(
     monkeypatch, tmp_path, target
