@@ -7,6 +7,7 @@ batching, retries, and the new API contract belong to the later API pass.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
+from html.parser import HTMLParser
 from typing import Any
 
 import requests
@@ -16,23 +17,85 @@ from models import GenerationRequest, Passage, Verse, VerseTranslation
 QURAN_API_BASE_URL = "https://api.quran.com/api/v4"
 
 
+class _TranslationHTMLParser(HTMLParser):
+    """Turn the small HTML subset returned by Quran.com into readable text."""
+
+    _BLOCK_TAGS = frozenset({"br", "div", "li", "p"})
+    _IGNORED_TAGS = frozenset({"script", "style"})
+    _VOID_TAGS = frozenset({"br", "hr", "img", "input", "meta", "link"})
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self._ignored_depth = 0
+
+    def handle_starttag(
+        self, tag: str, _attrs: list[tuple[str, str | None]]
+    ) -> None:
+        normalized_tag = tag.lower()
+        starts_ignored_content = (
+            normalized_tag in self._IGNORED_TAGS or normalized_tag == "sup"
+        )
+        if starts_ignored_content:
+            self._ignored_depth += 1
+        elif self._ignored_depth:
+            if normalized_tag not in self._VOID_TAGS:
+                self._ignored_depth += 1
+        elif normalized_tag in self._BLOCK_TAGS:
+            self.parts.append(" ")
+
+    def handle_endtag(self, tag: str) -> None:
+        if self._ignored_depth:
+            self._ignored_depth -= 1
+        elif tag.lower() in self._BLOCK_TAGS:
+            self.parts.append(" ")
+
+    def handle_startendtag(
+        self, tag: str, _attrs: list[tuple[str, str | None]]
+    ) -> None:
+        if not self._ignored_depth and tag.lower() in self._BLOCK_TAGS:
+            self.parts.append(" ")
+
+    def handle_data(self, data: str) -> None:
+        if not self._ignored_depth:
+            self.parts.append(data)
+
+
+def _normalize_translation_text(text: str) -> str:
+    parser = _TranslationHTMLParser()
+    parser.feed(text)
+    parser.close()
+    without_delimiters = "".join(parser.parts).translate(
+        str.maketrans("", "", "˹˺")
+    )
+    return " ".join(without_delimiters.replace("\xa0", " ").split())
+
+
 def parse_verse(
     payload: Mapping[str, Any], requested_resource_ids: Sequence[str]
 ) -> Verse:
     """Map one legacy verse response to immutable domain data.
 
-    The old implementation always discarded the final word item. That behavior
-    is retained until the text-normalization work in #9 can use token metadata.
+    Word and translation values are copied into immutable models.  Only tokens
+    explicitly identified as verse-end markers are omitted.
     """
 
     verse_data = payload["verse"]
     raw_words = verse_data["words"]
-    words = tuple(str(word["text"]) for word in raw_words[:-1])
+    words = tuple(
+        str(
+            word["text_uthmani"]
+            if "text_uthmani" in word
+            else word["text"]
+        )
+        for word in raw_words
+        if str(word.get("char_type_name", "")).lower() != "end"
+    )
 
     translations_by_id = {
         str(item["resource_id"]): VerseTranslation(
             resource_id=str(item["resource_id"]),
-            text=str(item["text"]),
+            text=_normalize_translation_text(str(item["text"])),
         )
         for item in verse_data.get("translations", ())
     }
