@@ -43,6 +43,9 @@ dev = [
 [project.scripts]
 quran-image-generator = "quran_image_generator.cli:main"
 
+[project.gui-scripts]
+quran-image-generator-gui = "quran_image_generator.gui_cli:main"
+
 [project.urls]
 Repository = "https://github.com/ZeyadAbbas/quran-image-generator"
 Issues = "https://github.com/ZeyadAbbas/quran-image-generator/issues"
