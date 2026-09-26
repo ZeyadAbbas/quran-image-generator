@@ -1,5 +1,4 @@
 import builtins
-from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -10,9 +9,7 @@ from quran_image_generator import QuranImageGenerator
 
 
 def make_generator(monkeypatch, chapter=1, starting_verse=1, ending_verse=2):
-    monkeypatch.setattr(
-        generator_module.config, "translation_languages", lambda: {}
-    )
+    monkeypatch.setattr(generator_module.config, "translation_languages", dict)
     return QuranImageGenerator(chapter, starting_verse, ending_verse)
 
 
