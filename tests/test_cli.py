@@ -55,6 +55,10 @@ def test_help_has_no_runtime_imports_or_filesystem_side_effects(tmp_path):
     assert completed.returncode == 0, completed.stderr
     assert "--chapter" in completed.stdout
     assert "--no-open" in completed.stdout
+    assert "No selector: repeat with interactive chapter and verse prompts." in completed.stdout
+    assert "--chapter/--start/--end or --random: generate once" in completed.stdout
+    assert "One-shot mode defaults to --no-open; pass --open" in completed.stdout
+    assert "quran-image-generator --chapter 2 --start 255 --end 257" in completed.stdout
     assert list(outside.iterdir()) == []
 
 

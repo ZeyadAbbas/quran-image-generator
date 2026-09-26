@@ -14,6 +14,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="quran-image-generator",
         description="Generate a customizable image from a Quran passage.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""usage modes:
+  No selector: repeat with interactive chapter and verse prompts.
+  --chapter/--start/--end or --random: generate once without prompts.
+  One-shot mode defaults to --no-open; pass --open to show the result.
+
+examples:
+  quran-image-generator
+  quran-image-generator --chapter 2 --start 255 --end 257
+  quran-image-generator --random --open""",
     )
     parser.add_argument(
         "--config",
