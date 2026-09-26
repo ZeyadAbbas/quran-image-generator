@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 import requests
 
+from layout import TextMetrics
 from settings import Dimensions, Settings
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
@@ -28,7 +29,7 @@ def block_external_http(monkeypatch):
 
 class FakeMeasurer:
     def measure(self, text, style):
-        return len(text) * 10, 12
+        return TextMetrics(len(text) * 10, 12, 12, 0)
 
 
 @pytest.fixture

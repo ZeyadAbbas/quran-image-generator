@@ -6,8 +6,10 @@ from pathlib import Path
 
 import pytest
 
+from layout import LayoutOverflowError, TextMetrics
 from models import GenerationRequest, Passage, Verse
 from quran_image_generator import InstagramPublisher, QuranImageGenerator
+from settings import Dimensions
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -33,7 +35,7 @@ def test_generation_flow_uses_fakes(settings_factory):
 
     class FixedMeasurer:
         def measure(self, text, style):
-            return 30, 10
+            return TextMetrics(30, 10, 10, 0)
 
     class FakeRenderer:
         def render(self, image_layout, settings, destination):
@@ -101,6 +103,41 @@ def test_empty_passage_skips_layout_render_and_output_actions(settings_factory):
 
     assert result.path is None
     assert result.passage.verses == ()
+
+
+def test_layout_overflow_stops_before_rendering(settings_factory):
+    passage = Passage(
+        chapter_number=1,
+        chapter_name="Al-Fatihah",
+        verses=(Verse(1, "1:1", ("wide",), ()),),
+    )
+
+    class FakeContentClient:
+        def fetch_passage(self, request, resource_ids):
+            return passage
+
+    class WideMeasurer:
+        def measure(self, text, style):
+            return TextMetrics(95, 10, 10, 0)
+
+    class UnexpectedRenderer:
+        def render(self, image_layout, settings, destination):
+            pytest.fail("renderer must not run for an invalid layout")
+
+    settings = settings_factory(
+        resolution=Dimensions(100, 100),
+        quran_max_width=100,
+        quran_x_position=10,
+    )
+    generator = QuranImageGenerator(
+        settings,
+        FakeContentClient(),
+        WideMeasurer(),
+        UnexpectedRenderer(),
+    )
+
+    with pytest.raises(LayoutOverflowError, match="horizontal bounds"):
+        generator.generate(GenerationRequest(1, 1, 1))
 
 
 def test_instagram_dependency_is_only_required_when_posting(monkeypatch):

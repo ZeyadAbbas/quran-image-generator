@@ -102,10 +102,6 @@ def test_parsing_does_not_mutate_api_payload(load_json_fixture):
     assert payload == original
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Known token filtering bug tracked by #9: the final item is dropped blindly",
-)
 def test_only_declared_end_tokens_are_removed():
     payload = {
         "verse": {
@@ -120,6 +116,116 @@ def test_only_declared_end_tokens_are_removed():
     }
 
     assert parse_verse(payload, ()).words == ("first", "last")
+
+
+def test_final_word_is_kept_when_no_end_token_is_present():
+    payload = {
+        "verse": {
+            "verse_number": 1,
+            "verse_key": "1:1",
+            "words": [
+                {"char_type_name": "word", "text": "first"},
+                {"char_type_name": "word", "text": "last"},
+            ],
+        }
+    }
+
+    assert parse_verse(payload, ()).words == ("first", "last")
+
+
+def test_official_uthmani_word_field_is_preferred_with_legacy_fallback():
+    payload = {
+        "verse": {
+            "verse_number": 1,
+            "verse_key": "1:1",
+            "words": [
+                {
+                    "char_type_name": "word",
+                    "text_uthmani": "official",
+                    "text": "legacy",
+                },
+                {"char_type_name": "word", "text": "fallback"},
+                {"char_type_name": "end", "text_uthmani": "1"},
+            ],
+        }
+    }
+
+    assert parse_verse(payload, ()).words == ("official", "fallback")
+
+
+def test_null_and_blank_uthmani_values_use_legacy_text():
+    payload = {
+        "verse": {
+            "verse_number": 1,
+            "verse_key": "1:1",
+            "words": [
+                {
+                    "char_type_name": "word",
+                    "text_uthmani": None,
+                    "text": "legacy",
+                },
+                {
+                    "char_type_name": "word",
+                    "text_uthmani": "",
+                    "text": "fallback",
+                },
+            ],
+        }
+    }
+
+    assert parse_verse(payload, ()).words == ("legacy", "fallback")
+
+
+def test_translation_markup_preserves_readable_text_and_removes_footnote():
+    payload = {
+        "verse": {
+            "verse_number": 1,
+            "verse_key": "1:1",
+            "words": [],
+            "translations": [
+                {
+                    "resource_id": 131,
+                    "text": (
+                        "˹Read˺ <em>this</em>&nbsp;now"
+                        '<sup foot_note="42">42</sup>.'
+                    ),
+                }
+            ],
+        }
+    }
+
+    verse = parse_verse(payload, ("131",))
+
+    assert verse.translations[0].text == "Read this now."
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        (
+            "before <sup foot_note=1>hidden<wbr>note</sup> after",
+            "before after",
+        ),
+        ("2<sup>nd</sup> place", "2nd place"),
+        (
+            "before <sup footnote=1>hidden</em>still hidden</sup> after",
+            "before after",
+        ),
+    ],
+)
+def test_translation_footnote_suppression_is_tag_aware(text, expected):
+    payload = {
+        "verse": {
+            "verse_number": 1,
+            "verse_key": "1:1",
+            "words": [],
+            "translations": [{"resource_id": 131, "text": text}],
+        }
+    }
+
+    verse = parse_verse(payload, ("131",))
+
+    assert verse.translations[0].text == expected
 
 
 @pytest.mark.xfail(

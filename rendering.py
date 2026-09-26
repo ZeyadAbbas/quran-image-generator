@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from math import ceil
 from pathlib import Path
 
 from wand.drawing import Drawing
 from wand.image import Image
 
-from layout import ImageLayout, TextStyle
+from layout import ImageLayout, TextMetrics, TextStyle
 from settings import Settings
 
 VERSE_NUMBERS_FOLDER = Path("assets/verse_numbers")
@@ -23,11 +24,90 @@ def _apply_style(draw: Drawing, style: TextStyle) -> None:
 
 
 class WandTextMeasurer:
-    def measure(self, text: str, style: TextStyle) -> tuple[float, float]:
+    def __init__(self) -> None:
+        self._metric_cache: dict[tuple[str, TextStyle], TextMetrics] = {}
+        self._ink_cache: dict[tuple[str, TextStyle], TextMetrics] = {}
+
+    def measure(self, text: str, style: TextStyle) -> TextMetrics:
+        key = (text, style)
+        cached = self._metric_cache.get(key)
+        if cached is not None:
+            return cached
+
         with Image(width=1, height=1) as image, Drawing() as draw:
             _apply_style(draw, style)
             metrics = draw.get_font_metrics(image, text)
-        return metrics.text_width, metrics.text_height
+        measured = TextMetrics(
+            width=metrics.text_width,
+            height=metrics.text_height,
+            ascender=max(0.0, metrics.ascender),
+            descender=max(0.0, -metrics.descender),
+        )
+        self._metric_cache[key] = measured
+        return measured
+
+    def measure_ink(self, text: str, style: TextStyle) -> TextMetrics:
+        """Measure finalized-line ink around the renderer's draw baseline."""
+
+        key = (text, style)
+        cached = self._ink_cache.get(key)
+        if cached is not None:
+            return cached
+
+        measured = self.measure(text, style)
+        base_extent = max(
+            measured.height,
+            measured.ascender,
+            measured.descender,
+            style.font_size,
+            1,
+        )
+        padding = ceil(base_extent) + 2
+
+        for _attempt in range(4):
+            baseline = padding * 2
+            canvas_width = max(1, ceil(measured.width) + padding * 2 + 1)
+            canvas_height = padding * 4 + 1
+            with (
+                Image(
+                    width=canvas_width,
+                    height=canvas_height,
+                    pseudo="xc:#000000",
+                ) as image,
+                Drawing() as draw,
+            ):
+                _apply_style(draw, style)
+                draw.fill_color = "#FFFFFF"
+                draw.text(padding, baseline, text)
+                draw(image)
+                with image.clone() as trimmed:
+                    trimmed.trim()
+                    left = trimmed.page_x
+                    top = trimmed.page_y
+                    right = left + trimmed.width
+                    bottom = top + trimmed.height
+
+            if (
+                left > 0
+                and top > 0
+                and right < canvas_width
+                and bottom < canvas_height
+            ):
+                result = TextMetrics(
+                    width=measured.width,
+                    height=measured.height,
+                    ascender=measured.ascender,
+                    descender=measured.descender,
+                    top_extent=max(0, baseline - top),
+                    bottom_extent=max(0, bottom - baseline),
+                    left_offset=left - padding,
+                    right_offset=right - padding,
+                )
+                self._ink_cache[key] = result
+                return result
+            padding *= 2
+
+        raise RuntimeError(f"Unable to measure rendered ink bounds for {text!r}")
 
 
 class WandImageRenderer:
