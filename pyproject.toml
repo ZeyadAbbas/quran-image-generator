@@ -56,7 +56,6 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 quran_image_generator = [
-  "assets/*.txt",
   "assets/fonts/*.ttf",
   "assets/fonts/multilingual_fonts/*.ttf",
   "assets/verse_numbers/*.png",

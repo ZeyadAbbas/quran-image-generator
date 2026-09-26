@@ -10,6 +10,14 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
+from .models import (
+    Chapter,
+    GenerationRequest,
+    InvalidVerseRangeError,
+    random_generation_request,
+    validate_generation_request,
+)
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -109,56 +117,25 @@ def _validate_selection(
         parser.error("--random cannot be combined with --chapter/--start/--end")
     if not all(supplied):
         return
-    if not 1 <= args.chapter <= 114:
-        parser.error("--chapter must be between 1 and 114")
-    if args.start < 1:
-        parser.error("--start must be at least 1")
-    if args.end < args.start:
-        parser.error("--end must be greater than or equal to --start")
+    try:
+        GenerationRequest(args.chapter, args.start, args.end)
+    except InvalidVerseRangeError as error:
+        parser.error(str(error))
 
 
-def _verse_bounds() -> tuple[int, ...]:
-    from .resources import asset_path
-
-    path = asset_path("verse_bounds.txt")
-    bounds = tuple(
-        int(line.strip())
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    )
-    if len(bounds) != 114 or any(bound < 1 for bound in bounds):
-        raise RuntimeError(f"Invalid packaged verse bounds: {path}")
-    return bounds
-
-
-def _validate_range(
-    parser: argparse.ArgumentParser,
-    chapter: int,
-    starting_verse: int,
-    ending_verse: int,
-    bounds: tuple[int, ...],
-) -> None:
-    maximum = bounds[chapter - 1]
-    if starting_verse > maximum:
-        parser.error(f"--start must be between 1 and {maximum} for chapter {chapter}")
-    if ending_verse > maximum:
-        parser.error(
-            f"--end must be between {starting_verse} and {maximum} "
-            f"for chapter {chapter}"
-        )
-
-
-def _prompt_for_range(bounds: tuple[int, ...]) -> tuple[int, int, int]:
+def _prompt_for_range(chapters: tuple[Chapter, ...]) -> GenerationRequest:
+    chapters_by_number = {chapter.number: chapter for chapter in chapters}
+    available = ", ".join(str(number) for number in chapters_by_number)
     while True:
         try:
             chapter = int(input("\nInput chapter: "))
-            if not 1 <= chapter <= 114:
+            if chapter not in chapters_by_number:
                 raise ValueError
             break
         except ValueError:
-            print("Invalid input. Please input an integer value between 1 and 114.")
+            print(f"Invalid input. Available chapter numbers: {available}.")
 
-    maximum = bounds[chapter - 1]
+    maximum = chapters_by_number[chapter].verses_count
     while True:
         try:
             starting_verse = int(input("Input starting verse: "))
@@ -182,18 +159,7 @@ def _prompt_for_range(bounds: tuple[int, ...]) -> tuple[int, int, int]:
                 f"{starting_verse} and {maximum}."
             )
 
-    return chapter, starting_verse, ending_verse
-
-
-def _random_range(bounds: tuple[int, ...]) -> tuple[int, int, int]:
-    chapter = random.randint(1, len(bounds))
-    maximum = bounds[chapter - 1]
-    starting_verse = random.randint(1, maximum)
-    ending_verse = min(
-        random.randint(starting_verse, starting_verse + random.randint(1, 4)),
-        maximum,
-    )
-    return chapter, starting_verse, ending_verse
+    return GenerationRequest(chapter, starting_verse, ending_verse)
 
 
 def _confirm(prompt: str) -> bool:
@@ -265,45 +231,63 @@ def _list_translations(parser: argparse.ArgumentParser, *, refresh: bool) -> int
 
 
 def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
-    from .content import QuranApiError
+    from .content import (
+        QuranApiConfigurationError,
+        QuranApiError,
+        QuranContentClient,
+    )
     from .generator import build_generator
-    from .models import GenerationRequest
     from .settings import SettingsValidationError, load_settings
 
     if args.list_translations:
         return _list_translations(parser, refresh=args.refresh_catalog)
 
     one_shot = args.random or args.chapter is not None
-    bounds = _verse_bounds()
-    explicit_selection: tuple[int, int, int] | None = None
+    try:
+        content_client = QuranContentClient.from_environment()
+        chapters = content_client.list_chapters()
+    except QuranApiConfigurationError as error:
+        parser.exit(2, f"{error}\n")
+    except QuranApiError as error:
+        parser.exit(1, f"Quran API error: {error}\n")
+
+    rng = random.Random()
+    explicit_request: GenerationRequest | None = None
     if args.chapter is not None:
-        explicit_selection = (args.chapter, args.start, args.end)
-        _validate_range(parser, *explicit_selection, bounds)
+        try:
+            explicit_request = GenerationRequest(args.chapter, args.start, args.end)
+            validate_generation_request(explicit_request, chapters)
+        except InvalidVerseRangeError as error:
+            parser.exit(2, f"{error}\n")
     elif args.random:
-        explicit_selection = _random_range(bounds)
+        explicit_request = random_generation_request(chapters, rng)
 
     while True:
         try:
             settings = load_settings(args.config, create_output_dir=False)
             settings = _settings_with_output_directory(settings, args.output_dir)
-            generator = build_generator(settings)
+            generator = build_generator(settings, content_client=content_client)
         except (OSError, SettingsValidationError, ValueError) as error:
             parser.exit(2, f"{error}\n")
 
-        if explicit_selection is not None:
-            selected = explicit_selection
+        if explicit_request is not None:
+            request = explicit_request
         elif settings.generate_random_verses:
-            selected = _random_range(bounds)
+            request = random_generation_request(chapters, rng)
         else:
-            selected = _prompt_for_range(bounds)
+            request = _prompt_for_range(chapters)
 
-        request = GenerationRequest(*selected)
         open_output = args.open_output
         if open_output is None:
             open_output = not one_shot
 
         try:
             result = generator.generate(request, open_output=open_output)
+        except InvalidVerseRangeError as error:
+            if one_shot:
+                parser.exit(2, f"{error}\n")
+            print(f"Invalid passage: {error}", file=sys.stderr)
+            continue
         except QuranApiError as error:
             parser.exit(1, f"Quran API error: {error}\n")
 

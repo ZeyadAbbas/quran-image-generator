@@ -12,7 +12,7 @@ from wand.image import Image
 
 from quran_image_generator.content import parse_verse
 from quran_image_generator.layout import build_layout
-from quran_image_generator.models import Passage
+from quran_image_generator.models import Chapter, Passage
 from quran_image_generator.rendering import WandImageRenderer, WandTextMeasurer
 from quran_image_generator.resources import asset_path
 from quran_image_generator.settings import Dimensions, Settings
@@ -67,7 +67,7 @@ def render_smoke(fixture: Path, output_directory: Path) -> Path:
 
     output_directory.mkdir(parents=True, exist_ok=True)
     verse = parse_verse(_load_fixture(fixture), ())
-    passage = Passage(1, "Al-Fatihah", (verse,))
+    passage = Passage(Chapter(1, "Al-Fatihah", 7), (verse,))
     settings = _settings(output_directory, fixture)
     layout = build_layout(passage, settings, WandTextMeasurer())
     destination = output_directory / "offline-smoke.png"

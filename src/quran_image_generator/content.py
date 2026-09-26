@@ -17,7 +17,9 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 from .models import (
+    Chapter,
     GenerationRequest,
+    InvalidVerseRangeError,
     LanguageResource,
     Passage,
     TranslationCatalog,
@@ -25,6 +27,7 @@ from .models import (
     TranslationSelector,
     Verse,
     VerseTranslation,
+    validate_generation_request,
 )
 
 QURAN_FOUNDATION_ACCESS_URL = "https://api-docs.quran.foundation/request-access/"
@@ -502,6 +505,44 @@ def _languages_catalog_problem(payload: Mapping[str, Any]) -> str | None:
     return None
 
 
+def _chapters_catalog_problem(payload: Mapping[str, Any]) -> str | None:
+    chapters = payload.get("chapters")
+    if not _is_non_string_sequence(chapters) or not chapters:
+        return "chapters must be a non-empty list"
+
+    chapter_numbers: set[int] = set()
+    for chapter in chapters:
+        if not isinstance(chapter, Mapping):
+            return "each chapter must be an object"
+        chapter_number = chapter.get("id")
+        if not _positive_integer(chapter_number) or chapter_number > 114:
+            return "chapter id must be an integer between 1 and 114"
+        if chapter_number in chapter_numbers:
+            return f"chapter id {chapter_number} is duplicated"
+        chapter_numbers.add(chapter_number)
+        if not _non_empty_string(chapter.get("name_simple")):
+            return "chapter name_simple must be a non-empty string"
+        if not _positive_integer(chapter.get("verses_count")):
+            return "chapter verses_count must be a positive integer"
+    return None
+
+
+def _build_chapters(payload: Mapping[str, Any]) -> tuple[Chapter, ...]:
+    return tuple(
+        sorted(
+            (
+                Chapter(
+                    number=int(item["id"]),
+                    name_simple=str(item["name_simple"]).strip(),
+                    verses_count=int(item["verses_count"]),
+                )
+                for item in payload["chapters"]
+            ),
+            key=lambda chapter: chapter.number,
+        )
+    )
+
+
 def _language_aliases(*labels: str | None) -> set[str]:
     """Return normalized full labels and comma-separated language aliases."""
 
@@ -653,6 +694,97 @@ def _verse_payload_problem(
     return None
 
 
+def _verse_identity_problem(
+    verse: Mapping[str, Any], chapter_number: int, verse_number: int
+) -> str | None:
+    if verse.get("verse_number") != verse_number:
+        return f"expected verse_number {verse_number}"
+    expected_key = f"{chapter_number}:{verse_number}"
+    if verse.get("verse_key") != expected_key:
+        return f"expected verse_key {expected_key}"
+    chapter_id = verse.get("chapter_id")
+    if chapter_id is not None and (
+        isinstance(chapter_id, bool)
+        or not isinstance(chapter_id, int)
+        or chapter_id != chapter_number
+    ):
+        return f"expected chapter_id {chapter_number}"
+    return None
+
+
+def _verse_page_records(
+    payload: Mapping[str, Any],
+    *,
+    chapter: Chapter,
+    page: int,
+) -> tuple[tuple[Mapping[str, Any], ...], str | None]:
+    verses = payload.get("verses")
+    if not _is_non_string_sequence(verses):
+        return (), "verses must be a list"
+    pagination = payload.get("pagination")
+    if not isinstance(pagination, Mapping):
+        return (), "pagination must be an object"
+
+    total_pages = math.ceil(chapter.verses_count / 50)
+    expected_pagination = {
+        "current_page": page,
+        "per_page": 50,
+        "total_pages": total_pages,
+        "total_records": chapter.verses_count,
+    }
+    for field_name, expected in expected_pagination.items():
+        value = pagination.get(field_name)
+        if not _positive_integer(value):
+            return (), f"pagination {field_name} must be a positive integer"
+        if value != expected:
+            return (), f"pagination {field_name} must be {expected}"
+
+    expected_next_page = page + 1 if page < total_pages else None
+    actual_next_page = pagination.get("next_page")
+    next_page_is_valid = (
+        actual_next_page is None
+        if expected_next_page is None
+        else _positive_integer(actual_next_page)
+        and actual_next_page == expected_next_page
+    )
+    if "next_page" not in pagination or not next_page_is_valid:
+        rendered = "null" if expected_next_page is None else str(expected_next_page)
+        return (), f"pagination next_page must be {rendered}"
+
+    first_number = ((page - 1) * 50) + 1
+    last_number = min(page * 50, chapter.verses_count)
+    expected_numbers = set(range(first_number, last_number + 1))
+    if len(verses) != len(expected_numbers):
+        return (), (
+            f"page {page} must contain {len(expected_numbers)} verse records"
+        )
+
+    records: list[Mapping[str, Any]] = []
+    seen_numbers: set[int] = set()
+    for verse in verses:
+        if not isinstance(verse, Mapping):
+            return (), "each verse must be an object"
+        number = verse.get("verse_number")
+        if not _positive_integer(number):
+            return (), "verse_number must be a positive integer"
+        if number in seen_numbers:
+            return (), f"verse_number {number} is duplicated on page {page}"
+        seen_numbers.add(number)
+        if number not in expected_numbers:
+            return (), (
+                f"verse_number {number} is outside the natural window for page {page}"
+            )
+        problem = _verse_identity_problem(verse, chapter.number, number)
+        if problem is not None:
+            return (), problem
+        records.append(verse)
+
+    if seen_numbers != expected_numbers:
+        missing = min(expected_numbers - seen_numbers)
+        return (), f"page {page} is missing verse_number {missing}"
+    return tuple(records), None
+
+
 def _chapter_payload_problem(payload: Mapping[str, Any]) -> str | None:
     chapter = payload.get("chapter")
     if not isinstance(chapter, Mapping):
@@ -673,6 +805,8 @@ class QuranContentClient:
 
     _catalog_cache: ClassVar[dict[str, TranslationCatalog]] = {}
     _catalog_lock: ClassVar[threading.Lock] = threading.Lock()
+    _chapter_cache: ClassVar[dict[str, tuple[Chapter, ...]]] = {}
+    _chapter_lock: ClassVar[threading.Lock] = threading.Lock()
 
     def __init__(
         self,
@@ -700,6 +834,13 @@ class QuranContentClient:
 
         with cls._catalog_lock:
             cls._catalog_cache.clear()
+
+    @classmethod
+    def clear_chapter_catalog_cache(cls) -> None:
+        """Forget cached chapter snapshots, primarily for explicit maintenance."""
+
+        with cls._chapter_lock:
+            cls._chapter_cache.clear()
 
     @classmethod
     def from_environment(
@@ -1036,26 +1177,30 @@ class QuranContentClient:
             )
         return payload
 
-    def api_call(
+    def _api_call_with_attempts(
         self,
         endpoint: str,
         translation_resource_ids: Sequence[str] = (),
         *,
         query: Mapping[str, Any] | None = None,
-    ) -> Mapping[str, Any]:
-        """Call one supported Content API endpoint and return its JSON object."""
+    ) -> tuple[Mapping[str, Any], int]:
+        """Call one endpoint while retaining its bounded request-attempt count."""
 
         params: Mapping[str, Any] | None = query
         if endpoint.lstrip("/").startswith("verses/"):
-            params = {
-                "words": 1,
-                "word_fields": "text_uthmani",
-            }
-            if translation_resource_ids:
-                params = {
-                    **params,
-                    "translations": ",".join(translation_resource_ids),
+            verse_params = dict(query or {})
+            verse_params.update(
+                {
+                    "words": 1,
+                    "word_fields": "text_uthmani",
                 }
+            )
+            verse_params.pop("translations", None)
+            if translation_resource_ids:
+                verse_params["translations"] = ",".join(
+                    translation_resource_ids
+                )
+            params = verse_params
 
         response, attempts = self._content_request(endpoint, params)
         safe_endpoint = _safe_endpoint(endpoint)
@@ -1083,7 +1228,67 @@ class QuranContentClient:
                 attempts,
                 problem,
             )
+        return payload, attempts
+
+    def api_call(
+        self,
+        endpoint: str,
+        translation_resource_ids: Sequence[str] = (),
+        *,
+        query: Mapping[str, Any] | None = None,
+    ) -> Mapping[str, Any]:
+        """Call one supported Content API endpoint and return its JSON object."""
+
+        payload, _attempts = self._api_call_with_attempts(
+            endpoint,
+            translation_resource_ids,
+            query=query,
+        )
         return payload
+
+    def list_chapters(self, *, refresh: bool = False) -> tuple[Chapter, ...]:
+        """Return the validated chapter catalog for this API environment."""
+
+        cache_key = self._config.content_base_url
+        with self._chapter_lock:
+            cached = self._chapter_cache.get(cache_key)
+            if cached is not None and not refresh:
+                return cached
+
+            payload, attempts = self._api_call_with_attempts("chapters")
+            problem = _chapters_catalog_problem(payload)
+            if problem is not None:
+                raise QuranApiPayloadError(
+                    "Quran Foundation Content API",
+                    "/chapters",
+                    attempts,
+                    problem,
+                )
+            chapters = _build_chapters(payload)
+            self._chapter_cache[cache_key] = chapters
+            return chapters
+
+    def get_chapter(self, number: int, *, refresh: bool = False) -> Chapter:
+        """Look up one chapter from the live, possibly incomplete catalog."""
+
+        if isinstance(number, bool) or not isinstance(number, int) or number < 1:
+            raise InvalidVerseRangeError(
+                "chapter must be a positive whole number"
+            )
+        chapter = next(
+            (
+                item
+                for item in self.list_chapters(refresh=refresh)
+                if item.number == number
+            ),
+            None,
+        )
+        if chapter is None:
+            raise InvalidVerseRangeError(
+                f"chapter {number} is not available in the current Quran "
+                "Foundation environment"
+            )
+        return chapter
 
     def translation_catalog(self, *, refresh: bool = False) -> TranslationCatalog:
         """Return the process-cached resource catalog, optionally refreshing it.
@@ -1221,16 +1426,80 @@ class QuranContentClient:
         translation_resource_ids: Sequence[str],
     ) -> Passage:
         resource_ids = tuple(translation_resource_ids)
-        verses = tuple(
-            parse_verse(
-                self.api_call(f"verses/by_key/{key}", resource_ids),
-                resource_ids,
-            )
-            for key in request.verse_keys()
-        )
-        if not verses:
-            return Passage(request.chapter, "", ())
+        chapter = validate_generation_request(request, self.list_chapters())
 
-        chapter_payload = self.api_call(f"chapters/{request.chapter}", resource_ids)
-        chapter_name = str(chapter_payload["chapter"]["name_simple"])
-        return Passage(request.chapter, chapter_name, verses)
+        if request.starting_verse == request.ending_verse:
+            verse_number = request.starting_verse
+            endpoint = f"verses/by_key/{chapter.number}:{verse_number}"
+            payload, attempts = self._api_call_with_attempts(endpoint, resource_ids)
+            verse_data = payload["verse"]
+            problem = _verse_identity_problem(
+                verse_data, chapter.number, verse_number
+            )
+            if problem is not None:
+                raise QuranApiPayloadError(
+                    "Quran Foundation Content API",
+                    _safe_endpoint(endpoint),
+                    attempts,
+                    problem,
+                )
+            return Passage(chapter, (parse_verse(payload, resource_ids),))
+
+        first_page = ((request.starting_verse - 1) // 50) + 1
+        last_page = ((request.ending_verse - 1) // 50) + 1
+        requested_records: dict[int, Mapping[str, Any]] = {}
+        attempts_by_page: dict[int, int] = {}
+        endpoint = f"verses/by_chapter/{chapter.number}"
+        for page in range(first_page, last_page + 1):
+            payload, attempts = self._api_call_with_attempts(
+                endpoint,
+                resource_ids,
+                query={"page": page, "per_page": 50},
+            )
+            attempts_by_page[page] = attempts
+            page_records, problem = _verse_page_records(
+                payload,
+                chapter=chapter,
+                page=page,
+            )
+            if problem is not None:
+                raise QuranApiPayloadError(
+                    "Quran Foundation Content API",
+                    _safe_endpoint(endpoint),
+                    attempts,
+                    problem,
+                )
+            for record in page_records:
+                number = int(record["verse_number"])
+                if not request.starting_verse <= number <= request.ending_verse:
+                    continue
+                wrapped = {"verse": record}
+                problem = _verse_payload_problem(wrapped, resource_ids)
+                if problem is not None:
+                    raise QuranApiPayloadError(
+                        "Quran Foundation Content API",
+                        _safe_endpoint(endpoint),
+                        attempts,
+                        problem,
+                    )
+                requested_records[number] = record
+
+        expected_numbers = tuple(
+            range(request.starting_verse, request.ending_verse + 1)
+        )
+        missing = tuple(
+            number for number in expected_numbers if number not in requested_records
+        )
+        if missing:
+            missing_page = ((missing[0] - 1) // 50) + 1
+            raise QuranApiPayloadError(
+                "Quran Foundation Content API",
+                _safe_endpoint(endpoint),
+                attempts_by_page[missing_page],
+                f"missing requested verse {chapter.number}:{missing[0]}",
+            )
+        verses = tuple(
+            parse_verse({"verse": requested_records[number]}, resource_ids)
+            for number in expected_numbers
+        )
+        return Passage(chapter, verses)
