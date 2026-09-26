@@ -56,6 +56,20 @@ def test_environment_credentials_take_precedence_without_prompts():
     assert credentials.password == "environment-password"
 
 
+def test_gui_can_disable_prompts_even_with_interactive_input():
+    def unexpected_prompt(prompt: str) -> str:
+        pytest.fail(f"GUI credential resolution prompted: {prompt}")
+
+    with pytest.raises(PublishingError, match="Set the environment variable"):
+        resolve_instagram_credentials(
+            {},
+            stdin=InteractiveInput(),
+            input_fn=unexpected_prompt,
+            getpass_fn=unexpected_prompt,
+            allow_prompt=False,
+        )
+
+
 def test_tty_prompts_only_for_missing_environment_field():
     prompts: list[str] = []
 

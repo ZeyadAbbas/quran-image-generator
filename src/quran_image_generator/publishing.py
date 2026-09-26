@@ -119,6 +119,7 @@ def resolve_instagram_credentials(
     stdin: TextIO | None = None,
     input_fn: Callable[[str], str] | None = None,
     getpass_fn: Callable[[str], str] | None = None,
+    allow_prompt: bool = True,
 ) -> InstagramCredentials:
     """Resolve Instagram credentials from the environment, then TTY prompts.
 
@@ -141,11 +142,16 @@ def resolve_instagram_credentials(
         return InstagramCredentials(username=username, password=password)
 
     input_stream = sys.stdin if stdin is None else stdin
-    if not _is_interactive(input_stream):
+    if not allow_prompt or not _is_interactive(input_stream):
         names = " and ".join(missing)
+        guidance = (
+            "Set the environment variable(s)."
+            if not allow_prompt
+            else "Set the environment variable(s), or run the command in an "
+            "interactive terminal."
+        )
         raise PublishingError(
-            f"Missing Instagram credentials: {names}. Set the environment "
-            "variable(s), or run the command in an interactive terminal."
+            f"Missing Instagram credentials: {names}. {guidance}"
         )
 
     read_username = input if input_fn is None else input_fn

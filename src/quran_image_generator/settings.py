@@ -6,6 +6,8 @@ reads configuration, inspects images, or creates directories.
 
 from __future__ import annotations
 
+import os
+import tempfile
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from difflib import get_close_matches
@@ -26,38 +28,75 @@ from .resources import PACKAGE_DIRECTORY, asset_path
 Position = int | Literal["center"]
 
 
+SettingValueType = Literal[
+    "boolean",
+    "color",
+    "dimensions",
+    "float",
+    "font",
+    "integer",
+    "path",
+    "position",
+    "translations",
+]
+SettingPathSemantics = Literal["none", "directory", "optional-file", "font-file"]
+
+
+@dataclass(frozen=True, slots=True)
+class SettingSpec:
+    """User-facing contract for one persisted generation setting."""
+
+    key: str
+    attribute: str
+    label: str
+    category: str
+    value_type: SettingValueType
+    default: Any
+    description: str
+    effect: str
+    format_hint: str
+    minimum: int | float | None = None
+    maximum: int | float | None = None
+    path_semantics: SettingPathSemantics = "none"
+
+
+SETTING_SPECS: tuple[SettingSpec, ...] = (
+    SettingSpec("output path", "output_path", "Output directory", "Passage & Output", "path", "outputs", "Directory used for generated PNG files.", "Changes where saved images are placed; relative paths are resolved beside the config file.", "Folder path", path_semantics="directory"),
+    SettingSpec("resolution", "resolution", "Image resolution", "Canvas", "dimensions", "1080 x 1080", "Full-resolution canvas size.", "Sets preview/save dimensions; bg reads the selected background image's dimensions.", "WIDTH x HEIGHT, or bg when a background image is selected", minimum=1),
+    SettingSpec("background image", "background_image", "Background image", "Canvas", "path", "", "Optional image drawn behind the text.", "Replaces the solid background while preserving the configured canvas size.", "Image file path, or blank", path_semantics="optional-file"),
+    SettingSpec("background color", "background_color", "Background color", "Canvas", "color", "000000", "Solid canvas background color.", "Used when no background image covers the canvas.", "Six-digit hex color, for example #000000"),
+    SettingSpec("quran font", "quran_font", "Quran font", "Quran", "font", "Arial", "Font used for Arabic Quran text.", "Changes the Arabic typeface.", "Arial or a .ttf/.otf file path", path_semantics="font-file"),
+    SettingSpec("quran color", "quran_color", "Quran color", "Quran", "color", "FFFFFF", "Color of Quran text.", "Changes the Arabic text color.", "Six-digit hex color, for example #FFFFFF"),
+    SettingSpec("quran font size", "quran_font_size", "Quran font size", "Quran", "integer", 34, "Quran text size in pixels.", "Larger values make Arabic text and its layout taller/wider.", "Positive whole number", minimum=1),
+    SettingSpec("quran x position", "quran_x_position", "Quran horizontal position", "Quran", "position", 30, "Arabic text position measured from the right, or centered.", "Moves each Quran line horizontally.", "center or a non-negative whole number", minimum=0),
+    SettingSpec("quran maximum width", "quran_max_width", "Quran maximum width", "Quran", "integer", 700, "Maximum width of an Arabic line.", "Controls Quran line wrapping.", "Positive whole number", minimum=1),
+    SettingSpec("quran line spacing", "quran_line_spacing", "Quran line spacing", "Quran", "integer", 30, "Vertical spacing between wrapped Arabic lines.", "Changes the height of multi-line Quran text.", "Non-negative whole number", minimum=0),
+    SettingSpec("quran word spacing", "quran_word_spacing", "Quran word spacing", "Quran", "integer", 6, "Extra spacing between Quran words.", "Changes horizontal word separation.", "Non-negative whole number", minimum=0),
+    SettingSpec("quran letter spacing", "quran_letter_spacing", "Quran letter spacing", "Quran", "float", -0.1, "Extra spacing between Quran glyphs.", "Tightens or loosens Arabic letter placement.", "Finite decimal number"),
+    SettingSpec("quran and translation spacing", "quran_translation_spacing", "Quran-to-translation spacing", "Quran", "integer", 30, "Gap below Quran text before translations.", "Separates the Arabic and translation blocks.", "Non-negative whole number", minimum=0),
+    SettingSpec("translation languages", "translations", "Translations", "Translations", "translations", "", "Up to three exact Quran Foundation translation resources.", "Selects which translations are fetched and their order.", "List of exact IDs/slugs/languages; exact resource IDs are recommended", maximum=3),
+    SettingSpec("translation color", "translation_color", "Translation color", "Translations", "color", "FFFFFF", "Color of translation text.", "Changes all translation text colors.", "Six-digit hex color, for example #FFFFFF"),
+    SettingSpec("translation font size", "translation_font_size", "Translation font size", "Translations", "integer", 16, "Default translation text size in pixels.", "Changes translation wrapping and height unless an entry overrides it.", "Positive whole number", minimum=1),
+    SettingSpec("translation x position", "translation_x_position", "Translation horizontal position", "Translations", "position", 40, "Translation position measured from the left, or centered.", "Moves each translation line horizontally.", "center or a non-negative whole number", minimum=0),
+    SettingSpec("translation maximum width", "translation_max_width", "Translation maximum width", "Translations", "integer", 650, "Maximum width of a translation line.", "Controls translation line wrapping.", "Positive whole number", minimum=1),
+    SettingSpec("translation language spacing", "translation_language_spacing", "Between translations", "Translations", "integer", 10, "Gap between different translation resources.", "Separates multiple translations for the same verse.", "Non-negative whole number", minimum=0),
+    SettingSpec("translation line spacing", "translation_line_spacing", "Translation line spacing", "Translations", "integer", 10, "Gap between wrapped lines in one translation.", "Changes the height of multi-line translation text.", "Non-negative whole number", minimum=0),
+    SettingSpec("translation word spacing", "translation_word_spacing", "Translation word spacing", "Translations", "integer", 1, "Extra spacing between translation words.", "Changes horizontal word separation.", "Non-negative whole number", minimum=0),
+    SettingSpec("translation letter spacing", "translation_letter_spacing", "Translation letter spacing", "Translations", "float", 0.0, "Extra spacing between translation letters.", "Tightens or loosens translation lettering.", "Finite decimal number"),
+    SettingSpec("show verse numbers", "show_verse_numbers", "Show verse numbers", "Verse Numbers & Spacing", "boolean", False, "Whether to draw the verse-number medallion.", "Shows or hides the number after each verse.", "true or false"),
+    SettingSpec("verse number resolution", "verse_number_resolution", "Verse-number size", "Verse Numbers & Spacing", "dimensions", "55 x 55", "Width and height of verse-number medallions.", "Scales the number images.", "WIDTH x HEIGHT using positive whole numbers", minimum=1),
+    SettingSpec("verse number x offset", "verse_number_x_offset", "Verse-number X offset", "Verse Numbers & Spacing", "integer", 10, "Horizontal adjustment for verse numbers.", "Moves each number left or right relative to the Quran line.", "Whole number from -20 to 500", minimum=-20, maximum=500),
+    SettingSpec("verse number y offset", "verse_number_y_offset", "Verse-number Y offset", "Verse Numbers & Spacing", "integer", -20, "Vertical adjustment for verse numbers.", "Moves each number up or down relative to the Quran line.", "Whole number"),
+    SettingSpec("space between verses", "space_between_verses", "Space between verses", "Verse Numbers & Spacing", "integer", 70, "Vertical gap between consecutive verses.", "Spreads or tightens multi-verse passages.", "Whole number from -10 to 200", minimum=-10, maximum=200),
+    SettingSpec("generate random verses", "generate_random_verses", "Generate random verses", "Passage & Output", "boolean", False, "Choose a short random passage instead of the entered range.", "Uses live chapter bounds for a new random request.", "true or false"),
+    SettingSpec("total y offset", "total_y_offset", "Overall Y offset", "Canvas", "integer", -10, "Vertical adjustment for the complete text block.", "Moves all Quran, translation, and verse-number content together.", "Whole number"),
+)
+
+SETTING_SPEC_BY_KEY: Mapping[str, SettingSpec] = MappingProxyType(
+    {spec.key: spec for spec in SETTING_SPECS}
+)
 DEFAULTS: Mapping[str, Any] = MappingProxyType(
-    {
-        "output path": "outputs",
-        "resolution": "1080 x 1080",
-        "background image": "",
-        "background color": "000000",
-        "quran font": "Arial",
-        "quran color": "FFFFFF",
-        "quran font size": 34,
-        "quran x position": 30,
-        "quran maximum width": 700,
-        "quran line spacing": 30,
-        "quran word spacing": 6,
-        "quran letter spacing": -0.1,
-        "quran and translation spacing": 30,
-        "translation languages": "",
-        "translation color": "FFFFFF",
-        "translation font size": 16,
-        "translation x position": 40,
-        "translation maximum width": 650,
-        "translation language spacing": 10,
-        "translation line spacing": 10,
-        "translation word spacing": 1,
-        "translation letter spacing": 0.0,
-        "show verse numbers": False,
-        "verse number resolution": "55 x 55",
-        "verse number x offset": 10,
-        "verse number y offset": -20,
-        "space between verses": 70,
-        "generate random verses": False,
-        "total y offset": -10,
-    }
+    {spec.key: spec.default for spec in SETTING_SPECS}
 )
 
 _LEGACY_PUBLISH_SETTINGS: Mapping[str, str] = MappingProxyType(
@@ -121,6 +160,11 @@ class TranslationSettings:
     font: Path | str | None
     font_size: int
     resource: TranslationResource | None = None
+    configured_font: Path | str | None = None
+
+    def __post_init__(self) -> None:
+        if self.resource is None and self.configured_font is None and self.font is not None:
+            object.__setattr__(self, "configured_font", self.font)
 
     @property
     def resource_id(self) -> str:
@@ -147,7 +191,7 @@ class TranslationSettings:
 
 @dataclass(frozen=True, slots=True)
 class Settings:
-    """Validated settings shared by the CLI, renderer, and future GUI."""
+    """Validated settings shared by the CLI, GUI, and renderer."""
 
     source_path: Path
     output_path: Path
@@ -179,6 +223,7 @@ class Settings:
     space_between_verses: int
     generate_random_verses: bool
     total_y_offset: int
+    resolution_from_background: bool = False
 
 
 def _is_blank(value: Any) -> bool:
@@ -202,6 +247,11 @@ def _parse_int(
     minimum: int | None = None,
     maximum: int | None = None,
 ) -> int:
+    spec = SETTING_SPEC_BY_KEY[field]
+    if minimum is None and spec.minimum is not None:
+        minimum = int(spec.minimum)
+    if maximum is None and spec.maximum is not None:
+        maximum = int(spec.maximum)
     raw = _raw_value(data, field)
     if isinstance(raw, bool):
         value = None
@@ -318,7 +368,8 @@ def _parse_position(
             value = None
     else:
         value = None
-    if value is None or value < 0:
+    minimum = int(SETTING_SPEC_BY_KEY[field].minimum or 0)
+    if value is None or value < minimum:
         _add_issue(issues, field, "must be 'center' or a non-negative whole number")
         return int(DEFAULTS[field])
     return value
@@ -401,6 +452,7 @@ def _dimensions_from_value(
     default: str,
     issues: list[ValidationIssue],
 ) -> Dimensions:
+    minimum = int(SETTING_SPEC_BY_KEY[field].minimum or 1)
     parts: Sequence[Any] | None = None
     if isinstance(raw, str):
         split = raw.lower().split("x")
@@ -423,7 +475,7 @@ def _dimensions_from_value(
                 break
             values.append(value)
 
-    if len(values) != 2 or any(value <= 0 for value in values):
+    if len(values) != 2 or any(value < minimum for value in values):
         _add_issue(
             issues,
             field,
@@ -620,9 +672,10 @@ def _parse_translations(
     entries = _translation_entries(data.get(field), issues)
     if not entries:
         return ()
-    if len(entries) > 3:
-        _add_issue(issues, field, "supports at most three languages")
-        entries = entries[:3]
+    maximum = int(SETTING_SPEC_BY_KEY[field].maximum or 3)
+    if len(entries) > maximum:
+        _add_issue(issues, field, f"supports at most {maximum} languages")
+        entries = entries[:maximum]
     translations: list[TranslationSettings] = []
     seen_selectors: set[tuple[str, str]] = set()
     for index, (selector, raw_font, raw_font_size) in enumerate(entries):
@@ -656,7 +709,14 @@ def _parse_translations(
                 )
             else:
                 font_size = parsed_font_size
-        translations.append(TranslationSettings(selector, font, font_size))
+        translations.append(
+            TranslationSettings(
+                selector,
+                font,
+                font_size,
+                configured_font=font,
+            )
+        )
     return tuple(translations)
 
 
@@ -704,22 +764,22 @@ def _validate_top_level_keys(
         _add_issue(issues, field, message)
 
 
-def load_settings(
-    config_path: str | Path = "config.yaml",
+def settings_from_mapping(
+    data: Mapping[str, Any],
     *,
-    create_output_dir: bool = True,
+    source_path: str | Path = "config.yaml",
+    create_output_dir: bool = False,
 ) -> Settings:
-    """Load and validate a YAML file, returning one immutable settings object.
+    """Validate public config values without requiring a YAML file.
 
-    Relative paths in the YAML file are resolved from the YAML file's parent
-    directory.  A blank output path selects ``outputs`` beside the YAML file.
+    Relative paths are resolved from ``source_path``'s parent directory.  A
+    blank output path selects ``outputs`` beside that logical config file.
     When ``create_output_dir`` is true, that directory (including a custom
     directory) is created only after every field passes validation.
     """
 
-    source_path = Path(config_path).expanduser().resolve(strict=False)
-    data = _load_yaml(source_path)
-    base_directory = source_path.parent
+    resolved_source_path = Path(source_path).expanduser().resolve(strict=False)
+    base_directory = resolved_source_path.parent
     application_directory = PACKAGE_DIRECTORY
     issues: list[ValidationIssue] = []
     _validate_top_level_keys(data, issues)
@@ -727,6 +787,10 @@ def load_settings(
     output_path = _parse_output_path(data, base_directory, issues)
     background_image = _parse_optional_file(
         data, "background image", base_directory, issues
+    )
+    resolution_from_background = (
+        isinstance(_raw_value(data, "resolution"), str)
+        and str(_raw_value(data, "resolution")).strip().lower() == "bg"
     )
     resolution = _parse_resolution(data, background_image, issues)
     background_color = _parse_color(data, "background color", issues)
@@ -738,16 +802,16 @@ def load_settings(
         issues,
     )
     quran_color = _parse_color(data, "quran color", issues)
-    quran_font_size = _parse_int(data, "quran font size", issues, minimum=1)
+    quran_font_size = _parse_int(data, "quran font size", issues)
     quran_x_position = _parse_position(data, "quran x position", issues)
-    quran_max_width = _parse_int(data, "quran maximum width", issues, minimum=1)
-    quran_line_spacing = _parse_int(data, "quran line spacing", issues, minimum=0)
-    quran_word_spacing = _parse_int(data, "quran word spacing", issues, minimum=0)
+    quran_max_width = _parse_int(data, "quran maximum width", issues)
+    quran_line_spacing = _parse_int(data, "quran line spacing", issues)
+    quran_word_spacing = _parse_int(data, "quran word spacing", issues)
     quran_letter_spacing = _parse_float(data, "quran letter spacing", issues)
     quran_translation_spacing = _parse_int(
-        data, "quran and translation spacing", issues, minimum=0
+        data, "quran and translation spacing", issues
     )
-    translation_font_size = _parse_int(data, "translation font size", issues, minimum=1)
+    translation_font_size = _parse_int(data, "translation font size", issues)
     translations = _parse_translations(
         data,
         base_directory,
@@ -758,16 +822,16 @@ def load_settings(
     translation_color = _parse_color(data, "translation color", issues)
     translation_x_position = _parse_position(data, "translation x position", issues)
     translation_max_width = _parse_int(
-        data, "translation maximum width", issues, minimum=1
+        data, "translation maximum width", issues
     )
     translation_language_spacing = _parse_int(
-        data, "translation language spacing", issues, minimum=0
+        data, "translation language spacing", issues
     )
     translation_line_spacing = _parse_int(
-        data, "translation line spacing", issues, minimum=0
+        data, "translation line spacing", issues
     )
     translation_word_spacing = _parse_int(
-        data, "translation word spacing", issues, minimum=0
+        data, "translation word spacing", issues
     )
     translation_letter_spacing = _parse_float(
         data, "translation letter spacing", issues
@@ -780,11 +844,11 @@ def load_settings(
         issues,
     )
     verse_number_x_offset = _parse_int(
-        data, "verse number x offset", issues, minimum=-20, maximum=500
+        data, "verse number x offset", issues
     )
     verse_number_y_offset = _parse_int(data, "verse number y offset", issues)
     space_between_verses = _parse_int(
-        data, "space between verses", issues, minimum=-10, maximum=200
+        data, "space between verses", issues
     )
     generate_random_verses = _parse_bool(data, "generate random verses", issues)
     total_y_offset = _parse_int(data, "total y offset", issues)
@@ -805,7 +869,7 @@ def load_settings(
             ) from error
 
     return Settings(
-        source_path=source_path,
+        source_path=resolved_source_path,
         output_path=output_path,
         resolution=resolution,
         background_image=background_image,
@@ -835,4 +899,150 @@ def load_settings(
         space_between_verses=space_between_verses,
         generate_random_verses=generate_random_verses,
         total_y_offset=total_y_offset,
+        resolution_from_background=resolution_from_background,
     )
+
+
+def load_settings(
+    config_path: str | Path = "config.yaml",
+    *,
+    create_output_dir: bool = True,
+) -> Settings:
+    """Load and validate a YAML file, returning one immutable settings object."""
+
+    source_path = Path(config_path).expanduser().resolve(strict=False)
+    return settings_from_mapping(
+        _load_yaml(source_path),
+        source_path=source_path,
+        create_output_dir=create_output_dir,
+    )
+
+
+def _portable_path(value: Path | str, destination_path: Path) -> str:
+    if isinstance(value, str):
+        return value
+    resolved = value.resolve(strict=False)
+    try:
+        return resolved.relative_to(PACKAGE_DIRECTORY.resolve()).as_posix()
+    except ValueError:
+        pass
+    try:
+        return Path(os.path.relpath(resolved, destination_path.parent)).as_posix()
+    except ValueError:  # Different Windows drives cannot be made relative.
+        return str(resolved)
+
+
+def _translation_mapping(
+    settings: Settings, destination_path: Path
+) -> list[dict[str, Any]]:
+    entries: list[dict[str, Any]] = []
+    for translation in settings.translations:
+        selector_value: str | int = translation.selector.value
+        if translation.selector.kind == "id":
+            selector_value = int(selector_value)
+        entry: dict[str, Any] = {translation.selector.kind: selector_value}
+        configured_font = (
+            translation.configured_font
+            if translation.resource is not None
+            else translation.font
+        )
+        if configured_font is not None:
+            entry["font"] = _portable_path(configured_font, destination_path)
+        if translation.font_size != settings.translation_font_size:
+            entry["font size"] = translation.font_size
+        entries.append(entry)
+    return entries
+
+
+def settings_to_mapping(
+    settings: Settings,
+    *,
+    destination_path: str | Path | None = None,
+) -> dict[str, Any]:
+    """Return only the validated, public YAML fields for ``settings``.
+
+    Runtime catalog objects and auto-resolved bundled translation fonts are
+    deliberately excluded.  Paths are made relative to the destination where
+    possible, and package assets use stable package-relative names.
+    """
+
+    destination = (
+        settings.source_path
+        if destination_path is None
+        else Path(destination_path).expanduser().resolve(strict=False)
+    )
+    data: dict[str, Any] = {}
+    for spec in SETTING_SPECS:
+        value = getattr(settings, spec.attribute)
+        if spec.value_type == "translations":
+            value = _translation_mapping(settings, destination)
+        elif spec.value_type == "dimensions":
+            value = (
+                "bg"
+                if spec.key == "resolution" and settings.resolution_from_background
+                else f"{value.width} x {value.height}"
+            )
+        elif spec.path_semantics == "optional-file":
+            value = "" if value is None else _portable_path(value, destination)
+        elif spec.path_semantics in {"directory", "font-file"}:
+            value = _portable_path(value, destination)
+        data[spec.key] = value
+    return data
+
+
+def save_settings(settings: Settings, config_path: str | Path) -> Settings:
+    """Validate and atomically save settings, returning their saved form."""
+
+    destination = Path(config_path).expanduser().resolve(strict=False)
+    data = settings_to_mapping(settings, destination_path=destination)
+    normalized = settings_from_mapping(
+        data,
+        source_path=destination,
+        create_output_dir=False,
+    )
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="\n",
+            prefix=f".{destination.name}.",
+            suffix=".tmp",
+            dir=destination.parent,
+            delete=False,
+        ) as temporary_file:
+            yaml.safe_dump(
+                data,
+                temporary_file,
+                sort_keys=False,
+                allow_unicode=True,
+            )
+            temporary_file.flush()
+            os.fsync(temporary_file.fileno())
+            temporary_path = Path(temporary_file.name)
+        os.replace(temporary_path, destination)
+        temporary_path = None
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
+    return normalized
+
+
+def settings_help_text() -> str:
+    """Build concise GUI/documentation help from the authoritative schema."""
+
+    sections: list[str] = []
+    for spec in SETTING_SPECS:
+        default = spec.default if spec.default != "" else "blank"
+        sections.append(
+            f"{spec.label} ({spec.key})\n"
+            f"  {spec.description} {spec.effect}\n"
+            f"  Format: {spec.format_hint}. Default: {default}."
+        )
+    return "\n\n".join(sections)
+
+
+# Short public spellings are convenient for non-file front ends.
+from_mapping = settings_from_mapping
+to_mapping = settings_to_mapping

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import configparser
 import tarfile
 import zipfile
 from collections import Counter
@@ -32,6 +33,15 @@ def _duplicates(names: Iterable[str]) -> tuple[str, ...]:
 def _verify_wheel(wheel: Path, expected: tuple[PurePosixPath, ...]) -> None:
     with zipfile.ZipFile(wheel) as archive:
         names = tuple(item.filename for item in archive.infolist() if not item.is_dir())
+        entry_point_names = tuple(
+            name for name in names if name.endswith(".dist-info/entry_points.txt")
+        )
+        if len(entry_point_names) != 1:
+            _fail("wheel must contain exactly one dist-info/entry_points.txt")
+        entry_points = configparser.ConfigParser()
+        entry_points.read_string(
+            archive.read(entry_point_names[0]).decode("utf-8")
+        )
     duplicates = _duplicates(names)
     if duplicates:
         _fail(f"wheel has duplicate entries: {', '.join(duplicates)}")
@@ -44,6 +54,15 @@ def _verify_wheel(wheel: Path, expected: tuple[PurePosixPath, ...]) -> None:
             _fail(f"wheel must contain exactly one {member}")
     if any(name.startswith(("tests/", "readme_images/")) for name in names):
         _fail("wheel unexpectedly contains tests or README images")
+    expected_entries = {
+        ("console_scripts", "quran-image-generator"): "quran_image_generator.cli:main",
+        ("gui_scripts", "quran-image-generator-gui"): (
+            "quran_image_generator.gui_cli:main"
+        ),
+    }
+    for (section, name), target in expected_entries.items():
+        if entry_points.get(section, name, fallback=None) != target:
+            _fail(f"wheel is missing {section} entry point {name} = {target}")
 
 
 def _verify_sdist(sdist: Path, expected: tuple[PurePosixPath, ...]) -> None:
