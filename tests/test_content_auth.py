@@ -223,13 +223,19 @@ def test_verse_request_has_only_verse_parameters():
                 },
                 "params": {
                     "translations": "131,31",
-                    "words": True,
+                    "words": 1,
                     "word_fields": "text_uthmani",
                 },
                 "timeout": 30,
             },
         )
     ]
+    prepared = requests.Request(
+        "GET",
+        session.get_calls[0][0],
+        params=session.get_calls[0][1]["params"],
+    ).prepare()
+    assert "words=1" in prepared.url.split("?", maxsplit=1)[1].split("&")
 
 
 def test_token_is_reused_then_refreshed_at_the_expiry_margin():

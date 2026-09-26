@@ -65,7 +65,7 @@ def test_api_call_builds_expected_request(load_json_fixture):
                 "timeout": 30,
                 "params": {
                     "translations": "131,31",
-                    "words": True,
+                    "words": 1,
                     "word_fields": "text_uthmani",
                 },
             },
@@ -90,7 +90,7 @@ def test_fetch_passage_gets_verses_then_chapter(load_json_fixture):
     ]
     assert session.get_calls[0][1]["params"] == {
         "translations": "131",
-        "words": True,
+        "words": 1,
         "word_fields": "text_uthmani",
     }
     assert session.get_calls[1][1] == {
@@ -115,7 +115,7 @@ def test_verse_without_translations_omits_translation_parameter(load_json_fixtur
 
     assert _client(session).api_call("verses/by_key/1:1", ()) == payload
     assert session.get_calls[0][1]["params"] == {
-        "words": True,
+        "words": 1,
         "word_fields": "text_uthmani",
     }
 

@@ -437,7 +437,7 @@ class QuranContentClient:
         params: Mapping[str, Any] | None = None
         if endpoint.lstrip("/").startswith("verses/"):
             params = {
-                "words": True,
+                "words": 1,
                 "word_fields": "text_uthmani",
             }
             if translation_resource_ids:
