@@ -4,7 +4,6 @@ import requests
 import os
 from wand.image import Image
 from wand.drawing import Drawing
-from instagrapi import Client
 
 VERSE_NUMBERS_FOLDER = 'assets/verse_numbers'
 
@@ -137,6 +136,14 @@ class QuranImageGenerator:
     def post(self, username, password):
         post_to = config.post_method()
         if 'insta' in post_to:
+            try:
+                from instagrapi import Client
+            except ImportError as error:
+                raise RuntimeError(
+                    "Instagram publishing support is not installed. "
+                    "Install it with: pip install '.[instagram]'"
+                ) from error
+
             print(f'\nAccessing account "{username}"')
             client = Client()
             client.login(username, password)
