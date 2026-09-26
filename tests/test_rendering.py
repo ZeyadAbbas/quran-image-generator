@@ -194,3 +194,48 @@ def test_quran_combining_marks_are_bounded_and_unsafe_shift_is_rejected(
 
     assert caught.value.axis == "vertical"
     assert caught.value.actual[0] < 0
+
+
+def test_quran_visual_right_edge_aligns_without_silent_clipping(
+    settings_factory, tmp_path
+):
+    font = PROJECT_ROOT / "assets" / "fonts" / "quran_font.ttf"
+    edge_settings = settings_factory(
+        resolution=Dimensions(900, 300),
+        quran_font=font,
+        quran_font_size=80,
+        quran_x_position=0,
+        quran_max_width=850,
+        background_color="#000000",
+        quran_color="#FFFFFF",
+        show_verse_numbers=False,
+    )
+    room_settings = replace(
+        edge_settings,
+        resolution=Dimensions(920, 300),
+        quran_x_position=20,
+    )
+    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+    passage = Passage(1, "Test", (Verse(1, "1:1", (text,), ()),))
+    edge_layout = build_layout(passage, edge_settings, WandTextMeasurer())
+    room_layout = build_layout(passage, room_settings, WandTextMeasurer())
+    edge_destination = tmp_path / "quran-at-right-edge.png"
+    room_destination = tmp_path / "quran-with-right-room.png"
+
+    WandImageRenderer().render(edge_layout, edge_settings, edge_destination)
+    WandImageRenderer().render(room_layout, room_settings, room_destination)
+
+    assert edge_layout.content_bounds is not None
+    edge_line = edge_layout.lines[0]
+    room_line = room_layout.lines[0]
+    edge_pixels = _trimmed_pixel_bounds(edge_destination)
+    room_pixels = _trimmed_pixel_bounds(room_destination)
+    assert edge_line.right == 900
+    assert room_line.right == 900
+    assert edge_pixels[0] == room_pixels[0]
+    assert edge_pixels[2] == room_pixels[2]
+    assert edge_pixels[2] > ceil(edge_line.x + edge_line.width)
+    assert abs(edge_pixels[0] - edge_line.left) <= 1
+    assert abs(edge_pixels[2] - edge_line.right) <= 1
+    assert edge_pixels[0] >= floor(edge_layout.content_bounds.left) - 1
+    assert edge_pixels[2] <= ceil(edge_layout.content_bounds.right) + 1

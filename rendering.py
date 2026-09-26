@@ -100,6 +100,8 @@ class WandTextMeasurer:
                     descender=measured.descender,
                     top_extent=max(0, baseline - top),
                     bottom_extent=max(0, bottom - baseline),
+                    left_offset=left - padding,
+                    right_offset=right - padding,
                 )
                 self._ink_cache[key] = result
                 return result

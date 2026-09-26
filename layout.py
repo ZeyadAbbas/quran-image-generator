@@ -28,6 +28,8 @@ class TextMetrics:
     descender: float
     top_extent: float | None = None
     bottom_extent: float | None = None
+    left_offset: float = 0.0
+    right_offset: float | None = None
 
     @property
     def visual_top_extent(self) -> float:
@@ -40,6 +42,16 @@ class TextMetrics:
         if self.bottom_extent is None:
             return self.descender
         return self.bottom_extent
+
+    @property
+    def visual_right_offset(self) -> float:
+        if self.right_offset is None:
+            return self.width
+        return self.right_offset
+
+    @property
+    def visual_width(self) -> float:
+        return self.visual_right_offset - self.left_offset
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +74,18 @@ class MeasuredLine:
     @property
     def height(self) -> float:
         return self.metrics.height
+
+    @property
+    def left_offset(self) -> float:
+        return self.metrics.left_offset
+
+    @property
+    def right_offset(self) -> float:
+        return self.metrics.visual_right_offset
+
+    @property
+    def visual_width(self) -> float:
+        return self.metrics.visual_width
 
 
 @dataclass(frozen=True, slots=True)
@@ -102,6 +126,18 @@ class PositionedLine:
     @property
     def bottom(self) -> float:
         return self.y + self.metrics.visual_bottom_extent
+
+    @property
+    def left(self) -> float:
+        return self.x + self.metrics.left_offset
+
+    @property
+    def right(self) -> float:
+        return self.x + self.metrics.visual_right_offset
+
+    @property
+    def visual_width(self) -> float:
+        return self.metrics.visual_width
 
 
 @dataclass(frozen=True, slots=True)
@@ -340,7 +376,7 @@ def _validate_block_width(
         _validate_interval(
             f"{element} line {index + 1}",
             "horizontal",
-            (0, line.width),
+            (0, line.visual_width),
             (0, available_width),
         )
 
@@ -377,17 +413,21 @@ def _layout_verse(
 
 def _horizontal_x(
     canvas_width: int,
-    line_width: float,
+    line: MeasuredLine,
     position: int | Literal["center"],
     *,
     right_aligned: bool,
 ) -> float:
     if position == "center":
         # Keep the legacy one-pixel tie break when the widths have mixed parity.
-        return (canvas_width // 2) - (line_width // 2)
+        return (
+            (canvas_width // 2)
+            - (line.visual_width // 2)
+            - line.left_offset
+        )
     if right_aligned:
-        return canvas_width - position - line_width
-    return position
+        return canvas_width - position - line.right_offset
+    return position - line.left_offset
 
 
 def _position_text_block(
@@ -408,14 +448,16 @@ def _position_text_block(
         baseline += line.height
         x_position = _horizontal_x(
             canvas_width,
-            line.width,
+            line,
             position,
             right_aligned=right_aligned,
         )
+        left = x_position + line.left_offset
+        right = x_position + line.right_offset
         _validate_interval(
             f"{element} line {index + 1}",
             "horizontal",
-            (x_position, x_position + line.width),
+            (left, right),
             (0, canvas_width),
         )
         last_positioned = PositionedLine(
@@ -439,9 +481,9 @@ def _content_bounds(
     if not lines and not markers:
         return None
 
-    left_edges = [line.x for line in lines] + [marker.x for marker in markers]
+    left_edges = [line.left for line in lines] + [marker.x for marker in markers]
     top_edges = [line.top for line in lines] + [marker.y for marker in markers]
-    right_edges = [line.x + line.width for line in lines] + [
+    right_edges = [line.right for line in lines] + [
         marker.x + marker.width for marker in markers
     ]
     bottom_edges = [line.bottom for line in lines] + [
@@ -520,7 +562,7 @@ def build_layout(
             marker = VerseMarker(
                 number=block.number,
                 x=(
-                    last_quran_line.x
+                    last_quran_line.left
                     - settings.verse_number_x_offset
                     - marker_width
                 ),

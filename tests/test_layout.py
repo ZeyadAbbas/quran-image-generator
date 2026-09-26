@@ -12,11 +12,21 @@ from settings import Dimensions, TranslationSettings
 
 
 class FixedMeasurer:
-    def __init__(self, width, height, descender=0, ascender=None):
+    def __init__(
+        self,
+        width,
+        height,
+        descender=0,
+        ascender=None,
+        left_offset=0,
+        right_offset=None,
+    ):
         self.width = width
         self.height = height
         self.ascender = height if ascender is None else ascender
         self.descender = descender
+        self.left_offset = left_offset
+        self.right_offset = right_offset
 
     def measure(self, text, style):
         return TextMetrics(
@@ -24,6 +34,8 @@ class FixedMeasurer:
             self.height,
             self.ascender,
             self.descender,
+            left_offset=self.left_offset,
+            right_offset=self.right_offset,
         )
 
 
@@ -316,6 +328,81 @@ def test_center_right_and_left_positions_are_explicit(settings_factory):
     assert left_aligned.lines[1].x == 40
 
 
+def test_visual_bearings_drive_alignment_and_marker_placement(settings_factory):
+    measurer = FixedMeasurer(
+        100,
+        10,
+        left_offset=-4,
+        right_offset=106,
+    )
+    quran_only = passage_with(Verse(1, "1:1", ("q",), ()))
+
+    centered = build_layout(quran_only, settings_factory(), measurer)
+    right_aligned = build_layout(
+        quran_only,
+        settings_factory(quran_x_position=30),
+        measurer,
+    )
+    marked = build_layout(
+        quran_only,
+        settings_factory(
+            show_verse_numbers=True,
+            verse_number_resolution=Dimensions(20, 20),
+            verse_number_x_offset=5,
+        ),
+        measurer,
+    )
+
+    translations = (
+        TranslationSettings("en", "131", "Fixture Sans", 18),
+    )
+    translated = passage_with(
+        Verse(1, "1:1", ("q",), (VerseTranslation("131", "translated"),))
+    )
+    left_aligned = build_layout(
+        translated,
+        settings_factory(
+            translations=translations,
+            translation_x_position=40,
+        ),
+        measurer,
+    )
+
+    assert (centered.lines[0].left, centered.lines[0].right) == (95, 205)
+    assert (right_aligned.lines[0].left, right_aligned.lines[0].right) == (
+        160,
+        270,
+    )
+    assert left_aligned.lines[1].left == 40
+    assert marked.markers[0].x + marked.markers[0].width == (
+        marked.lines[0].left - 5
+    )
+
+
+def test_marker_reserve_validates_final_visual_width(settings_factory):
+    settings = settings_factory(
+        quran_max_width=129,
+        show_verse_numbers=True,
+        verse_number_resolution=Dimensions(20, 20),
+        verse_number_x_offset=0,
+    )
+    passage = passage_with(Verse(1, "1:1", ("q",), ()))
+    measurer = FixedMeasurer(
+        100,
+        10,
+        left_offset=-4,
+        right_offset=106,
+    )
+
+    with pytest.raises(LayoutOverflowError) as caught:
+        build_layout(passage, settings, measurer)
+
+    assert caught.value.element == "Quran text for verse 1:1 line 1"
+    assert caught.value.actual == (0, 110)
+    assert caught.value.allowed == (0, 109)
+    assert caught.value.overflow == 1
+
+
 def test_right_aligned_overflow_is_reported_instead_of_mirrored(
     settings_factory,
 ):
@@ -380,13 +467,13 @@ def test_reported_bounds_match_every_positioned_element(settings_factory):
     image_layout = build_layout(passage, settings, FixedMeasurer(30, 10))
 
     assert image_layout.content_bounds is not None
-    lefts = [line.x for line in image_layout.lines] + [
+    lefts = [line.left for line in image_layout.lines] + [
         marker.x for marker in image_layout.markers
     ]
     tops = [line.top for line in image_layout.lines] + [
         marker.y for marker in image_layout.markers
     ]
-    rights = [line.x + line.width for line in image_layout.lines] + [
+    rights = [line.right for line in image_layout.lines] + [
         marker.x + marker.width for marker in image_layout.markers
     ]
     bottoms = [line.bottom for line in image_layout.lines] + [
