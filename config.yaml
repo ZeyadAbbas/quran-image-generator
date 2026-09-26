@@ -1,149 +1,47 @@
-# PLEASE READ THESE INSTRUCTIONS BEFORE GOING THROUGH THE CONFIG FILE.
-# Existing quoted values still work; YAML numbers and true/false may also be left unquoted.
-# Always quote colors so YAML keeps leading zeroes and does not treat # as a comment.
-# Blank or missing options use the defaults described below.
-# Invalid explicit values are reported together at startup and are not silently replaced.
-# Brackets in examples describe the expected value and should not be included.
-# Instagram publishing is requested with --publish post/story; credentials belong only in
-# QIG_INSTAGRAM_USERNAME and QIG_INSTAGRAM_PASSWORD, never in this file.
+# Working example for Quran Image Generator. These are sample values, not a
+# duplicate of every built-in default. See docs/configuration.md for the
+# canonical defaults, accepted values, and path rules.
+#
+# API and Instagram credentials belong in environment variables, never here.
 
-'output path': ''           # The container command overrides this with its /output mount.
-                            # Where to output the files generated from running this program.
-                            # Should be in the format [C:\Users\your name\Desktop\VIDEOS], VIDEOS being the final destination folder to upload to.
-                            # If you don't know how to get the path of your folder, open the folder and then follow step 5 on this link: https://shorturl.at/zPseg
-                            # A missing configured directory is created after the rest of the config passes validation.
-                            # If you leave this blank, the program creates/uses "outputs" beside this config file.
+'output path': outputs
+'resolution': '1080 x 1080'
+'background image': ''
+'background color': '#101820'
 
-'resolution': '1080 x 1920'          # Set the resolution (size).
-                                     # Should be in the format [width x height] or use [bg] to fit to the size of the background image (if you set one).
-                                     # If blank or omitted, the default is 1080 x 1080.
+'quran font': assets/fonts/quran_font.ttf
+'quran color': '#FFFFFF'
+'quran font size': 38
+'quran x position': center
+'quran maximum width': 900
+'quran line spacing': 30
+'quran word spacing': 6
+'quran letter spacing': -0.1
+'quran and translation spacing': 34
 
-'background image': ''           # In a container, mount the file read-only and use its container path.
-                                 # Set a background image.
-                                 # Should be in the format [path_to_image].
-                                 # If blank or omitted, no image is used and the background color is shown.
+# Discover current resources with `quran-image-generator --list-translations`.
+# Select up to three exact IDs/slugs in display order. An empty list gives an
+# Arabic-only image and avoids depending on a catalog ID in this example.
+#
+# 'translation languages':
+#   - id: 123  # example only: replace with an ID from the live list command
+#     font size: 18
+#   - slug: another-catalog-slug
+#     font: Arial
+'translation languages': []
+'translation color': '#E8E8E8'
+'translation font size': 18
+'translation x position': center
+'translation maximum width': 860
+'translation language spacing': 12
+'translation line spacing': 10
+'translation word spacing': 1
+'translation letter spacing': 0.0
 
-'background color': ''           # Set a solid background color.
-                                 # Should be in the format [#HEX], the hex code should look something like #FF00FF or #e6c134.
-                                 # You can find the hex code of the color you want at https://imagecolorpicker.com
-                                 # If blank or omitted, the default is black (#000000).
-
-'quran font': 'assets/fonts/quran_font.ttf'          # Set the Quran font.
-                                                     # Should be in the format [path_to_font]
-                                                     # If blank or omitted, the default is Arial.
-
-'quran color': ''            # Set the Quran color.
-                             # Should be in the format [#HEX], the hex code should look something like #FF00FF or #e6c134.
-                             # You can find the hex code of the color you want at https://imagecolorpicker.com
-                             # If blank or omitted, the default is white (#FFFFFF).
-
-'quran font size': ''             # Set the font size of the Quran text.
-                                  # Should be in the format [number].
-                                  # If blank or omitted, the default is 34.
-
-'quran x position': ''            # Set the X position (from right to left) of the Quran verse.
-                                  # Should be in the format [number].
-                                  # You can also use [center] to center the text right in the middle of the image at all times.
-                                  # If blank or omitted, the default is 30.
-
-'quran maximum width': ''             # Set the maximum width Quran verses can be on each line.
-                                      # Should be in the format [number], this number should be less than the width of the image.
-                                      # This will make each line of the Quran verses longer / shorter...
-                                      # Will move the rest of the words to the line below if they don't all fit.
-                                      # If blank or omitted, the default is 700.
-                                      # If you are experiencing issues with setting the width...
-                                      # Try making the number bigger until you can see the text.
-
-'quran line spacing': ''            # Set the space between the Quran lines.
-                                    # Should be in the format [number].
-                                    # If blank or omitted, the default is 30.
-
-'quran word spacing': ''           # Set the space between the Quran words.
-                                   # Should be in the format [number].
-                                   # If blank or omitted, the default is 6.
-
-'quran letter spacing': ''            # Set the space between the Quran verse letters.
-                                      # Should be in the format [decimal_number].
-                                      # If blank or omitted, the default is -0.1.
-
-'quran and translation spacing': ''           # Set the space between the Quran verse and the translation.
-                                              # Should be in the format [number].
-                                              # If blank or omitted, the default is 30.
-
-'translation languages':               # Select up to 3 exact Quran Foundation translation resources.
-  - 'id': 131                          # Use one selector per entry: id, slug, or language.
-    'font size': 18                    # ID/slug is recommended because it identifies the translator exactly.
-                                       # Run `quran-image-generator --list-translations` to see current choices.
-                                       # A language shortcut such as {'language': 'en'} works only when the
-                                       # live catalog has exactly one translation for that language; otherwise
-                                       # startup lists the exact IDs/slugs to choose from.
-                                       # Optional per-entry keys are 'font' and 'font size'. If font is omitted,
-                                       # the bundled font for the catalog language is used when available,
-                                       # otherwise Arial is used. An empty list disables translations.
-
-'translation color': ''            # Set the translation color.
-                                   # Should be in the format [#HEX], the hex code should look something like #FF00FF or #e6c134.
-                                   # You can find the hex code of the color you want at https://imagecolorpicker.com
-                                   # If blank or omitted, the default is white (#FFFFFF).
-
-'translation font size': '18'           # Set the font size of the translation text.
-                                      # Should be in the format [number].
-                                      # If blank or omitted, the default is 16.
-
-'translation x position': ''            # Set the X position (from left to right) of the translation.
-                                        # Should be in the format [number].
-                                        # You can also use [center] to center the text right in the middle of the image at all times.
-                                        # If blank or omitted, the default is 40.
-
-'translation maximum width': ''          # Set the maximum width translations can be on each line.
-                                         # Should be in the format [number], this number should be less than the width of the image.
-                                         # This will make each line of the translations longer / shorter...
-                                         # Will move the rest of the words to the line below if they don't all fit.
-                                         # If blank or omitted, the default is 650.
-                                         # If you are experiencing issues with setting the width...
-                                         # Try making the number bigger until you can see the text.
-
-'translation language spacing': ''           # Set the space between each language in the translations.
-                                             # Should be in the format [number].
-                                             # If blank or omitted, the default is 10.
-
-
-'translation line spacing': '0'            # Set the space between the translation lines.
-                                          # Should be in the format [number].
-                                          # If blank or omitted, the default is 10.
-
-'translation word spacing': ''           # Set the space between the translation words.
-                                         # Should be in the format [number].
-                                         # If blank or omitted, the default is 1.
-
-'translation letter spacing': ''            # Set the space between the translation letters.
-                                            # Should be in the format [decimal_number].
-                                            # If blank or omitted, the default is 0.0.
-
-'show verse numbers': 'true'           # Whether to show verse numbers at the end of the verse.
-                                   # Should be in the format [true/false].
-                                   # If blank or omitted, verse numbers are hidden (false).
-
-'verse number resolution': ''            # Set the resolution (size) of the verse number.
-                                         # Should be in the format [width x height].
-                                         # If blank or omitted, the default is 55 x 55.
-
-'verse number x offset': '10'           # Set the X position (horizontal) offset for the verse number from the left edge.
-                                      # Should be in the format [number]. This number sets how far the verse number is from the right.
-                                      # If blank or omitted, the default is 10.
-
-'verse number y offset': '-5'           # Set the Y position (vertical) offset for the verse number from the top edge.
-                                      # Should be in the format [number]. This number sets how far the verse number is from the top.
-                                      # If blank or omitted, the default is -20.
-
-'space between verses': ''            # Set the space between consecutive verses.
-                                      # Should be in the format [number], this number should be between -10 and 200.
-                                      # If blank or omitted, the default is 70.
-
-'generate random verses': ''           # Whether to generate random verses or not.
-                                       # Should be in the format [true/false].
-                                       # If blank or omitted, the default is false.
-
-'total y offset': ''            # Set the Y position (vertical) offset for all content in the image.
-                                # Should be in the format [number]. This number adjusts the overall vertical placement of the content.
-                                # If blank or omitted, the default is -10.
+'show verse numbers': true
+'verse number resolution': '55 x 55'
+'verse number x offset': 10
+'verse number y offset': -20
+'space between verses': 70
+'generate random verses': false
+'total y offset': -10

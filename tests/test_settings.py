@@ -29,15 +29,9 @@ class SettingsTests(unittest.TestCase):
     def test_repository_config_is_compatible(self) -> None:
         settings = load_settings(PROJECT_ROOT / "config.yaml", create_output_dir=False)
 
-        self.assertEqual((1080, 1920), settings.resolution.as_tuple())
+        self.assertEqual((1080, 1080), settings.resolution.as_tuple())
         self.assertTrue(settings.show_verse_numbers)
-        self.assertEqual(
-            [("id", "131")],
-            [
-                (item.selector.kind, item.selector.value)
-                for item in settings.translations
-            ],
-        )
+        self.assertEqual((), settings.translations)
 
     def test_custom_output_path_is_honored_and_created(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
