@@ -8,6 +8,7 @@ from quran_image_generator.layout import (
     layout_translation_text,
 )
 from quran_image_generator.models import (
+    Chapter,
     Passage,
     TranslationResource,
     TranslationSelector,
@@ -46,7 +47,7 @@ class FixedMeasurer:
 
 
 def passage_with(*verses):
-    return Passage(1, "Al-Fatihah", tuple(verses))
+    return Passage(Chapter(1, "Al-Fatihah", 7), tuple(verses))
 
 
 def resolved_translation(resource_id, language_code="en"):

@@ -82,31 +82,35 @@ def test_api_call_builds_expected_request(load_json_fixture):
     ]
 
 
-def test_fetch_passage_gets_verses_then_chapter(load_json_fixture):
+def test_fetch_passage_gets_chapter_catalog_then_one_verse(load_json_fixture):
     verse_payload = load_json_fixture("verse_one_translation.json")
     chapter_payload = load_json_fixture("chapter.json")
     session = _FixtureSession(
-        lambda uri: chapter_payload if uri.endswith("chapters/1") else verse_payload
+        lambda uri: (
+            {"chapters": [chapter_payload["chapter"]]}
+            if uri.endswith("/chapters")
+            else verse_payload
+        )
     )
 
     passage = _client(session).fetch_passage(GenerationRequest(1, 1, 1), ("131",))
 
     assert [call[0] for call in session.get_calls] == [
+        "https://apis-prelive.quran.foundation/content/api/v4/chapters",
         "https://apis-prelive.quran.foundation/content/api/v4/verses/by_key/1:1",
-        "https://apis-prelive.quran.foundation/content/api/v4/chapters/1",
     ]
-    assert session.get_calls[0][1]["params"] == {
-        "translations": "131",
-        "words": 1,
-        "word_fields": "text_uthmani",
-    }
-    assert session.get_calls[1][1] == {
+    assert session.get_calls[0][1] == {
         "headers": {
             "Accept": "application/json",
             "x-auth-token": "fixture-token",
             "x-client-id": "fixture-client",
         },
         "timeout": (5.0, 30.0),
+    }
+    assert session.get_calls[1][1]["params"] == {
+        "translations": "131",
+        "words": 1,
+        "word_fields": "text_uthmani",
     }
     assert passage.chapter_name == "Al-Fatihah"
     assert [verse.key for verse in passage.verses] == ["1:1"]
@@ -430,7 +434,14 @@ def test_unreadable_requested_translation_stops_generation_before_output(
 ):
     payload = load_json_fixture("verse_one_translation.json")
     payload["verse"]["translations"][0]["text"] = translation_text
-    api_client = _client(_FixtureSession(lambda _uri: payload))
+    chapter = load_json_fixture("chapter.json")["chapter"]
+    api_client = _client(
+        _FixtureSession(
+            lambda uri: {"chapters": [chapter]}
+            if uri.endswith("/chapters")
+            else payload
+        )
+    )
     resource = TranslationResource(
         "131",
         "clearquran-with-tafsir",

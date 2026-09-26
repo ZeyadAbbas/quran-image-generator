@@ -12,7 +12,7 @@ import yaml
 
 from quran_image_generator import cli
 from quran_image_generator import generator as generator_module
-from quran_image_generator.models import GenerationRequest, TranslationResource
+from quran_image_generator.models import Chapter, GenerationRequest, TranslationResource
 from quran_image_generator.publishing import PublishingError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -22,6 +22,24 @@ def _write_config(path: Path, **values: object) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(yaml.safe_dump(values), encoding="utf-8")
     return path
+
+
+def _install_chapter_client(monkeypatch, chapters=None):
+    from quran_image_generator import content
+
+    available = chapters or (Chapter(1, "Al-Fatihah", 7),)
+
+    class FakeContentClient:
+        def list_chapters(self):
+            return available
+
+    client = FakeContentClient()
+    monkeypatch.setattr(
+        content.QuranContentClient,
+        "from_environment",
+        lambda *args, **kwargs: client,
+    )
+    return client
 
 
 def test_help_has_no_runtime_imports_or_filesystem_side_effects(tmp_path):
@@ -162,17 +180,14 @@ def test_list_translations_is_lazy_and_prints_exact_identity(monkeypatch, capsys
             calls.append(refresh)
             return SimpleNamespace(resources=(resource, resource_without_slug))
 
+        def list_chapters(self):
+            pytest.fail("translation listing must not load the chapter catalog")
+
     monkeypatch.setattr(
         content.QuranContentClient,
         "from_environment",
         lambda *args, **kwargs: FakeClient(),
     )
-    monkeypatch.setattr(
-        cli,
-        "_verse_bounds",
-        lambda: pytest.fail("catalog listing must not load generation assets"),
-    )
-
     assert cli.main(["--list-translations", "--refresh-catalog"]) == 0
     output = capsys.readouterr().out
     assert calls == [True]
@@ -210,7 +225,10 @@ def test_list_translations_reports_api_failure_without_traceback(monkeypatch, ca
     assert "Traceback" not in error
 
 
-def test_out_of_bounds_range_fails_before_config_or_output_side_effects(tmp_path):
+def test_out_of_bounds_range_fails_before_config_or_output_side_effects(
+    monkeypatch, tmp_path
+):
+    _install_chapter_client(monkeypatch)
     output_directory = tmp_path / "must not be created"
 
     with pytest.raises(SystemExit) as caught:
@@ -236,6 +254,7 @@ def test_out_of_bounds_range_fails_before_config_or_output_side_effects(tmp_path
 def test_explicit_range_is_one_shot_headless_and_honors_output_override(
     monkeypatch, tmp_path
 ):
+    expected_client = _install_chapter_client(monkeypatch)
     outside = tmp_path / "working directory with spaces"
     outside.mkdir()
     config_path = _write_config(
@@ -257,7 +276,13 @@ def test_explicit_range_is_one_shot_headless_and_honors_output_override(
 
     monkeypatch.chdir(outside)
     monkeypatch.setattr(
-        generator_module, "build_generator", lambda settings: FakeGenerator(settings)
+        generator_module,
+        "build_generator",
+        lambda settings, *, content_client: (
+            FakeGenerator(settings)
+            if content_client is expected_client
+            else pytest.fail("CLI replaced its content client")
+        ),
     )
     monkeypatch.setattr(
         builtins,
@@ -292,6 +317,7 @@ def test_explicit_range_is_one_shot_headless_and_honors_output_override(
 
 
 def test_interactive_mode_keeps_prompt_and_repeat_flow(monkeypatch, tmp_path):
+    _install_chapter_client(monkeypatch)
     config_path = _write_config(
         tmp_path / "config.yaml",
         **{"translation languages": ""},
@@ -306,12 +332,69 @@ def test_interactive_mode_keeps_prompt_and_repeat_flow(monkeypatch, tmp_path):
             return SimpleNamespace(path=tmp_path / "image.png")
 
     monkeypatch.setattr(
-        generator_module, "build_generator", lambda settings: FakeGenerator()
+        generator_module,
+        "build_generator",
+        lambda settings, **kwargs: FakeGenerator(),
     )
     monkeypatch.setattr(builtins, "input", lambda prompt="": next(answers))
 
     assert cli.main(["--config", str(config_path)]) == 0
     assert generated == [GenerationRequest(1, 1, 1)]
+
+
+def test_interactive_repeat_reuses_one_client_and_reloads_config(
+    monkeypatch, tmp_path
+):
+    expected_client = _install_chapter_client(monkeypatch)
+    config_path = _write_config(
+        tmp_path / "config.yaml",
+        **{"translation languages": "", "background color": "#000000"},
+    )
+    answers = iter(("1", "1", "1", "y", "1", "2", "2", "n"))
+    builds = []
+    generated = []
+
+    class FakeGenerator:
+        def __init__(self, settings):
+            self.settings = settings
+
+        def generate(self, request, *, open_output):
+            generated.append((request, self.settings.background_color))
+            if len(generated) == 1:
+                values = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+                values["background color"] = "#123456"
+                config_path.write_text(yaml.safe_dump(values), encoding="utf-8")
+            return SimpleNamespace(path=tmp_path / "image.png")
+
+    def fake_build(settings, *, content_client):
+        builds.append((settings, content_client))
+        return FakeGenerator(settings)
+
+    monkeypatch.setattr(generator_module, "build_generator", fake_build)
+    monkeypatch.setattr(builtins, "input", lambda prompt="": next(answers))
+
+    assert cli.main(["--config", str(config_path)]) == 0
+    assert [client for _settings, client in builds] == [
+        expected_client,
+        expected_client,
+    ]
+    assert generated == [
+        (GenerationRequest(1, 1, 1), "#000000"),
+        (GenerationRequest(1, 2, 2), "#123456"),
+    ]
+
+
+def test_interactive_prompt_uses_sparse_live_chapter_bounds(monkeypatch, capsys):
+    answers = iter(("1", "2", "287", "286", "285", "286"))
+    monkeypatch.setattr(builtins, "input", lambda prompt="": next(answers))
+
+    request = cli._prompt_for_range((Chapter(2, "Al-Baqarah", 286),))
+
+    assert request == GenerationRequest(2, 286, 286)
+    output = capsys.readouterr().out
+    assert "Available chapter numbers: 2" in output
+    assert "between 1 and 286" in output
+    assert "between 286 and 286" in output
 
 
 def test_missing_quran_api_credentials_fail_before_interactive_prompt(
@@ -345,6 +428,7 @@ def test_quran_api_failure_exits_cleanly_before_publish(monkeypatch, tmp_path, c
     config_path = _write_config(
         tmp_path / "config.yaml", **{"translation languages": ""}
     )
+    _install_chapter_client(monkeypatch)
 
     class FailingGenerator:
         def generate(self, request, *, open_output):
@@ -355,7 +439,7 @@ def test_quran_api_failure_exits_cleanly_before_publish(monkeypatch, tmp_path, c
     monkeypatch.setattr(
         generator_module,
         "build_generator",
-        lambda settings: FailingGenerator(),
+        lambda settings, **kwargs: FailingGenerator(),
     )
     monkeypatch.setattr(
         cli,
@@ -396,6 +480,7 @@ def test_translation_selection_failure_is_safe_and_actionable(
         tmp_path / "config.yaml",
         **{"translation languages": [{"language": "en"}]},
     )
+    _install_chapter_client(monkeypatch)
 
     class FailingGenerator:
         def generate(self, request, *, open_output):
@@ -407,7 +492,7 @@ def test_translation_selection_failure_is_safe_and_actionable(
     monkeypatch.setattr(
         generator_module,
         "build_generator",
-        lambda settings: FailingGenerator(),
+        lambda settings, **kwargs: FailingGenerator(),
     )
 
     with pytest.raises(SystemExit) as caught:
@@ -435,6 +520,7 @@ def test_translation_selection_failure_is_safe_and_actionable(
 def test_explicit_publish_runs_once_after_successful_generation(
     monkeypatch, tmp_path, target
 ):
+    _install_chapter_client(monkeypatch)
     config_path = _write_config(
         tmp_path / "config.yaml", **{"translation languages": ""}
     )
@@ -456,7 +542,9 @@ def test_explicit_publish_runs_once_after_successful_generation(
         events.append(("publish", (path, selected_target)))
 
     monkeypatch.setattr(
-        generator_module, "build_generator", lambda settings: FakeGenerator(settings)
+        generator_module,
+        "build_generator",
+        lambda settings, **kwargs: FakeGenerator(settings),
     )
     monkeypatch.setattr(cli, "_publish_generated_image", fake_publish)
 
@@ -486,6 +574,7 @@ def test_explicit_publish_runs_once_after_successful_generation(
 
 
 def test_no_publish_option_never_calls_publishing_path(monkeypatch, tmp_path):
+    _install_chapter_client(monkeypatch)
     config_path = _write_config(
         tmp_path / "config.yaml", **{"translation languages": ""}
     )
@@ -500,7 +589,9 @@ def test_no_publish_option_never_calls_publishing_path(monkeypatch, tmp_path):
             return SimpleNamespace(path=image_path)
 
     monkeypatch.setattr(
-        generator_module, "build_generator", lambda settings: FakeGenerator(settings)
+        generator_module,
+        "build_generator",
+        lambda settings, **kwargs: FakeGenerator(settings),
     )
     monkeypatch.setattr(
         cli,
@@ -529,6 +620,7 @@ def test_no_publish_option_never_calls_publishing_path(monkeypatch, tmp_path):
 def test_publish_is_not_attempted_without_a_retained_output(
     monkeypatch, tmp_path, capsys, generated_path
 ):
+    _install_chapter_client(monkeypatch)
     config_path = _write_config(
         tmp_path / "config.yaml", **{"translation languages": ""}
     )
@@ -539,7 +631,9 @@ def test_publish_is_not_attempted_without_a_retained_output(
             return SimpleNamespace(path=path)
 
     monkeypatch.setattr(
-        generator_module, "build_generator", lambda settings: FakeGenerator()
+        generator_module,
+        "build_generator",
+        lambda settings, **kwargs: FakeGenerator(),
     )
     monkeypatch.setattr(
         cli,
@@ -569,6 +663,7 @@ def test_publish_is_not_attempted_without_a_retained_output(
 def test_publish_failure_returns_distinct_code_and_reports_retained_path(
     monkeypatch, tmp_path, capsys
 ):
+    _install_chapter_client(monkeypatch)
     config_path = _write_config(
         tmp_path / "config.yaml", **{"translation languages": ""}
     )
@@ -589,7 +684,9 @@ def test_publish_failure_returns_distinct_code_and_reports_retained_path(
         )
 
     monkeypatch.setattr(
-        generator_module, "build_generator", lambda settings: FakeGenerator(settings)
+        generator_module,
+        "build_generator",
+        lambda settings, **kwargs: FakeGenerator(settings),
     )
     monkeypatch.setattr(cli, "_publish_generated_image", failing_publish)
 
@@ -618,6 +715,7 @@ def test_publish_failure_returns_distinct_code_and_reports_retained_path(
 
 
 def test_generation_failure_never_reaches_publishing(monkeypatch, tmp_path):
+    _install_chapter_client(monkeypatch)
     config_path = _write_config(
         tmp_path / "config.yaml", **{"translation languages": ""}
     )
@@ -627,7 +725,9 @@ def test_generation_failure_never_reaches_publishing(monkeypatch, tmp_path):
             raise RuntimeError("generation failed")
 
     monkeypatch.setattr(
-        generator_module, "build_generator", lambda settings: FakeGenerator()
+        generator_module,
+        "build_generator",
+        lambda settings, **kwargs: FakeGenerator(),
     )
     monkeypatch.setattr(
         cli,

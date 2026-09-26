@@ -98,7 +98,9 @@ class QuranImageGenerator:
         return result
 
 
-def build_generator(settings: Settings) -> QuranImageGenerator:
+def build_generator(
+    settings: Settings, *, content_client: Any | None = None
+) -> QuranImageGenerator:
     """Construct the concrete command-line application without doing I/O."""
 
     from .content import QuranContentClient
@@ -106,7 +108,11 @@ def build_generator(settings: Settings) -> QuranImageGenerator:
 
     return QuranImageGenerator(
         settings=settings,
-        content_client=QuranContentClient.from_environment(),
+        content_client=(
+            QuranContentClient.from_environment()
+            if content_client is None
+            else content_client
+        ),
         measurer=WandTextMeasurer(),
         renderer=WandImageRenderer(),
     )

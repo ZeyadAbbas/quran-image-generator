@@ -35,6 +35,8 @@ def _verify_wheel(wheel: Path, expected: tuple[PurePosixPath, ...]) -> None:
     duplicates = _duplicates(names)
     if duplicates:
         _fail(f"wheel has duplicate entries: {', '.join(duplicates)}")
+    if any(name.endswith("/assets/verse_bounds.txt") for name in names):
+        _fail("wheel contains removed static verse bounds")
 
     for relative in expected:
         member = f"quran_image_generator/{relative.as_posix()}"
@@ -50,6 +52,8 @@ def _verify_sdist(sdist: Path, expected: tuple[PurePosixPath, ...]) -> None:
     duplicates = _duplicates(names)
     if duplicates:
         _fail(f"sdist has duplicate entries: {', '.join(duplicates)}")
+    if any(name.endswith("/assets/verse_bounds.txt") for name in names):
+        _fail("sdist contains removed static verse bounds")
 
     for relative in expected:
         suffix = f"/src/quran_image_generator/{relative.as_posix()}"

@@ -27,6 +27,17 @@ def block_external_http(monkeypatch):
     monkeypatch.setattr(requests.sessions.Session, "request", blocked_request)
 
 
+@pytest.fixture(autouse=True)
+def isolate_content_catalog_caches():
+    from quran_image_generator.content import QuranContentClient
+
+    QuranContentClient.clear_translation_catalog_cache()
+    QuranContentClient.clear_chapter_catalog_cache()
+    yield
+    QuranContentClient.clear_translation_catalog_cache()
+    QuranContentClient.clear_chapter_catalog_cache()
+
+
 class FakeMeasurer:
     def measure(self, text, style):
         return TextMetrics(len(text) * 10, 12, 12, 0)

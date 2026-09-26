@@ -9,6 +9,7 @@ from quran_image_generator.content import TranslationSelectionError
 from quran_image_generator.generator import QuranImageGenerator
 from quran_image_generator.layout import LayoutOverflowError, TextMetrics
 from quran_image_generator.models import (
+    Chapter,
     GenerationRequest,
     Passage,
     TranslationResource,
@@ -30,8 +31,7 @@ def test_formats_inclusive_verse_keys():
 def test_generation_flow_uses_fakes(settings_factory):
     events = []
     passage = Passage(
-        chapter_number=1,
-        chapter_name="Al-Fatihah",
+        chapter=Chapter(1, "Al-Fatihah", 7),
         verses=(Verse(1, "1:1", ("بِسْمِ",), ()),),
     )
 
@@ -93,8 +93,7 @@ def test_translation_selection_resolves_before_verses_and_flows_to_layout(
         "en",
     )
     passage = Passage(
-        1,
-        "Al-Fatihah",
+        Chapter(1, "Al-Fatihah", 7),
         (Verse(1, "1:1", ("quran",), (VerseTranslation("131", "translation"),)),),
     )
 
@@ -172,7 +171,7 @@ def test_invalid_translation_selection_stops_before_verse_fetch(settings_factory
 def test_empty_passage_skips_layout_render_and_output_actions(settings_factory):
     class EmptyContentClient:
         def fetch_passage(self, request, resource_ids):
-            return Passage(request.chapter, "", ())
+            return Passage(Chapter(request.chapter, "Test", 7), ())
 
     class UnexpectedCall:
         def __getattr__(self, name):
@@ -186,7 +185,7 @@ def test_empty_passage_skips_layout_render_and_output_actions(settings_factory):
         image_opener=lambda path: pytest.fail("image opener should not be called"),
     )
 
-    result = generator.generate(GenerationRequest(1, 2, 1), open_output=True)
+    result = generator.generate(GenerationRequest(1, 1, 1), open_output=True)
 
     assert result.path is None
     assert result.passage.verses == ()
@@ -194,8 +193,7 @@ def test_empty_passage_skips_layout_render_and_output_actions(settings_factory):
 
 def test_layout_overflow_stops_before_rendering(settings_factory):
     passage = Passage(
-        chapter_number=1,
-        chapter_name="Al-Fatihah",
+        chapter=Chapter(1, "Al-Fatihah", 7),
         verses=(Verse(1, "1:1", ("wide",), ()),),
     )
 

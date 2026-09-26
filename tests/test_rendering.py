@@ -14,7 +14,7 @@ from quran_image_generator.layout import (
     VerseMarker,
     build_layout,
 )
-from quran_image_generator.models import Passage, Verse
+from quran_image_generator.models import Chapter, Passage, Verse
 from quran_image_generator.rendering import WandImageRenderer, WandTextMeasurer
 from quran_image_generator.resources import asset_path
 from quran_image_generator.settings import Dimensions
@@ -133,7 +133,7 @@ def test_wand_bounds_include_pixels_rendered_below_the_baseline(
         quran_color="#FFFFFF",
         show_verse_numbers=False,
     )
-    passage = Passage(1, "Test", (Verse(1, "1:1", ("gypq",), ()),))
+    passage = Passage(Chapter(1, "Test", 7), (Verse(1, "1:1", ("gypq",), ()),))
     image_layout = build_layout(passage, settings, WandTextMeasurer())
     destination = tmp_path / "descender-regression.png"
 
@@ -155,7 +155,7 @@ def test_quran_combining_marks_are_bounded_and_unsafe_shift_is_rejected(
 ):
     font = asset_path("fonts", "quran_font.ttf")
     text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-    passage = Passage(1, "Test", (Verse(1, "1:1", (text,), ()),))
+    passage = Passage(Chapter(1, "Test", 7), (Verse(1, "1:1", (text,), ()),))
     measurer = WandTextMeasurer()
     probe_settings = settings_factory(
         resolution=Dimensions(900, 300),
@@ -205,7 +205,7 @@ def test_quran_visual_right_edge_aligns_without_silent_clipping(
 ):
     font = asset_path("fonts", "quran_font.ttf")
     text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-    passage = Passage(1, "Test", (Verse(1, "1:1", (text,), ()),))
+    passage = Passage(Chapter(1, "Test", 7), (Verse(1, "1:1", (text,), ()),))
     measurer = WandTextMeasurer()
     probe_settings = settings_factory(
         resolution=Dimensions(900, 300),
@@ -269,7 +269,7 @@ def test_quran_wrapping_uses_final_visual_width_near_the_limit(
         "show_verse_numbers": False,
     }
     words = ("aa", "bb")
-    passage = Passage(1, "Test", (Verse(1, "1:1", words, ()),))
+    passage = Passage(Chapter(1, "Test", 7), (Verse(1, "1:1", words, ()),))
     generous_settings = settings_factory(quran_max_width=100, **common)
     measurer = OverhangingMeasurer()
     probe = build_layout(passage, generous_settings, measurer)
