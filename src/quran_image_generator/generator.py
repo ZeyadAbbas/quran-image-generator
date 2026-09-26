@@ -35,42 +35,8 @@ def _open_image(path: Path) -> None:
         subprocess.Popen(["xdg-open", resolved])
 
 
-class InstagramPublisher:
-    """Legacy Instagram publishing kept behind a lazy optional import."""
-
-    def __init__(self, method: str, username: str, password: str) -> None:
-        self._method = method
-        self._username = username
-        self._password = password
-
-    def publish(self, image_path: Path) -> None:
-        if "insta" not in self._method:
-            print(
-                "\nUnable to use post method, check the post method in the config file."
-            )
-            return
-
-        try:
-            from instagrapi import Client
-        except ImportError as error:
-            raise RuntimeError(
-                "Instagram publishing support is not installed. "
-                "Install it with: pip install '.[instagram]'"
-            ) from error
-
-        print(f'\nAccessing account "{self._username}"')
-        client = Client()
-        client.login(self._username, self._password)
-        if self._method == "insta_story":
-            print(f'\nPosting as instagram story on account "{self._username}"')
-            client.photo_upload_to_story(str(image_path))
-        elif self._method == "insta_post":
-            print(f'\nPosting as instagram post on account "{self._username}"')
-            client.photo_upload(str(image_path), "quran")
-
-
 class QuranImageGenerator:
-    """Coordinate content, layout, rendering, and optional output actions."""
+    """Coordinate content, layout, rendering, and local output actions."""
 
     def __init__(
         self,
@@ -79,7 +45,6 @@ class QuranImageGenerator:
         measurer: Any,
         renderer: Any,
         *,
-        publisher: Any | None = None,
         image_opener: Callable[[Path], None] = _open_image,
         layout_builder: Callable[..., Any] = build_layout,
     ) -> None:
@@ -87,7 +52,6 @@ class QuranImageGenerator:
         self._content_client = content_client
         self._measurer = measurer
         self._renderer = renderer
-        self._publisher = publisher
         self._image_opener = image_opener
         self._layout_builder = layout_builder
 
@@ -95,7 +59,6 @@ class QuranImageGenerator:
         self,
         request: GenerationRequest,
         *,
-        publish: bool = False,
         open_output: bool = False,
     ) -> GenerationResult:
         resource_ids = tuple(
@@ -118,14 +81,7 @@ class QuranImageGenerator:
 
         if open_output:
             self._image_opener(rendered_path)
-        if publish:
-            self.publish(rendered_path)
         return result
-
-    def publish(self, image_path: Path) -> None:
-        if self._publisher is None:
-            raise RuntimeError("No publisher is configured.")
-        self._publisher.publish(image_path)
 
 
 def build_generator(settings: Settings) -> QuranImageGenerator:
@@ -139,9 +95,4 @@ def build_generator(settings: Settings) -> QuranImageGenerator:
         content_client=QuranContentClient.from_environment(),
         measurer=WandTextMeasurer(),
         renderer=WandImageRenderer(),
-        publisher=InstagramPublisher(
-            settings.post_method,
-            settings.username,
-            settings.password,
-        ),
     )

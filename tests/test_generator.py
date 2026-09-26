@@ -1,4 +1,3 @@
-import builtins
 import os
 import subprocess
 import sys
@@ -6,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from quran_image_generator.generator import InstagramPublisher, QuranImageGenerator
+from quran_image_generator.generator import QuranImageGenerator
 from quran_image_generator.layout import LayoutOverflowError, TextMetrics
 from quran_image_generator.models import GenerationRequest, Passage, Verse
 from quran_image_generator.settings import Dimensions
@@ -43,10 +42,6 @@ def test_generation_flow_uses_fakes(settings_factory):
             self.layout = image_layout
             return destination
 
-    class FakePublisher:
-        def publish(self, path):
-            events.append(("publish", path))
-
     def fake_open(path):
         events.append(("open", path))
 
@@ -57,13 +52,12 @@ def test_generation_flow_uses_fakes(settings_factory):
         FakeContentClient(),
         FixedMeasurer(),
         renderer,
-        publisher=FakePublisher(),
         image_opener=fake_open,
     )
 
     assert events == []
     request = GenerationRequest(1, 1, 1)
-    result = generator.generate(request, publish=True, open_output=True)
+    result = generator.generate(request, open_output=True)
 
     expected_path = settings.output_path / "Al-Fatihah 1.png"
     assert result.path == expected_path
@@ -75,7 +69,6 @@ def test_generation_flow_uses_fakes(settings_factory):
         ("fetch", request, ()),
         ("render", expected_path),
         ("open", expected_path),
-        ("publish", expected_path),
     ]
 
 
@@ -93,13 +86,10 @@ def test_empty_passage_skips_layout_render_and_output_actions(settings_factory):
         EmptyContentClient(),
         UnexpectedCall(),
         UnexpectedCall(),
-        publisher=UnexpectedCall(),
         image_opener=lambda path: pytest.fail("image opener should not be called"),
     )
 
-    result = generator.generate(
-        GenerationRequest(1, 2, 1), publish=True, open_output=True
-    )
+    result = generator.generate(GenerationRequest(1, 2, 1), open_output=True)
 
     assert result.path is None
     assert result.passage.verses == ()
@@ -138,21 +128,6 @@ def test_layout_overflow_stops_before_rendering(settings_factory):
 
     with pytest.raises(LayoutOverflowError, match="horizontal bounds"):
         generator.generate(GenerationRequest(1, 1, 1))
-
-
-def test_instagram_dependency_is_only_required_when_posting(monkeypatch):
-    publisher = InstagramPublisher("insta_post", "unused", "unused")
-    real_import = builtins.__import__
-
-    def import_without_instagram(name, *args, **kwargs):
-        if name == "instagrapi":
-            raise ImportError("not installed")
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", import_without_instagram)
-
-    with pytest.raises(RuntimeError, match="pip install.*instagram"):
-        publisher.publish(Path("unused.png"))
 
 
 def test_core_imports_do_not_require_wand_or_instagram(tmp_path):

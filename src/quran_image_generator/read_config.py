@@ -162,19 +162,3 @@ def generate_random_verses() -> bool:
 
 def total_y_offset() -> int:
     return get_settings().total_y_offset
-
-
-def upload() -> bool | str:
-    return get_settings().upload
-
-
-def username() -> str:
-    return get_settings().username
-
-
-def password() -> str:
-    return get_settings().password
-
-
-def post_method() -> str:
-    return get_settings().post_method

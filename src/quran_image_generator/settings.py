@@ -19,7 +19,6 @@ import yaml
 from .resources import PACKAGE_DIRECTORY, asset_path
 
 Position = int | Literal["center"]
-UploadMode = bool | Literal["ask"]
 
 
 DEFAULTS: Mapping[str, Any] = MappingProxyType(
@@ -53,10 +52,31 @@ DEFAULTS: Mapping[str, Any] = MappingProxyType(
         "space between verses": 70,
         "generate random verses": False,
         "total y offset": -10,
-        "upload": False,
-        "username": "",
-        "password": "",
-        "post method": "",
+    }
+)
+
+_LEGACY_PUBLISH_SETTINGS: Mapping[str, str] = MappingProxyType(
+    {
+        "upload": (
+            "publishing is no longer configured in YAML; remove this key and "
+            "use --publish {post,story} when publishing is intended"
+        ),
+        "username": (
+            "credentials must not be stored in YAML; remove this key and use "
+            "QIG_INSTAGRAM_USERNAME only when publishing"
+        ),
+        "password": (
+            "credentials must not be stored in YAML; remove this key and use "
+            "QIG_INSTAGRAM_PASSWORD only when publishing"
+        ),
+        "post method": (
+            "publishing is no longer configured in YAML; remove this key and "
+            "choose post or story with --publish"
+        ),
+        "post_method": (
+            "publishing is no longer configured in YAML; remove this key and "
+            "choose post or story with --publish"
+        ),
     }
 )
 
@@ -132,10 +152,6 @@ class Settings:
     space_between_verses: int
     generate_random_verses: bool
     total_y_offset: int
-    upload: UploadMode
-    username: str
-    password: str
-    post_method: str
 
 
 def _is_blank(value: Any) -> bool:
@@ -223,37 +239,6 @@ def _parse_bool(
             return False
     _add_issue(issues, field, "must be true or false")
     return bool(DEFAULTS[field])
-
-
-def _parse_upload(
-    data: Mapping[str, Any], issues: list[ValidationIssue]
-) -> UploadMode:
-    field = "upload"
-    raw = _raw_value(data, field)
-    if isinstance(raw, bool):
-        return raw
-    if isinstance(raw, str):
-        normalized = raw.strip().lower()
-        if normalized == "true":
-            return True
-        if normalized == "false":
-            return False
-        if normalized == "ask":
-            return "ask"
-    _add_issue(issues, field, "must be true, false, or 'ask'")
-    return False
-
-
-def _parse_text(
-    data: Mapping[str, Any], field: str, issues: list[ValidationIssue]
-) -> str:
-    raw = data.get(field, DEFAULTS[field])
-    if raw is None:
-        return str(DEFAULTS[field])
-    if isinstance(raw, str):
-        return raw.strip()
-    _add_issue(issues, field, "must be text")
-    return str(DEFAULTS[field])
 
 
 def _parse_color(
@@ -624,6 +609,7 @@ def _parse_translations(
 
 
 def _load_yaml(config_path: Path) -> Mapping[str, Any]:
+    malformed = False
     try:
         with config_path.open("r", encoding="utf-8") as file:
             loaded = yaml.safe_load(file)
@@ -631,10 +617,13 @@ def _load_yaml(config_path: Path) -> Mapping[str, Any]:
         raise SettingsValidationError(
             [ValidationIssue("config", f"could not read '{config_path}': {error}")]
         ) from error
-    except yaml.YAMLError as error:
+    except yaml.YAMLError:
+        malformed = True
+        loaded = None
+    if malformed:
         raise SettingsValidationError(
-            [ValidationIssue("config", f"contains malformed YAML: {error}")]
-        ) from error
+            [ValidationIssue("config", "contains malformed YAML")]
+        )
     if loaded is None:
         return {}
     if not isinstance(loaded, Mapping):
@@ -650,6 +639,9 @@ def _validate_top_level_keys(
     known_fields = tuple(DEFAULTS)
     for key in data:
         if isinstance(key, str) and key in DEFAULTS:
+            continue
+        if isinstance(key, str) and key in _LEGACY_PUBLISH_SETTINGS:
+            _add_issue(issues, key, _LEGACY_PUBLISH_SETTINGS[key])
             continue
         field = key if isinstance(key, str) else f"config key {key!r}"
         message = "is not a recognized setting"
@@ -751,10 +743,6 @@ def load_settings(
     )
     generate_random_verses = _parse_bool(data, "generate random verses", issues)
     total_y_offset = _parse_int(data, "total y offset", issues)
-    upload = _parse_upload(data, issues)
-    username = _parse_text(data, "username", issues)
-    password = _parse_text(data, "password", issues)
-    post_method = _parse_text(data, "post method", issues)
 
     if issues:
         raise SettingsValidationError(issues)
@@ -798,8 +786,4 @@ def load_settings(
         space_between_verses=space_between_verses,
         generate_random_verses=generate_random_verses,
         total_y_offset=total_y_offset,
-        upload=upload,
-        username=username,
-        password=password,
-        post_method=post_method,
     )

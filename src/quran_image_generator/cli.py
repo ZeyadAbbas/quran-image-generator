@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import random
+import sys
 from collections.abc import Sequence
 from dataclasses import replace
 from pathlib import Path
@@ -23,7 +24,8 @@ def build_parser() -> argparse.ArgumentParser:
 examples:
   quran-image-generator
   quran-image-generator --chapter 2 --start 255 --end 257
-  quran-image-generator --random --open""",
+  quran-image-generator --random --open
+  quran-image-generator --chapter 1 --start 1 --end 1 --publish story""",
     )
     parser.add_argument(
         "--config",
@@ -56,6 +58,16 @@ examples:
         action=argparse.BooleanOptionalAction,
         default=None,
         help="open the generated image (one-shot runs default to --no-open)",
+    )
+    parser.add_argument(
+        "--publish",
+        choices=("post", "story"),
+        metavar="{post,story}",
+        help=(
+            "publish every successfully generated image in this run to Instagram; requires "
+            "the optional instagram extra and QIG_INSTAGRAM_USERNAME/"
+            "QIG_INSTAGRAM_PASSWORD credentials (or interactive prompts)"
+        ),
     )
     return parser
 
@@ -182,6 +194,18 @@ def _settings_with_output_directory(settings: Any, override: Path | None) -> Any
     return replace(settings, output_path=output_directory)
 
 
+def _publish_generated_image(image_path: Path, target_value: str) -> None:
+    from .publishing import (
+        InstagramPublisher,
+        PublishTarget,
+        resolve_instagram_credentials,
+    )
+
+    credentials = resolve_instagram_credentials()
+    publisher = InstagramPublisher(credentials)
+    publisher.publish(image_path, PublishTarget(target_value))
+
+
 def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
     from .generator import build_generator
     from .models import GenerationRequest
@@ -216,21 +240,36 @@ def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
         if open_output is None:
             open_output = not one_shot
 
-        result = generator.generate(
-            request,
-            publish=settings.upload is True,
-            open_output=open_output,
-        )
+        result = generator.generate(request, open_output=open_output)
+
+        if args.publish is not None:
+            from .publishing import PublishingError
+
+            if result.path is None:
+                print(
+                    "Instagram publishing was requested, but generation did not "
+                    "produce an image.",
+                    file=sys.stderr,
+                )
+                return 3
+            generated_path = Path(result.path)
+            if not generated_path.is_file():
+                print(
+                    "Instagram publishing was requested, but the generated image "
+                    f"could not be found at: {generated_path}",
+                    file=sys.stderr,
+                )
+                return 3
+            try:
+                _publish_generated_image(generated_path, args.publish)
+            except PublishingError as error:
+                print(f"Instagram publishing failed: {error}", file=sys.stderr)
+                print(f"Generated image retained at: {result.path}", file=sys.stderr)
+                return 3
+            print(f"Published generated image to Instagram {args.publish}.")
 
         if one_shot:
             return 0
-
-        if (
-            settings.upload == "ask"
-            and result.path is not None
-            and _confirm("Post? [y/n]: ")
-        ):
-            generator.publish(result.path)
 
         if not _confirm("Generate another? [y/n]: "):
             return 0

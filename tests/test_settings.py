@@ -72,7 +72,6 @@ class SettingsTests(unittest.TestCase):
             "quran letter spacing": -0.25,
             "show verse numbers": True,
             "generate random verses": False,
-            "upload": "ask",
         }
         quoted = {
             "resolution": "720 x 1280",
@@ -80,7 +79,6 @@ class SettingsTests(unittest.TestCase):
             "quran letter spacing": "-0.25",
             "show verse numbers": "true",
             "generate random verses": "false",
-            "upload": "ask",
         }
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
@@ -98,7 +96,6 @@ class SettingsTests(unittest.TestCase):
                 "quran_letter_spacing",
                 "show_verse_numbers",
                 "generate_random_verses",
-                "upload",
             )
             for field in compared_fields:
                 self.assertEqual(
@@ -158,7 +155,6 @@ class SettingsTests(unittest.TestCase):
                     "verse number x offset": 501,
                     "space between verses": -11,
                     "translation languages": "xx",
-                    "upload": "later",
                 },
             )
 
@@ -174,10 +170,35 @@ class SettingsTests(unittest.TestCase):
                     "verse number x offset",
                     "space between verses",
                     "translation languages[0]",
-                    "upload",
                 }.issubset(fields)
             )
             self.assertFalse(output_path.exists())
+
+    def test_legacy_publish_and_secret_settings_have_migration_guidance(self) -> None:
+        sentinel = "must-not-appear"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            config_path = self.write_config(
+                root,
+                {
+                    "upload": "ask",
+                    "username": sentinel,
+                    "password": sentinel,
+                    "post method": "insta_story",
+                },
+            )
+
+            with self.assertRaises(SettingsValidationError) as caught:
+                load_settings(config_path, create_output_dir=False)
+
+            issues = {issue.field: issue.message for issue in caught.exception.issues}
+            self.assertEqual(
+                {"upload", "username", "password", "post method"}, set(issues)
+            )
+            self.assertIn("--publish {post,story}", issues["upload"])
+            self.assertIn("QIG_INSTAGRAM_USERNAME", issues["username"])
+            self.assertIn("QIG_INSTAGRAM_PASSWORD", issues["password"])
+            self.assertNotIn(sentinel, str(caught.exception))
 
     def test_unknown_fields_are_aggregated_with_typo_suggestions(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -237,6 +258,21 @@ class SettingsTests(unittest.TestCase):
 
             self.assertEqual(["config"], [issue.field for issue in caught.exception.issues])
             self.assertIn("malformed YAML", str(caught.exception))
+
+    def test_malformed_legacy_secret_is_not_exposed_in_config_error(self) -> None:
+        sentinel = "sentinel-password-value"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            config_path = Path(temporary_directory) / "broken-secret.yaml"
+            config_path.write_text(
+                f"password: [{sentinel}\n", encoding="utf-8"
+            )
+
+            with self.assertRaises(SettingsValidationError) as caught:
+                load_settings(config_path, create_output_dir=False)
+
+            self.assertNotIn(sentinel, f"{caught.exception!s} {caught.exception!r}")
+            self.assertIsNone(caught.exception.__cause__)
+            self.assertIsNone(caught.exception.__context__)
 
     def test_existing_file_cannot_be_used_as_output_directory(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

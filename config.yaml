@@ -4,6 +4,8 @@
 # Blank or missing options use the defaults described below.
 # Invalid explicit values are reported together at startup and are not silently replaced.
 # Brackets in examples describe the expected value and should not be included.
+# Instagram publishing is requested with --publish post/story; credentials belong only in
+# QIG_INSTAGRAM_USERNAME and QIG_INSTAGRAM_PASSWORD, never in this file.
 
 'output path': ''           # !!! WARNING: Do not modify output path if you did the Docker installation. !!!
                             # Where to output the files generated from running this program.
@@ -151,20 +153,3 @@
 'total y offset': ''            # Set the Y position (vertical) offset for all content in the image.
                                 # Should be in the format [number]. This number adjusts the overall vertical placement of the content.
                                 # If blank or omitted, the default is -10.
-
-'upload': ''            # Whether to upload the generated image automatically.
-                        # Should be in the format [true/false/ask]. The ask option will prompt you after every image.
-                        # If blank or omitted, the default is false.
-
-'username': ''            # The username to be used for uploading the file (if upload is set to true).
-                          # Should be in the format [text]. Enter your username in the '' provided.
-                          # If blank or omitted, the username remains blank and upload will fail if enabled.
-
-'password': ''        # The password to be used for uploading the file (if upload is set to true).
-                      # Should be in the format [text]. Enter your password in the '' provided.
-                      # If blank or omitted, the password remains blank and upload will fail if enabled.
-
-'post method': ''           # The method/platform to use for posting the generated content.
-                            # Should be in the format [method_name].
-                            # For a list of supported upload methods, check the README.md file.
-                            # If blank or omitted, the method remains blank and upload will fail if enabled.
