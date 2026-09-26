@@ -291,19 +291,18 @@ If you want to change the translation currently in use, you may change it in the
 `translation_codes` folder.
 
 
-The program gives you the ability to automatically post your images online once generated.
-You can set this option in the config file to either, true, false, or ask.
-You can also pick where you want to post the image.
+Instagram publishing is optional and is only attempted when `--publish post` or
+`--publish story` is passed. Install it separately with
+`python -m pip install ".[instagram]"`. Set `QIG_INSTAGRAM_USERNAME` and
+`QIG_INSTAGRAM_PASSWORD`, or use an interactive terminal and the program will
+prompt only for missing values (the password prompt is hidden). Credentials and
+publishing choices must not be placed in `config.yaml`.
 
-To use this feature, you must be connected to WI-FI and you must provide your username and
-password in the appropriate fields in the config file.
-
-This is a list of currently supported post methods:
-* Instagram
-  * Story (insta_story)
-  * Post (insta_post)
-
-#### Your username and password cannot be viewed by me, or anyone online. The program only requires this to post your image.
+The former `insta_post` and `insta_story` methods are now `--publish post` and
+`--publish story`. The former `ask` workflow is replaced by choosing whether to
+include `--publish` on each run. Omitting the option always keeps the image local.
+In repeating interactive mode, the option applies to every generated image in
+that session; use one-shot chapter/verse or random commands for per-image choices.
 
 <p align="right">(<a href="#about-the-project">back to top</a>)</p>
 

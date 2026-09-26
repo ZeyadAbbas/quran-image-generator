@@ -71,10 +71,6 @@ def settings_factory(tmp_path):
             "space_between_verses": 20,
             "generate_random_verses": False,
             "total_y_offset": 0,
-            "upload": False,
-            "username": "",
-            "password": "",
-            "post_method": "",
         }
         values.update(overrides)
         return Settings(**values)

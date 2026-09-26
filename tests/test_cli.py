@@ -13,6 +13,7 @@ import yaml
 from quran_image_generator import cli
 from quran_image_generator import generator as generator_module
 from quran_image_generator.models import GenerationRequest
+from quran_image_generator.publishing import PublishingError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -59,6 +60,7 @@ def test_help_has_no_runtime_imports_or_filesystem_side_effects(tmp_path):
     assert "--chapter/--start/--end or --random: generate once" in completed.stdout
     assert "One-shot mode defaults to --no-open; pass --open" in completed.stdout
     assert "quran-image-generator --chapter 2 --start 255 --end 257" in completed.stdout
+    assert "--publish {post,story}" in completed.stdout
     assert list(outside.iterdir()) == []
 
 
@@ -148,21 +150,17 @@ def test_explicit_range_is_one_shot_headless_and_honors_output_override(
         **{
             "output path": "ignored-output",
             "translation languages": "",
-            "upload": "ask",
         },
     )
-    generated: list[tuple[object, GenerationRequest, bool, bool]] = []
+    generated: list[tuple[object, GenerationRequest, bool]] = []
 
     class FakeGenerator:
         def __init__(self, settings):
             self.settings = settings
 
-        def generate(self, request, *, publish, open_output):
-            generated.append((self.settings, request, publish, open_output))
+        def generate(self, request, *, open_output):
+            generated.append((self.settings, request, open_output))
             return SimpleNamespace(path=self.settings.output_path / "image.png")
-
-        def publish(self, path):
-            pytest.fail(f"one-shot upload prompt unexpectedly published {path}")
 
     monkeypatch.chdir(outside)
     monkeypatch.setattr(
@@ -194,25 +192,23 @@ def test_explicit_range_is_one_shot_headless_and_honors_output_override(
     assert expected_output.is_dir()
     assert not (config_path.parent / "ignored-output").exists()
     assert len(generated) == 1
-    settings, request, publish, open_output = generated[0]
+    settings, request, open_output = generated[0]
     assert settings.output_path == expected_output
     assert request == GenerationRequest(1, 1, 1)
-    assert publish is False
     assert open_output is False
 
 
 def test_interactive_mode_keeps_prompt_and_repeat_flow(monkeypatch, tmp_path):
     config_path = _write_config(
         tmp_path / "config.yaml",
-        **{"translation languages": "", "upload": False},
+        **{"translation languages": ""},
     )
     generated: list[GenerationRequest] = []
     answers = iter(("1", "1", "1", "n"))
 
     class FakeGenerator:
-        def generate(self, request, *, publish, open_output):
+        def generate(self, request, *, open_output):
             generated.append(request)
-            assert publish is False
             assert open_output is True
             return SimpleNamespace(path=tmp_path / "image.png")
 
@@ -230,7 +226,7 @@ def test_missing_quran_api_credentials_fail_before_interactive_prompt(
 ):
     config_path = _write_config(
         tmp_path / "config.yaml",
-        **{"translation languages": "", "upload": False},
+        **{"translation languages": ""},
     )
     monkeypatch.delenv("QF_CLIENT_ID", raising=False)
     monkeypatch.delenv("QF_CLIENT_SECRET", raising=False)
@@ -248,6 +244,227 @@ def test_missing_quran_api_credentials_fail_before_interactive_prompt(
     assert "QF_CLIENT_ID" in error
     assert "QF_CLIENT_SECRET" in error
     assert "https://api-docs.quran.foundation/request-access/" in error
+
+
+@pytest.mark.parametrize("target", ["post", "story"])
+def test_explicit_publish_runs_once_after_successful_generation(
+    monkeypatch, tmp_path, target
+):
+    config_path = _write_config(
+        tmp_path / "config.yaml", **{"translation languages": ""}
+    )
+    output_directory = tmp_path / "output"
+    events: list[tuple[str, object]] = []
+
+    class FakeGenerator:
+        def __init__(self, settings):
+            self.settings = settings
+
+        def generate(self, request, *, open_output):
+            image_path = self.settings.output_path / "generated.png"
+            image_path.write_bytes(b"retained")
+            events.append(("generate", request))
+            return SimpleNamespace(path=image_path)
+
+    def fake_publish(path, selected_target):
+        assert path.read_bytes() == b"retained"
+        events.append(("publish", (path, selected_target)))
+
+    monkeypatch.setattr(
+        generator_module, "build_generator", lambda settings: FakeGenerator(settings)
+    )
+    monkeypatch.setattr(cli, "_publish_generated_image", fake_publish)
+
+    result = cli.main(
+        [
+            "--config",
+            str(config_path),
+            "--output-dir",
+            str(output_directory),
+            "--chapter",
+            "1",
+            "--start",
+            "1",
+            "--end",
+            "1",
+            "--publish",
+            target,
+        ]
+    )
+
+    image_path = output_directory / "generated.png"
+    assert result == 0
+    assert events == [
+        ("generate", GenerationRequest(1, 1, 1)),
+        ("publish", (image_path, target)),
+    ]
+
+
+def test_no_publish_option_never_calls_publishing_path(monkeypatch, tmp_path):
+    config_path = _write_config(
+        tmp_path / "config.yaml", **{"translation languages": ""}
+    )
+
+    class FakeGenerator:
+        def __init__(self, settings):
+            self.settings = settings
+
+        def generate(self, request, *, open_output):
+            image_path = self.settings.output_path / "generated.png"
+            image_path.write_bytes(b"retained")
+            return SimpleNamespace(path=image_path)
+
+    monkeypatch.setattr(
+        generator_module, "build_generator", lambda settings: FakeGenerator(settings)
+    )
+    monkeypatch.setattr(
+        cli,
+        "_publish_generated_image",
+        lambda path, target: pytest.fail(f"unexpected publish: {path} {target}"),
+    )
+
+    assert (
+        cli.main(
+            [
+                "--config",
+                str(config_path),
+                "--chapter",
+                "1",
+                "--start",
+                "1",
+                "--end",
+                "1",
+            ]
+        )
+        == 0
+    )
+
+
+@pytest.mark.parametrize("generated_path", [None, "missing.png"])
+def test_publish_is_not_attempted_without_a_retained_output(
+    monkeypatch, tmp_path, capsys, generated_path
+):
+    config_path = _write_config(
+        tmp_path / "config.yaml", **{"translation languages": ""}
+    )
+
+    class FakeGenerator:
+        def generate(self, request, *, open_output):
+            path = None if generated_path is None else tmp_path / generated_path
+            return SimpleNamespace(path=path)
+
+    monkeypatch.setattr(
+        generator_module, "build_generator", lambda settings: FakeGenerator()
+    )
+    monkeypatch.setattr(
+        cli,
+        "_publish_generated_image",
+        lambda path, target: pytest.fail("publishing must not be attempted"),
+    )
+
+    result = cli.main(
+        [
+            "--config",
+            str(config_path),
+            "--chapter",
+            "1",
+            "--start",
+            "1",
+            "--end",
+            "1",
+            "--publish",
+            "post",
+        ]
+    )
+
+    assert result == 3
+    assert "publishing was requested" in capsys.readouterr().err.lower()
+
+
+def test_publish_failure_returns_distinct_code_and_reports_retained_path(
+    monkeypatch, tmp_path, capsys
+):
+    config_path = _write_config(
+        tmp_path / "config.yaml", **{"translation languages": ""}
+    )
+    sentinel = "must-not-leak"
+
+    class FakeGenerator:
+        def __init__(self, settings):
+            self.settings = settings
+
+        def generate(self, request, *, open_output):
+            image_path = self.settings.output_path / "generated.png"
+            image_path.write_bytes(b"retained")
+            return SimpleNamespace(path=image_path)
+
+    def failing_publish(path, target):
+        raise PublishingError("Instagram upload failed safely.") from RuntimeError(
+            sentinel
+        )
+
+    monkeypatch.setattr(
+        generator_module, "build_generator", lambda settings: FakeGenerator(settings)
+    )
+    monkeypatch.setattr(cli, "_publish_generated_image", failing_publish)
+
+    result = cli.main(
+        [
+            "--config",
+            str(config_path),
+            "--chapter",
+            "1",
+            "--start",
+            "1",
+            "--end",
+            "1",
+            "--publish",
+            "story",
+        ]
+    )
+
+    image_path = tmp_path / "outputs" / "generated.png"
+    error_output = capsys.readouterr().err
+    assert result == 3
+    assert str(image_path) in error_output
+    assert "retained" in error_output
+    assert sentinel not in error_output
+    assert image_path.read_bytes() == b"retained"
+
+
+def test_generation_failure_never_reaches_publishing(monkeypatch, tmp_path):
+    config_path = _write_config(
+        tmp_path / "config.yaml", **{"translation languages": ""}
+    )
+
+    class FakeGenerator:
+        def generate(self, request, *, open_output):
+            raise RuntimeError("generation failed")
+
+    monkeypatch.setattr(
+        generator_module, "build_generator", lambda settings: FakeGenerator()
+    )
+    monkeypatch.setattr(
+        cli,
+        "_publish_generated_image",
+        lambda path, target: pytest.fail("publishing must not be attempted"),
+    )
+
+    with pytest.raises(RuntimeError, match="generation failed"):
+        cli.main(
+            [
+                "--config",
+                str(config_path),
+                "--chapter",
+                "1",
+                "--start",
+                "1",
+                "--end",
+                "1",
+                "--publish",
+                "post",
+            ]
+        )
 
 
 @pytest.mark.parametrize(
