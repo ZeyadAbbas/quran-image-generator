@@ -6,6 +6,7 @@ import random
 import sys
 import tkinter as tk
 import webbrowser
+from collections.abc import Callable
 from functools import partial
 from pathlib import Path
 from tkinter import colorchooser, filedialog, messagebox, ttk
@@ -50,6 +51,26 @@ from .settings import (
     settings_help_text,
     settings_to_mapping,
 )
+
+_RENDERER_SETUP_MESSAGE = (
+    "Image rendering is unavailable. Install Wand and ImageMagick, then restart. "
+    "Configuration and Help remain available."
+)
+
+
+def _create_preview_workflow(
+    settings: Settings,
+    content_client: Any,
+    *,
+    generator_builder: Callable[..., Any] = build_generator,
+) -> tuple[PreviewWorkflow | None, str | None]:
+    """Build renderer-backed services while keeping setup failures display-safe."""
+
+    try:
+        generator = generator_builder(settings, content_client=content_client)
+    except (ImportError, OSError):
+        return None, _RENDERER_SETUP_MESSAGE
+    return PreviewWorkflow(generator, content_client), None
 
 
 class QuranImageGeneratorApp:
@@ -121,17 +142,17 @@ class QuranImageGeneratorApp:
 
         self._workflow: PreviewWorkflow | None = None
         setup_error: str | None = None
+        renderer_error: str | None = None
         if content_client is None:
             try:
                 content_client = QuranContentClient.from_environment()
             except QuranApiConfigurationError as error:
                 setup_error = str(error)
         if content_client is not None:
-            generator = build_generator(
+            self._workflow, renderer_error = _create_preview_workflow(
                 self._settings,
-                content_client=content_client,
+                content_client,
             )
-            self._workflow = PreviewWorkflow(generator, content_client)
 
         self._variables: dict[str, Any] = {}
         self._field_errors: dict[str, ttk.Label] = {}
@@ -154,9 +175,15 @@ class QuranImageGeneratorApp:
             startup_notices.append(configuration_error)
         if setup_error is not None:
             startup_notices.append(f"Quran API setup required: {setup_error}")
+        if renderer_error is not None:
+            startup_notices.append(renderer_error)
         if startup_notices:
             self._status_var.set(" ".join(startup_notices))
-        if setup_error is None and configuration_error is None:
+        if (
+            setup_error is None
+            and renderer_error is None
+            and configuration_error is None
+        ):
             self._catalog_after_id = self.root.after(80, self._initial_catalog_refresh)
         self._update_actions()
         self._poll_after_id = self.root.after(100, self._poll_worker)
@@ -1047,12 +1074,24 @@ class QuranImageGeneratorApp:
                     self._status_var.set(result.message)
                 return
             if isinstance(result.value, PreviewArtifact):
+                candidate_is_current = (
+                    self._gate.active == result.token
+                    and result.token.revision == self._gate.revision
+                    and result.value.revision == self._gate.revision
+                )
+                if not candidate_is_current:
+                    self._gate.finish(result.token)
+                    PreviewWorkflow.discard_preview(result.value)
+                    return
+                if not self._display_preview(result.value):
+                    self._gate.finish(result.token)
+                    PreviewWorkflow.discard_preview(result.value)
+                    return
                 if self._gate.accept_preview(result.token, result.value):
                     previous = self._shown_preview_artifact
                     if previous is not None and previous.path != result.value.path:
                         PreviewWorkflow.discard_preview(previous)
                     self._shown_preview_artifact = result.value
-                    self._display_preview(result.value)
                     self._status_var.set(
                         "Preview ready. Save it when you are satisfied."
                     )
@@ -1149,7 +1188,7 @@ class QuranImageGeneratorApp:
             return
         self._display_preview(preview)
 
-    def _display_preview(self, artifact: PreviewArtifact) -> None:
+    def _display_preview(self, artifact: PreviewArtifact) -> bool:
         try:
             source = tk.PhotoImage(file=str(artifact.path))
             available_width = max(1, self._preview_label.winfo_width() - 20)
@@ -1164,7 +1203,7 @@ class QuranImageGeneratorApp:
             self._status_var.set(
                 "The PNG was rendered, but this Tk installation could not display it."
             )
-            return
+            return False
         self._preview_source_image = source
         self._preview_display_image = displayed
         self._preview_label.configure(image=displayed, text="")
@@ -1172,6 +1211,7 @@ class QuranImageGeneratorApp:
             f"Full resolution: {artifact.settings.resolution.width} × "
             f"{artifact.settings.resolution.height} · display scale 1/{factor}"
         )
+        return True
 
     def _update_actions(self) -> None:
         busy = self._worker.busy

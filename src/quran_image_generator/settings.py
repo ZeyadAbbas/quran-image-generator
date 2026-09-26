@@ -1012,6 +1012,7 @@ def save_settings(settings: Settings, config_path: str | Path) -> Settings:
             dir=destination.parent,
             delete=False,
         ) as temporary_file:
+            temporary_path = Path(temporary_file.name)
             yaml.safe_dump(
                 data,
                 temporary_file,
@@ -1020,7 +1021,6 @@ def save_settings(settings: Settings, config_path: str | Path) -> Settings:
             )
             temporary_file.flush()
             os.fsync(temporary_file.fileno())
-            temporary_path = Path(temporary_file.name)
         os.replace(temporary_path, destination)
         temporary_path = None
     finally:

@@ -523,6 +523,7 @@ class PreviewWorkflow:
         translations = self._content_client.translation_catalog(refresh=True)
         self._check_cancel(cancel_event)
         self._resources.clear()
+        self._passages.clear()
         return CatalogSnapshot(chapters, translations)
 
     def _resolve_settings(
@@ -628,11 +629,11 @@ class PreviewWorkflow:
                 dir=target.parent,
                 delete=False,
             ) as temporary_file:
+                temporary_path = Path(temporary_file.name)
                 with artifact.path.open("rb") as preview_file:
                     shutil.copyfileobj(preview_file, temporary_file)
                 temporary_file.flush()
                 os.fsync(temporary_file.fileno())
-                temporary_path = Path(temporary_file.name)
             if cancel_event is not None and cancel_event.is_set():
                 raise JobCancelled
             os.replace(temporary_path, target)

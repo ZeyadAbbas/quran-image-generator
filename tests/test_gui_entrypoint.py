@@ -5,9 +5,16 @@ import subprocess
 import sys
 from pathlib import Path
 
-import tomllib
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _toml_table(source: str, name: str) -> str:
+    """Return one simple table body without requiring Python 3.11's tomllib."""
+
+    marker = f"[{name}]\n"
+    _prefix, separator, remainder = source.partition(marker)
+    assert separator, f"missing {marker.strip()}"
+    return remainder.partition("\n[")[0]
 
 
 def _source_environment() -> dict[str, str]:
@@ -105,6 +112,110 @@ def test_display_failure_is_concise(monkeypatch, capsys):
     assert "secret display detail" not in error
 
 
+def test_renderer_setup_failure_keeps_non_rendering_gui_features_available(
+    settings_factory,
+):
+    from quran_image_generator import gui
+
+    def fail_setup(*_args, **_kwargs):
+        raise ImportError("private native loader detail")
+
+    workflow, message = gui._create_preview_workflow(
+        settings_factory(),
+        object(),
+        generator_builder=fail_setup,
+    )
+
+    assert workflow is None
+    assert message is not None
+    assert "Wand and ImageMagick" in message
+    assert "Configuration and Help remain available" in message
+    assert "private native loader detail" not in message
+
+
+def test_preview_display_failure_preserves_the_visible_preview(
+    monkeypatch, settings_factory, tmp_path
+):
+    from hashlib import sha256
+
+    from quran_image_generator import gui
+    from quran_image_generator.gui_state import (
+        PreviewArtifact,
+        RevisionGate,
+        WorkerResult,
+    )
+    from quran_image_generator.models import (
+        Chapter,
+        GenerationRequest,
+        Passage,
+        Verse,
+    )
+
+    class Variable:
+        def __init__(self, value):
+            self.value = value
+
+        def get(self):
+            return self.value
+
+        def set(self, value):
+            self.value = value
+
+    settings = settings_factory()
+    request = GenerationRequest(1, 1, 1)
+    passage = Passage(
+        Chapter(1, "Al-Fatihah", 7),
+        (Verse(1, "1:1", ("word",), ()),),
+    )
+
+    def artifact(name, payload):
+        path = tmp_path / name
+        path.write_bytes(payload)
+        return PreviewArtifact(
+            0,
+            request,
+            (),
+            settings,
+            passage,
+            path,
+            sha256(payload).hexdigest(),
+        )
+
+    previous = artifact("previous.png", b"previous")
+    candidate = artifact("candidate.png", b"candidate")
+    gate = RevisionGate()
+    first_token = gate.begin("preview")
+    assert gate.accept_preview(first_token, previous)
+    candidate_token = gate.begin("preview")
+
+    app = object.__new__(gui.QuranImageGeneratorApp)
+    app._gate = gate
+    app._shown_preview_artifact = previous
+    app._open_after_jobs = set()
+    app._status_var = Variable("")
+    old_source = object()
+    old_display = object()
+    app._preview_source_image = old_source
+    app._preview_display_image = old_display
+    app._preview_label = object()
+    app._preview_info_var = Variable("Previous preview")
+    monkeypatch.setattr(
+        gui.tk,
+        "PhotoImage",
+        lambda **_kwargs: (_ for _ in ()).throw(gui.tk.TclError()),
+    )
+
+    app._handle_worker_result(WorkerResult(candidate_token, value=candidate))
+
+    assert gate.current_preview() == previous
+    assert app._shown_preview_artifact == previous
+    assert app._preview_source_image is old_source
+    assert app._preview_display_image is old_display
+    assert previous.path.is_file()
+    assert not candidate.path.exists()
+    assert "could not display" in app._status_var.get()
+
+
 def test_color_picker_falls_back_for_invalid_input_and_handles_tcl_error(monkeypatch):
     from quran_image_generator import gui
 
@@ -142,17 +253,15 @@ def test_color_picker_falls_back_for_invalid_input_and_handles_tcl_error(monkeyp
 
 
 def test_gui_entrypoint_is_separate_and_adds_no_dependency():
-    project = tomllib.loads(
-        (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    )["project"]
+    pyproject = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    scripts = _toml_table(pyproject, "project.scripts").splitlines()
+    gui_scripts = _toml_table(pyproject, "project.gui-scripts").splitlines()
+    project = _toml_table(pyproject, "project").casefold()
 
-    assert project["scripts"] == {
-        "quran-image-generator": "quran_image_generator.cli:main"
-    }
-    assert project["gui-scripts"] == {
-        "quran-image-generator-gui": "quran_image_generator.gui_cli:main"
-    }
-    assert all(
-        name not in " ".join(project["dependencies"]).casefold()
-        for name in ("pillow", "pyqt", "pyside", "electron")
-    )
+    assert scripts == [
+        'quran-image-generator = "quran_image_generator.cli:main"'
+    ]
+    assert gui_scripts == [
+        'quran-image-generator-gui = "quran_image_generator.gui_cli:main"'
+    ]
+    assert all(name not in project for name in ("pillow", "pyqt", "pyside", "electron"))

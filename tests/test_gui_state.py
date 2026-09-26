@@ -29,6 +29,7 @@ from quran_image_generator.models import (
     GenerationRequest,
     GenerationResult,
     Passage,
+    TranslationCatalog,
     TranslationResource,
     TranslationSelector,
     Verse,
@@ -204,6 +205,43 @@ def test_request_or_ordered_translation_ids_change_content_cache_key(
     ]
 
 
+def test_successful_catalog_refresh_clears_passages_but_failure_preserves_them(
+    settings_factory, tmp_path
+):
+    class RefreshingContentClient(FakeContentClient):
+        def __init__(self) -> None:
+            super().__init__()
+            self.fail_refresh = False
+
+        def list_chapters(self, *, refresh=False):
+            assert refresh
+            return (Chapter(1, "Al-Fatihah", 7),)
+
+        def translation_catalog(self, *, refresh=False):
+            assert refresh
+            if self.fail_refresh:
+                raise RuntimeError("catalog failure")
+            return TranslationCatalog((), ())
+
+    client = RefreshingContentClient()
+    workflow = PreviewWorkflow(
+        FakeGenerator(), client, temporary_directory=tmp_path / "preview"
+    )
+    settings = settings_factory()
+
+    workflow.render_preview(_snapshot(0, 1, settings), threading.Event())
+    client.fail_refresh = True
+    with pytest.raises(RuntimeError, match="catalog failure"):
+        workflow.load_catalogs(threading.Event())
+    workflow.render_preview(_snapshot(0, 2, settings), threading.Event())
+    assert len(client.fetches) == 1
+
+    client.fail_refresh = False
+    workflow.load_catalogs(threading.Event())
+    workflow.render_preview(_snapshot(0, 3, settings), threading.Event())
+    assert len(client.fetches) == 2
+
+
 def test_failed_or_cancelled_render_does_not_cache_new_passage(
     settings_factory, tmp_path
 ):
@@ -273,6 +311,32 @@ def test_atomic_preview_save_preserves_existing_destination_on_replace_failure(
     monkeypatch.setattr(os, "replace", lambda *_args: (_ for _ in ()).throw(OSError()))
 
     with pytest.raises(OSError):
+        workflow.save_preview(artifact, destination)
+
+    assert destination.read_bytes() == b"old"
+    assert list(tmp_path.glob(".existing.png.*.tmp")) == []
+
+
+def test_atomic_preview_write_failure_removes_temporary_file(
+    monkeypatch, settings_factory, tmp_path
+):
+    client = FakeContentClient()
+    workflow = PreviewWorkflow(
+        FakeGenerator(), client, temporary_directory=tmp_path / "preview"
+    )
+    artifact = workflow.render_preview(
+        _snapshot(0, 1, settings_factory()),
+        threading.Event(),
+    )
+    destination = tmp_path / "existing.png"
+    destination.write_bytes(b"old")
+    monkeypatch.setattr(
+        os,
+        "fsync",
+        lambda *_args: (_ for _ in ()).throw(OSError("fsync failure")),
+    )
+
+    with pytest.raises(OSError, match="fsync failure"):
         workflow.save_preview(artifact, destination)
 
     assert destination.read_bytes() == b"old"

@@ -165,3 +165,20 @@ def test_atomic_config_replace_failure_preserves_old_file(monkeypatch, tmp_path)
 
     assert destination.read_text(encoding="utf-8") == "old: file\n"
     assert list(tmp_path.glob(".settings.yaml.*.tmp")) == []
+
+
+def test_atomic_config_write_failure_removes_temporary_file(monkeypatch, tmp_path):
+    destination = tmp_path / "settings.yaml"
+    destination.write_text("old: file\n", encoding="utf-8")
+    settings = settings_from_mapping({}, source_path=destination)
+    monkeypatch.setattr(
+        os,
+        "fsync",
+        lambda *_args: (_ for _ in ()).throw(OSError("fsync failure")),
+    )
+
+    with pytest.raises(OSError, match="fsync failure"):
+        save_settings(settings, destination)
+
+    assert destination.read_text(encoding="utf-8") == "old: file\n"
+    assert list(tmp_path.glob(".settings.yaml.*.tmp")) == []
