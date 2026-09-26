@@ -1,43 +1,80 @@
 import pytest
 
-import read_config as config
-from translation import Translation
-from verse import Verse
+from layout import build_layout, layout_quran_text, layout_translation_text
+from models import Passage, Verse, VerseTranslation
+from settings import TranslationSettings
 
 
 def test_verse_wrapping_and_height_are_deterministic(
-    monkeypatch, fake_font_metrics, layout_config
+    fake_measurer, settings_factory
 ):
-    monkeypatch.setattr(config, "quran_max_width", lambda: 35)
-    payload = {
-        "verse": {
-            "verse_number": 1,
-            "words": [
-                {"char_type_name": "word", "text": "aaa"},
-                {"char_type_name": "word", "text": "bb"},
-                {"char_type_name": "end", "text": "1"},
-            ],
-        }
-    }
+    settings = settings_factory(quran_max_width=35)
 
-    verse = Verse(payload)
+    block = layout_quran_text(("aaa", "bb"), settings, fake_measurer)
 
-    assert [(line.text, line.width, line.height) for line in verse.lines] == [
+    assert [(line.text, line.width, line.height) for line in block.lines] == [
         ("aaa", 30, 12),
         ("bb", 20, 12),
     ]
-    assert verse.height == 29
+    assert block.height == 29
 
 
 def test_translation_wrapping_and_height_are_deterministic(
-    monkeypatch, fake_font_metrics, layout_config
+    fake_measurer, settings_factory
 ):
-    monkeypatch.setattr(config, "translation_max_width", lambda: 65)
+    translations = (
+        TranslationSettings("en", "131", "Fixture Sans", 18),
+    )
+    settings = settings_factory(
+        translations=translations,
+        translation_max_width=65,
+    )
 
-    translation = Translation({"resource_id": 131, "text": "first second"})
+    block = layout_translation_text(
+        VerseTranslation("131", "first second"), settings, fake_measurer
+    )
 
-    assert [line.text for line in translation.lines] == ["first", "second"]
-    assert translation.height == 34
+    assert [line.text for line in block.lines] == ["first", "second"]
+    assert block.height == 34
+
+
+def test_translation_uses_legacy_markup_and_delimiter_normalization(
+    fake_measurer, settings_factory
+):
+    translations = (
+        TranslationSettings("en", "131", "Fixture Sans", 18),
+    )
+    settings = settings_factory(translations=translations)
+
+    block = layout_translation_text(
+        VerseTranslation(
+            "131",
+            "Keep <sup foot_note=1>remove</sup> ˹these˺\xa0words",
+        ),
+        settings,
+        fake_measurer,
+    )
+
+    assert [line.text for line in block.lines] == ["Keep these words"]
+
+
+def test_build_layout_preserves_centering_and_baseline(settings_factory):
+    class FixedMeasurer:
+        def measure(self, text, style):
+            return 30, 10
+
+    passage = Passage(
+        1,
+        "Al-Fatihah",
+        (Verse(1, "1:1", ("بِسْمِ",), ()),),
+    )
+
+    image_layout = build_layout(passage, settings_factory(), FixedMeasurer())
+
+    assert image_layout.content_height == 10
+    assert [(int(line.x), int(line.y), line.text) for line in image_layout.lines] == [
+        (135, 105, "بِسْمِ")
+    ]
 
 
 @pytest.mark.xfail(
@@ -45,19 +82,10 @@ def test_translation_wrapping_and_height_are_deterministic(
     reason="Known wrapping bug tracked by #9: an oversized first token emits an empty line",
 )
 def test_oversized_first_word_does_not_create_an_empty_line(
-    monkeypatch, fake_font_metrics, layout_config
+    fake_measurer, settings_factory
 ):
-    monkeypatch.setattr(config, "quran_max_width", lambda: 30)
-    payload = {
-        "verse": {
-            "verse_number": 1,
-            "words": [
-                {"char_type_name": "word", "text": "oversized"},
-                {"char_type_name": "end", "text": "1"},
-            ],
-        }
-    }
+    settings = settings_factory(quran_max_width=30)
 
-    verse = Verse(payload)
+    block = layout_quran_text(("oversized",), settings, fake_measurer)
 
-    assert all(line.text for line in verse.lines)
+    assert all(line.text for line in block.lines)

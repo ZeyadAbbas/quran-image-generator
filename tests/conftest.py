@@ -1,9 +1,10 @@
 import json
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 import requests
+
+from settings import Dimensions, Settings
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
@@ -25,69 +26,56 @@ def block_external_http(monkeypatch):
     monkeypatch.setattr(requests.sessions.Session, "request", blocked_request)
 
 
-class FakeImage:
-    def __init__(self, **kwargs):
-        self.width = kwargs.get("width", 1)
-        self.height = kwargs.get("height", 1)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        return False
-
-
-class FakeDrawing:
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        return False
-
-    def get_font_metrics(self, image, text):
-        return SimpleNamespace(text_width=len(text) * 10, text_height=12)
+class FakeMeasurer:
+    def measure(self, text, style):
+        return len(text) * 10, 12
 
 
 @pytest.fixture
-def fake_font_metrics(monkeypatch):
-    import translation
-    import verse
-
-    monkeypatch.setattr(verse, "Image", FakeImage)
-    monkeypatch.setattr(verse, "Drawing", FakeDrawing)
-    monkeypatch.setattr(translation, "Image", FakeImage)
-    monkeypatch.setattr(translation, "Drawing", FakeDrawing)
+def fake_measurer():
+    return FakeMeasurer()
 
 
 @pytest.fixture
-def layout_config(monkeypatch):
-    import read_config as config
+def settings_factory(tmp_path):
+    def make_settings(**overrides):
+        values = {
+            "source_path": tmp_path / "config.yaml",
+            "output_path": tmp_path,
+            "resolution": Dimensions(300, 200),
+            "background_image": None,
+            "background_color": "#000000",
+            "quran_font": "Fixture Quran",
+            "quran_color": "#FFFFFF",
+            "quran_font_size": 24,
+            "quran_x_position": "center",
+            "quran_max_width": 1_000,
+            "quran_line_spacing": 5,
+            "quran_word_spacing": 1,
+            "quran_letter_spacing": 0.0,
+            "quran_translation_spacing": 30,
+            "translations": (),
+            "translation_color": "#FFFFFF",
+            "translation_font_size": 18,
+            "translation_x_position": "center",
+            "translation_max_width": 1_000,
+            "translation_language_spacing": 7,
+            "translation_line_spacing": 3,
+            "translation_word_spacing": 1,
+            "translation_letter_spacing": 0.0,
+            "show_verse_numbers": False,
+            "verse_number_resolution": Dimensions(55, 55),
+            "verse_number_x_offset": 0,
+            "verse_number_y_offset": 0,
+            "space_between_verses": 20,
+            "generate_random_verses": False,
+            "total_y_offset": 0,
+            "upload": False,
+            "username": "",
+            "password": "",
+            "post_method": "",
+        }
+        values.update(overrides)
+        return Settings(**values)
 
-    languages = {
-        "131": {"font": "Fixture Sans", "font_size": 18},
-        "31": {"font": "Fixture Sans", "font_size": 18},
-    }
-    values = {
-        "quran_font": "Fixture Quran",
-        "quran_font_size": 24,
-        "quran_color": "#ffffff",
-        "quran_letter_spacing": 0,
-        "quran_max_width": 1_000,
-        "quran_word_spacing": " ",
-        "quran_x_position": "center",
-        "quran_line_spacing": 5,
-        "verse_number_resolution": (0, 0),
-        "verse_number_x_offset": 0,
-        "translation_languages": languages,
-        "translation_color": "#ffffff",
-        "translation_letter_spacing": 0,
-        "translation_max_width": 1_000,
-        "translation_word_spacing": " ",
-        "translation_line_spacing": 3,
-        "translation_language_spacing": 7,
-    }
-
-    for name, value in values.items():
-        monkeypatch.setattr(config, name, lambda value=value: value)
-
-    return values
+    return make_settings

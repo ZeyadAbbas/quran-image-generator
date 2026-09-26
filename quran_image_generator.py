@@ -1,157 +1,139 @@
-import read_config as config
-from verse import Verse
-import requests
-import os
-from wand.image import Image
-from wand.drawing import Drawing
+"""Application orchestration and concrete service composition."""
 
-VERSE_NUMBERS_FOLDER = 'assets/verse_numbers'
+from __future__ import annotations
+
+import os
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
+
+from layout import build_layout
+from models import GenerationRequest, GenerationResult, Passage
+from settings import Settings
+
+
+def _output_path(passage: Passage, output_directory: Path) -> Path:
+    first_number = passage.verses[0].number
+    last_number = passage.verses[-1].number
+    filename = f"{passage.chapter_name} {first_number}"
+    if len(passage.verses) > 1:
+        filename += f" - {last_number}.png"
+    else:
+        filename += ".png"
+    return output_directory / filename
+
+
+def _open_image(path: Path) -> None:
+    os.system(f'start "" "{path}"')
+
+
+class InstagramPublisher:
+    """Legacy Instagram publishing kept behind a lazy optional import."""
+
+    def __init__(self, method: str, username: str, password: str) -> None:
+        self._method = method
+        self._username = username
+        self._password = password
+
+    def publish(self, image_path: Path) -> None:
+        if "insta" not in self._method:
+            print(
+                "\nUnable to use post method, check the post method in the config file."
+            )
+            return
+
+        try:
+            from instagrapi import Client
+        except ImportError as error:
+            raise RuntimeError(
+                "Instagram publishing support is not installed. "
+                "Install it with: pip install '.[instagram]'"
+            ) from error
+
+        print(f'\nAccessing account "{self._username}"')
+        client = Client()
+        client.login(self._username, self._password)
+        if self._method == "insta_story":
+            print(f'\nPosting as instagram story on account "{self._username}"')
+            client.photo_upload_to_story(str(image_path))
+        elif self._method == "insta_post":
+            print(f'\nPosting as instagram post on account "{self._username}"')
+            client.photo_upload(str(image_path), "quran")
 
 
 class QuranImageGenerator:
-    def __init__(self, chapter, starting_verse, ending_verse):
-        self.chapter = chapter
-        self.starting_verse = starting_verse
-        self.ending_verse = ending_verse
-        self.verses = []
-        self.translation_codes = ''
-        language_codes = config.translation_languages()
-        for key in language_codes:
-            self.translation_codes += f", {key}" if self.translation_codes else key
-        self.image_path = None
+    """Coordinate content, layout, rendering, and optional output actions."""
 
-    def format_verse_keys(self):
-        keys = []
-        current_verse_number = self.starting_verse
-        while current_verse_number <= self.ending_verse:
-            keys.append(f"{self.chapter}:{current_verse_number}")
-            current_verse_number += 1
+    def __init__(
+        self,
+        settings: Settings,
+        content_client: Any,
+        measurer: Any,
+        renderer: Any,
+        *,
+        publisher: Any | None = None,
+        image_opener: Callable[[Path], None] = _open_image,
+        layout_builder: Callable[..., Any] = build_layout,
+    ) -> None:
+        self._settings = settings
+        self._content_client = content_client
+        self._measurer = measurer
+        self._renderer = renderer
+        self._publisher = publisher
+        self._image_opener = image_opener
+        self._layout_builder = layout_builder
 
-        return keys
+    def generate(
+        self,
+        request: GenerationRequest,
+        *,
+        publish: bool = False,
+        open_output: bool = False,
+    ) -> GenerationResult:
+        resource_ids = tuple(
+            translation.resource_id
+            for translation in self._settings.translations
+        )
+        passage = self._content_client.fetch_passage(request, resource_ids)
+        if not passage.verses:
+            return GenerationResult(path=None, passage=passage)
 
-    def api_call(self, endpoint):
-        headers = {'Accept': 'application/json'}
-        params = {'translations': self.translation_codes, 'words': 1, 'word_fields': 'text_uthmani', }
+        image_layout = self._layout_builder(
+            passage, self._settings, self._measurer
+        )
+        destination = _output_path(passage, self._settings.output_path)
+        rendered_path = Path(
+            self._renderer.render(image_layout, self._settings, destination)
+        )
+        result = GenerationResult(path=rendered_path, passage=passage)
+        print("\nImage Created.\n")
 
-        uri = f"https://api.quran.com/api/v4/{endpoint}"
-        response = requests.get(uri, headers=headers, data={}, params=params)
-        return response.json()
+        if open_output:
+            self._image_opener(rendered_path)
+        if publish:
+            self.publish(rendered_path)
+        return result
 
-    def fetch_verses(self):
-        verse_keys = self.format_verse_keys()
-        for key in verse_keys:
-            verse_data = self.api_call(f"verses/by_key/{key}")
-            verse = Verse(verse_data)
-            self.verses.append(verse)
+    def publish(self, image_path: Path) -> None:
+        if self._publisher is None:
+            raise RuntimeError("No publisher is configured.")
+        self._publisher.publish(image_path)
 
-    def create_image(self):
-        if len(self.verses) != 0:
-            width, height = config.resolution()
-            with Image(width=width, height=height, pseudo=config.background_color()) as image:
-                if config.background_image():
-                    with Image(filename=config.background_image()) as back:
-                        image.composite(back, int(0), int(0))
 
-                with Drawing() as draw:
-                    total_verses_height = 0
-                    total_translations_height = 0
-                    for verse in self.verses:
-                        verse.set_draw_settings(draw)
-                        total_verses_height += verse.height
-                        total_verses_height += config.space_between_verses()
-                        if self.translation_codes:
-                            for translation in verse.translations:
-                                translation.set_draw_settings(draw)
-                                total_translations_height += translation.height
-                                total_translations_height += config.quran_translation_spacing()
+def build_generator(settings: Settings) -> QuranImageGenerator:
+    """Construct the concrete command-line application without doing I/O."""
 
-                    total_verses_height -= config.space_between_verses()
-                    total_text_height = total_verses_height + total_translations_height
-                    verse_y_pos = ((height - total_text_height) // 2) + config.total_y_offset()
+    from content import QuranContentClient
+    from rendering import WandImageRenderer, WandTextMeasurer
 
-                    for verse in self.verses:
-                        verse.set_draw_settings(draw)
-                        line_y_pos = verse_y_pos
-                        for line in verse.lines:
-                            line_y_pos += line.height
-                            if config.quran_x_position() == 'center':
-                                x_pos = (width / 2) - (line.width // 2)
-                            else:
-                                x_pos = abs(width - line.width - config.quran_x_position())
-
-                            draw.text(int(x_pos), int(line_y_pos), line.text)
-                            added_height = config.quran_line_spacing()
-                            line_y_pos += added_height
-
-                        line_y_pos -= config.quran_line_spacing()
-                        if config.verse_numbers_visible():
-                            png_path = f"{VERSE_NUMBERS_FOLDER}/{verse.number}.png"
-                            try:
-                                with Image(filename=png_path) as verse_number_image:
-                                    verse_number_width, verse_number_height = config.verse_number_resolution()
-                                    x_offset = config.verse_number_x_offset()
-                                    y_offset = config.verse_number_y_offset()
-                                    verse_number_image.resize(verse_number_width, verse_number_height)
-
-                                    image.composite(verse_number_image, int(x_pos - x_offset - verse_number_width),
-                                                    int((line_y_pos - line.height) + y_offset))
-                            except Exception as e:
-                                print(f"Error loading {png_path}: {e}")
-
-                        if self.translation_codes:
-                            line_y_pos += config.quran_translation_spacing()
-                            for translation in verse.translations:
-                                translation.set_draw_settings(draw)
-                                for line in translation.lines:
-                                    line_y_pos += line.height
-                                    if config.translation_x_position() == 'center':
-                                        x_pos = (width / 2) - (line.width // 2)
-                                    else:
-                                        x_pos = config.translation_x_position()
-
-                                    draw.text(int(x_pos), int(line_y_pos), line.text)
-                                    added_height = config.translation_line_spacing()
-                                    line_y_pos += added_height
-                                line_y_pos -= config.translation_line_spacing()
-                                line_y_pos += config.translation_language_spacing()
-
-                            line_y_pos -= config.translation_language_spacing()
-                        verse_y_pos = line_y_pos + config.space_between_verses()
-
-                    draw(image)
-
-                chapter_info = self.api_call(f"chapters/{self.chapter}")
-                file_name = f"{chapter_info['chapter']['name_simple']} {self.verses[0].number}"
-                file_name += f" - {self.verses[-1].number}.png" if len(self.verses) > 1 else ".png"
-
-                file_path = os.path.join(config.output_path(), file_name)
-                self.image_path = file_path
-                image.save(filename=file_path)
-
-            print(f"\nImage Created.\n")
-
-    def open_image(self):
-        os.system(f'start "" "{self.image_path}"')
-
-    def post(self, username, password):
-        post_to = config.post_method()
-        if 'insta' in post_to:
-            try:
-                from instagrapi import Client
-            except ImportError as error:
-                raise RuntimeError(
-                    "Instagram publishing support is not installed. "
-                    "Install it with: pip install '.[instagram]'"
-                ) from error
-
-            print(f'\nAccessing account "{username}"')
-            client = Client()
-            client.login(username, password)
-            if post_to == 'insta_story':
-                print(f'\nPosting as instagram story on account "{username}"')
-                client.photo_upload_to_story(self.image_path)
-            elif post_to == 'insta_post':
-                print(f'\nPosting as instagram post on account "{username}"')
-                client.photo_upload(self.image_path, "quran")
-        else:
-            print(f'\nUnable to use post method, check the post method in the config file.')
+    return QuranImageGenerator(
+        settings=settings,
+        content_client=QuranContentClient(),
+        measurer=WandTextMeasurer(),
+        renderer=WandImageRenderer(),
+        publisher=InstagramPublisher(
+            settings.post_method,
+            settings.username,
+            settings.password,
+        ),
+    )
