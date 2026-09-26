@@ -31,7 +31,13 @@ class SettingsTests(unittest.TestCase):
 
         self.assertEqual((1080, 1920), settings.resolution.as_tuple())
         self.assertTrue(settings.show_verse_numbers)
-        self.assertEqual(["131"], [item.resource_id for item in settings.translations])
+        self.assertEqual(
+            [("id", "131")],
+            [
+                (item.selector.kind, item.selector.value)
+                for item in settings.translations
+            ],
+        )
 
     def test_custom_output_path_is_honored_and_created(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -134,12 +140,69 @@ class SettingsTests(unittest.TestCase):
             settings = load_settings(config_path, create_output_dir=False)
 
             self.assertEqual(
-                [("en", "131", 20), ("fr", "31", 17)],
                 [
-                    (item.language_code, item.resource_id, item.font_size)
+                    ("language", "en", None, 20),
+                    ("language", "fr", "Arial", 17),
+                ],
+                [
+                    (
+                        item.selector.kind,
+                        item.selector.value,
+                        item.font,
+                        item.font_size,
+                    )
                     for item in settings.translations
                 ],
             )
+
+    def test_structured_translation_selectors_are_parsed_without_network(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            config_path = self.write_config(
+                root,
+                {
+                    "translation languages": [
+                        {"id": 131, "font size": 20},
+                        {"slug": "muhammad-hamidullah", "font": "Arial"},
+                        {"language": "es"},
+                    ]
+                },
+            )
+
+            settings = load_settings(config_path, create_output_dir=False)
+
+            self.assertEqual(
+                [
+                    ("id", "131", None, 20),
+                    ("slug", "muhammad-hamidullah", "Arial", 16),
+                    ("language", "es", None, 16),
+                ],
+                [
+                    (
+                        item.selector.kind,
+                        item.selector.value,
+                        item.font,
+                        item.font_size,
+                    )
+                    for item in settings.translations
+                ],
+            )
+
+    def test_structured_translation_requires_exactly_one_selector(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            config_path = self.write_config(
+                Path(temporary_directory),
+                {
+                    "translation languages": [
+                        {"id": 131, "slug": "clearquran-with-tafsir"}
+                    ]
+                },
+            )
+
+            with self.assertRaises(SettingsValidationError) as caught:
+                load_settings(config_path, create_output_dir=False)
+
+            self.assertIn("exactly one selector", str(caught.exception))
 
     def test_invalid_values_are_reported_together_by_field(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -154,7 +217,7 @@ class SettingsTests(unittest.TestCase):
                     "show verse numbers": "sometimes",
                     "verse number x offset": 501,
                     "space between verses": -11,
-                    "translation languages": "xx",
+                    "translation languages": [{"id": 0}],
                 },
             )
 
@@ -245,7 +308,9 @@ class SettingsTests(unittest.TestCase):
             settings = load_settings(config_path, create_output_dir=False)
 
             self.assertEqual(DEFAULTS["quran font size"], settings.quran_font_size)
-            self.assertEqual(DEFAULTS["show verse numbers"], settings.show_verse_numbers)
+            self.assertEqual(
+                DEFAULTS["show verse numbers"], settings.show_verse_numbers
+            )
             self.assertEqual((root / "outputs").resolve(), settings.output_path)
 
     def test_malformed_yaml_has_a_focused_config_error(self) -> None:
@@ -256,16 +321,16 @@ class SettingsTests(unittest.TestCase):
             with self.assertRaises(SettingsValidationError) as caught:
                 load_settings(config_path, create_output_dir=False)
 
-            self.assertEqual(["config"], [issue.field for issue in caught.exception.issues])
+            self.assertEqual(
+                ["config"], [issue.field for issue in caught.exception.issues]
+            )
             self.assertIn("malformed YAML", str(caught.exception))
 
     def test_malformed_legacy_secret_is_not_exposed_in_config_error(self) -> None:
         sentinel = "sentinel-password-value"
         with tempfile.TemporaryDirectory() as temporary_directory:
             config_path = Path(temporary_directory) / "broken-secret.yaml"
-            config_path.write_text(
-                f"password: [{sentinel}\n", encoding="utf-8"
-            )
+            config_path.write_text(f"password: [{sentinel}\n", encoding="utf-8")
 
             with self.assertRaises(SettingsValidationError) as caught:
                 load_settings(config_path, create_output_dir=False)

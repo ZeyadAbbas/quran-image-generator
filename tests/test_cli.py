@@ -12,7 +12,7 @@ import yaml
 
 from quran_image_generator import cli
 from quran_image_generator import generator as generator_module
-from quran_image_generator.models import GenerationRequest
+from quran_image_generator.models import GenerationRequest, TranslationResource
 from quran_image_generator.publishing import PublishingError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -56,11 +56,15 @@ def test_help_has_no_runtime_imports_or_filesystem_side_effects(tmp_path):
     assert completed.returncode == 0, completed.stderr
     assert "--chapter" in completed.stdout
     assert "--no-open" in completed.stdout
-    assert "No selector: repeat with interactive chapter and verse prompts." in completed.stdout
+    assert (
+        "No selector: repeat with interactive chapter and verse prompts."
+        in completed.stdout
+    )
     assert "--chapter/--start/--end or --random: generate once" in completed.stdout
     assert "One-shot mode defaults to --no-open; pass --open" in completed.stdout
     assert "quran-image-generator --chapter 2 --start 255 --end 257" in completed.stdout
     assert "--publish {post,story}" in completed.stdout
+    assert "--list-translations" in completed.stdout
     assert list(outside.iterdir()) == []
 
 
@@ -115,6 +119,95 @@ def test_invalid_selection_flags_fail_before_runtime_loading(arguments):
         cli.main(arguments)
 
     assert caught.value.code == 2
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    (
+        ["--refresh-catalog"],
+        ["--list-translations", "--random"],
+        ["--list-translations", "--publish", "post"],
+    ),
+)
+def test_catalog_flags_reject_generation_combinations(arguments):
+    with pytest.raises(SystemExit) as caught:
+        cli.main(arguments)
+
+    assert caught.value.code == 2
+
+
+def test_list_translations_is_lazy_and_prints_exact_identity(monkeypatch, capsys):
+    from quran_image_generator import content
+
+    resource = TranslationResource(
+        "131",
+        "clearquran-with-tafsir",
+        "The Clear Quran",
+        "Dr. Mustafa Khattab",
+        "English",
+        "en",
+    )
+    resource_without_slug = TranslationResource(
+        "136",
+        None,
+        "Uzbek Translation",
+        "Muhammad Sodik Muhammad Yusuf",
+        "Uzbek",
+        "uz",
+    )
+    calls = []
+
+    class FakeClient:
+        def translation_catalog(self, *, refresh):
+            calls.append(refresh)
+            return SimpleNamespace(resources=(resource, resource_without_slug))
+
+    monkeypatch.setattr(
+        content.QuranContentClient,
+        "from_environment",
+        lambda *args, **kwargs: FakeClient(),
+    )
+    monkeypatch.setattr(
+        cli,
+        "_verse_bounds",
+        lambda: pytest.fail("catalog listing must not load generation assets"),
+    )
+
+    assert cli.main(["--list-translations", "--refresh-catalog"]) == 0
+    output = capsys.readouterr().out
+    assert calls == [True]
+    assert "131 | clearquran-with-tafsir | en" in output
+    assert "The Clear Quran | Dr. Mustafa Khattab" in output
+    assert "136 | - | uz | Uzbek Translation | Muhammad Sodik Muhammad Yusuf" in output
+
+
+def test_list_translations_reports_api_failure_without_traceback(monkeypatch, capsys):
+    from quran_image_generator import content
+    from quran_image_generator.content import QuranApiPayloadError
+
+    class FailingClient:
+        def translation_catalog(self, *, refresh):
+            raise QuranApiPayloadError(
+                "Quran Foundation Content API",
+                "/resources/translations",
+                1,
+                "invalid catalog",
+            )
+
+    monkeypatch.setattr(
+        content.QuranContentClient,
+        "from_environment",
+        lambda *args, **kwargs: FailingClient(),
+    )
+
+    with pytest.raises(SystemExit) as caught:
+        cli.main(["--list-translations"])
+
+    assert caught.value.code == 1
+    error = capsys.readouterr().err
+    assert "Quran API error:" in error
+    assert "/resources/translations" in error
+    assert "Traceback" not in error
 
 
 def test_out_of_bounds_range_fails_before_config_or_output_side_effects(tmp_path):
@@ -246,9 +339,7 @@ def test_missing_quran_api_credentials_fail_before_interactive_prompt(
     assert "https://api-docs.quran.foundation/request-access/" in error
 
 
-def test_quran_api_failure_exits_cleanly_before_publish(
-    monkeypatch, tmp_path, capsys
-):
+def test_quran_api_failure_exits_cleanly_before_publish(monkeypatch, tmp_path, capsys):
     from quran_image_generator.content import QuranApiTransportError
 
     config_path = _write_config(
@@ -294,6 +385,50 @@ def test_quran_api_failure_exits_cleanly_before_publish(
     assert "after 3 attempt(s)" in captured.err
     assert "Traceback" not in captured.err
     assert "Image Created" not in captured.out
+
+
+def test_translation_selection_failure_is_safe_and_actionable(
+    monkeypatch, tmp_path, capsys
+):
+    from quran_image_generator.content import TranslationSelectionError
+
+    config_path = _write_config(
+        tmp_path / "config.yaml",
+        **{"translation languages": [{"language": "en"}]},
+    )
+
+    class FailingGenerator:
+        def generate(self, request, *, open_output):
+            raise TranslationSelectionError(
+                "Translation language=en is ambiguous; choose id=131 or "
+                "slug=clearquran-with-tafsir."
+            )
+
+    monkeypatch.setattr(
+        generator_module,
+        "build_generator",
+        lambda settings: FailingGenerator(),
+    )
+
+    with pytest.raises(SystemExit) as caught:
+        cli.main(
+            [
+                "--config",
+                str(config_path),
+                "--chapter",
+                "1",
+                "--start",
+                "1",
+                "--end",
+                "1",
+            ]
+        )
+
+    assert caught.value.code == 1
+    error = capsys.readouterr().err
+    assert "language=en is ambiguous" in error
+    assert "id=131" in error
+    assert "Traceback" not in error
 
 
 @pytest.mark.parametrize("target", ["post", "story"])

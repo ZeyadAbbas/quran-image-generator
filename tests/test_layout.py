@@ -7,7 +7,13 @@ from quran_image_generator.layout import (
     layout_quran_text,
     layout_translation_text,
 )
-from quran_image_generator.models import Passage, Verse, VerseTranslation
+from quran_image_generator.models import (
+    Passage,
+    TranslationResource,
+    TranslationSelector,
+    Verse,
+    VerseTranslation,
+)
 from quran_image_generator.settings import Dimensions, TranslationSettings
 
 
@@ -43,9 +49,24 @@ def passage_with(*verses):
     return Passage(1, "Al-Fatihah", tuple(verses))
 
 
-def test_verse_wrapping_and_height_are_deterministic(
-    fake_measurer, settings_factory
-):
+def resolved_translation(resource_id, language_code="en"):
+    resource = TranslationResource(
+        resource_id,
+        f"fixture-{resource_id}",
+        f"Fixture {resource_id}",
+        "Fixture Author",
+        language_code,
+        language_code,
+    )
+    return TranslationSettings(
+        TranslationSelector("id", resource_id),
+        "Fixture Sans",
+        18,
+        resource,
+    )
+
+
+def test_verse_wrapping_and_height_are_deterministic(fake_measurer, settings_factory):
     settings = settings_factory(quran_max_width=35)
 
     block = layout_quran_text(("aaa", "bb"), settings, fake_measurer)
@@ -60,9 +81,7 @@ def test_verse_wrapping_and_height_are_deterministic(
 def test_translation_height_contains_only_interline_spacing(
     fake_measurer, settings_factory
 ):
-    translations = (
-        TranslationSettings("en", "131", "Fixture Sans", 18),
-    )
+    translations = (resolved_translation("131"),)
     settings = settings_factory(
         translations=translations,
         translation_max_width=65,
@@ -76,9 +95,7 @@ def test_translation_height_contains_only_interline_spacing(
     assert block.height == 27
 
 
-def test_text_equal_to_maximum_width_stays_on_one_line(
-    fake_measurer, settings_factory
-):
+def test_text_equal_to_maximum_width_stays_on_one_line(fake_measurer, settings_factory):
     settings = settings_factory(quran_max_width=50)
 
     block = layout_quran_text(("aa", "bb"), settings, fake_measurer)
@@ -108,9 +125,7 @@ def test_oversized_first_token_is_preserved_and_reported(
 def test_oversized_translation_token_does_not_drop_accumulated_text(
     fake_measurer, settings_factory
 ):
-    translations = (
-        TranslationSettings("en", "131", "Fixture Sans", 18),
-    )
+    translations = (resolved_translation("131"),)
     settings = settings_factory(
         translations=translations,
         translation_max_width=60,
@@ -149,9 +164,7 @@ def test_marker_width_is_reserved_only_when_marker_is_visible(
     visible = settings_factory(show_verse_numbers=True, **common)
     hidden = settings_factory(show_verse_numbers=False, **common)
 
-    visible_block = layout_quran_text(
-        ("aaaa", "bbbb"), visible, fake_measurer
-    )
+    visible_block = layout_quran_text(("aaaa", "bbbb"), visible, fake_measurer)
     hidden_block = layout_quran_text(("aaaa", "bbbb"), hidden, fake_measurer)
 
     assert [line.text for line in visible_block.lines] == ["aaaa", "bbbb"]
@@ -159,9 +172,7 @@ def test_marker_width_is_reserved_only_when_marker_is_visible(
 
 
 def test_empty_text_blocks_have_zero_height(fake_measurer, settings_factory):
-    translations = (
-        TranslationSettings("en", "131", "Fixture Sans", 18),
-    )
+    translations = (resolved_translation("131"),)
     settings = settings_factory(translations=translations)
 
     quran = layout_quran_text((), settings, fake_measurer)
@@ -178,9 +189,7 @@ def test_empty_text_blocks_have_zero_height(fake_measurer, settings_factory):
 def test_build_layout_preserves_centering_and_baseline(settings_factory):
     passage = passage_with(Verse(1, "1:1", ("بِسْمِ",), ()))
 
-    image_layout = build_layout(
-        passage, settings_factory(), FixedMeasurer(30, 10)
-    )
+    image_layout = build_layout(passage, settings_factory(), FixedMeasurer(30, 10))
 
     assert image_layout.content_height == 10
     assert [(int(line.x), int(line.y), line.text) for line in image_layout.lines] == [
@@ -192,9 +201,7 @@ def test_descender_is_included_below_the_shared_draw_baseline(settings_factory):
     passage = passage_with(Verse(1, "1:1", ("gypq",), ()))
     settings = settings_factory(resolution=Dimensions(100, 100))
 
-    image_layout = build_layout(
-        passage, settings, FixedMeasurer(30, 8, 4)
-    )
+    image_layout = build_layout(passage, settings, FixedMeasurer(30, 8, 4))
 
     assert image_layout.content_bounds is not None
     line = image_layout.lines[0]
@@ -257,8 +264,8 @@ def test_final_line_ink_measurement_controls_reported_bounds(settings_factory):
 
 def test_multilanguage_spacing_matches_positioned_bounds(settings_factory):
     translations = (
-        TranslationSettings("en", "131", "Fixture Sans", 18),
-        TranslationSettings("fr", "31", "Fixture Sans", 18),
+        resolved_translation("131"),
+        resolved_translation("31", "fr"),
     )
     settings = settings_factory(translations=translations)
     verse = Verse(
@@ -268,9 +275,7 @@ def test_multilanguage_spacing_matches_positioned_bounds(settings_factory):
         (VerseTranslation("131", "a"), VerseTranslation("31", "b")),
     )
 
-    image_layout = build_layout(
-        passage_with(verse), settings, FixedMeasurer(10, 12)
-    )
+    image_layout = build_layout(passage_with(verse), settings, FixedMeasurer(10, 12))
 
     assert image_layout.content_bounds is not None
     top = image_layout.content_bounds.top
@@ -308,9 +313,7 @@ def test_center_right_and_left_positions_are_explicit(settings_factory):
         measurer,
     )
 
-    translations = (
-        TranslationSettings("en", "131", "Fixture Sans", 18),
-    )
+    translations = (resolved_translation("131"),)
     translated = passage_with(
         Verse(1, "1:1", ("q",), (VerseTranslation("131", "translated"),))
     )
@@ -353,9 +356,7 @@ def test_visual_bearings_drive_alignment_and_marker_placement(settings_factory):
         measurer,
     )
 
-    translations = (
-        TranslationSettings("en", "131", "Fixture Sans", 18),
-    )
+    translations = (resolved_translation("131"),)
     translated = passage_with(
         Verse(1, "1:1", ("q",), (VerseTranslation("131", "translated"),))
     )
@@ -374,9 +375,7 @@ def test_visual_bearings_drive_alignment_and_marker_placement(settings_factory):
         270,
     )
     assert left_aligned.lines[1].left == 40
-    assert marked.markers[0].x + marked.markers[0].width == (
-        marked.lines[0].left - 5
-    )
+    assert marked.markers[0].x + marked.markers[0].width == (marked.lines[0].left - 5)
 
 
 def test_marker_reserve_validates_final_visual_width(settings_factory):
@@ -512,9 +511,7 @@ def test_visible_marker_participates_in_visual_bounds(settings_factory):
 
 
 def test_reported_bounds_match_every_positioned_element(settings_factory):
-    translations = (
-        TranslationSettings("en", "131", "Fixture Sans", 18),
-    )
+    translations = (resolved_translation("131"),)
     passage = passage_with(
         Verse(1, "1:1", ("q",), (VerseTranslation("131", "translated"),))
     )

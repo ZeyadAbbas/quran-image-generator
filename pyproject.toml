@@ -59,8 +59,6 @@ quran_image_generator = [
   "assets/*.txt",
   "assets/fonts/*.ttf",
   "assets/fonts/multilingual_fonts/*.ttf",
-  "assets/translation_codes/*.txt",
-  "assets/translation_codes/*.yaml",
   "assets/verse_numbers/*.png",
 ]
 

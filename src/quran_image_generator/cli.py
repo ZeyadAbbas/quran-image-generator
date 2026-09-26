@@ -25,6 +25,7 @@ examples:
   quran-image-generator
   quran-image-generator --chapter 2 --start 255 --end 257
   quran-image-generator --random --open
+  quran-image-generator --list-translations
   quran-image-generator --chapter 1 --start 1 --end 1 --publish story""",
     )
     parser.add_argument(
@@ -69,12 +70,39 @@ examples:
             "QIG_INSTAGRAM_PASSWORD credentials (or interactive prompts)"
         ),
     )
+    parser.add_argument(
+        "--list-translations",
+        action="store_true",
+        help=(
+            "list live Quran Foundation translation IDs, slugs, languages, "
+            "names, and authors, then exit"
+        ),
+    )
+    parser.add_argument(
+        "--refresh-catalog",
+        action="store_true",
+        help="force a fresh catalog request with --list-translations",
+    )
     return parser
 
 
-def _validate_selection(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
+def _validate_selection(
+    parser: argparse.ArgumentParser, args: argparse.Namespace
+) -> None:
     values = (args.chapter, args.start, args.end)
     supplied = tuple(value is not None for value in values)
+    if args.refresh_catalog and not args.list_translations:
+        parser.error("--refresh-catalog requires --list-translations")
+    if args.list_translations and (
+        any(supplied)
+        or args.random
+        or args.open_output is not None
+        or args.publish is not None
+        or args.output_dir is not None
+    ):
+        parser.error(
+            "--list-translations cannot be combined with generation or publishing options"
+        )
     if any(supplied) and not all(supplied):
         parser.error("--chapter, --start, and --end must be provided together")
     if args.random and any(supplied):
@@ -112,9 +140,7 @@ def _validate_range(
 ) -> None:
     maximum = bounds[chapter - 1]
     if starting_verse > maximum:
-        parser.error(
-            f"--start must be between 1 and {maximum} for chapter {chapter}"
-        )
+        parser.error(f"--start must be between 1 and {maximum} for chapter {chapter}")
     if ending_verse > maximum:
         parser.error(
             f"--end must be between {starting_verse} and {maximum} "
@@ -141,8 +167,7 @@ def _prompt_for_range(bounds: tuple[int, ...]) -> tuple[int, int, int]:
             break
         except ValueError:
             print(
-                "Invalid input. Please input an integer value between "
-                f"1 and {maximum}."
+                f"Invalid input. Please input an integer value between 1 and {maximum}."
             )
 
     while True:
@@ -206,11 +231,47 @@ def _publish_generated_image(image_path: Path, target_value: str) -> None:
     publisher.publish(image_path, PublishTarget(target_value))
 
 
+def _list_translations(parser: argparse.ArgumentParser, *, refresh: bool) -> int:
+    from .content import (
+        QuranApiConfigurationError,
+        QuranApiError,
+        QuranContentClient,
+    )
+
+    try:
+        catalog = QuranContentClient.from_environment().translation_catalog(
+            refresh=refresh
+        )
+    except QuranApiConfigurationError as error:
+        parser.exit(2, f"{error}\n")
+    except QuranApiError as error:
+        parser.exit(1, f"Quran API error: {error}\n")
+
+    print("ID | Slug | Language | Translation | Author")
+    for resource in sorted(
+        catalog.resources,
+        key=lambda item: (
+            item.language_name.casefold(),
+            item.name.casefold(),
+            int(item.resource_id),
+        ),
+    ):
+        language = resource.language_code or resource.language_name
+        print(
+            f"{resource.resource_id} | {resource.slug or '-'} | {language} | "
+            f"{resource.name} | {resource.author_name}"
+        )
+    return 0
+
+
 def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
     from .content import QuranApiError
     from .generator import build_generator
     from .models import GenerationRequest
     from .settings import SettingsValidationError, load_settings
+
+    if args.list_translations:
+        return _list_translations(parser, refresh=args.refresh_catalog)
 
     one_shot = args.random or args.chapter is not None
     bounds = _verse_bounds()

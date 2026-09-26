@@ -12,7 +12,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 def test_required_runtime_assets_live_under_the_package_once():
     required = (
         asset_path("fonts", "quran_font.ttf"),
-        asset_path("translation_codes", "translation_codes.yaml"),
         asset_path("verse_bounds.txt"),
         asset_path("verse_numbers", "1.png"),
         asset_path("verse_numbers", "286.png"),
@@ -21,6 +20,7 @@ def test_required_runtime_assets_live_under_the_package_once():
     assert ASSETS_DIRECTORY.is_absolute()
     assert VERSE_NUMBERS_FOLDER == asset_path("verse_numbers")
     assert all(path.is_file() for path in required)
+    assert not asset_path("translation_codes", "translation_codes.yaml").exists()
     assert not (PROJECT_ROOT / "assets").exists()
 
 

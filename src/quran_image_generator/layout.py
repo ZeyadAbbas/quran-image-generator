@@ -229,6 +229,10 @@ def _quran_style(settings: Settings) -> TextStyle:
 def _translation_style(
     settings: Settings, translation: TranslationSettings
 ) -> TextStyle:
+    if translation.font is None:
+        raise RuntimeError(
+            f"translation {translation.selector.label} was not resolved before layout"
+        )
     return TextStyle(
         font=translation.font,
         font_size=translation.font_size,
@@ -258,9 +262,7 @@ def _measure_final_lines(
     style: TextStyle,
     measure_ink: Any,
 ) -> tuple[MeasuredLine, ...]:
-    return tuple(
-        _measure_line(line.text, style, measure_ink) for line in lines
-    )
+    return tuple(_measure_line(line.text, style, measure_ink) for line in lines)
 
 
 def _wrap_words(
@@ -284,9 +286,7 @@ def _wrap_words(
     measure = measurer.measure if measure_text is None else measure_text
 
     for index, word in enumerate(normalized_words):
-        candidate = (
-            current_line + style.word_spacing + word if current_line else word
-        )
+        candidate = current_line + style.word_spacing + word if current_line else word
         candidate_metrics = _measure_line(candidate, style, measure)
         available_width = style.max_width
         if index == len(normalized_words) - 1:
@@ -311,8 +311,7 @@ def _lines_fit_width(
 ) -> bool:
     return all(
         line.visual_width
-        <= style.max_width
-        - (final_line_reserve if index == len(lines) - 1 else 0)
+        <= style.max_width - (final_line_reserve if index == len(lines) - 1 else 0)
         for index, line in enumerate(lines)
     )
 
@@ -363,8 +362,7 @@ def _marker_reserve(settings: Settings) -> int:
         return 0
     return max(
         0,
-        settings.verse_number_resolution.width
-        + settings.verse_number_x_offset,
+        settings.verse_number_resolution.width + settings.verse_number_x_offset,
     )
 
 
@@ -436,9 +434,7 @@ def _validate_block_width(
         )
 
 
-def _layout_verse(
-    verse: Verse, settings: Settings, measurer: Any
-) -> _VerseBlock:
+def _layout_verse(verse: Verse, settings: Settings, measurer: Any) -> _VerseBlock:
     quran = layout_quran_text(verse.words, settings, measurer)
     _validate_block_width(
         quran,
@@ -475,11 +471,7 @@ def _horizontal_x(
 ) -> float:
     if position == "center":
         # Keep the legacy one-pixel tie break when the widths have mixed parity.
-        return (
-            (canvas_width // 2)
-            - (line.visual_width // 2)
-            - line.left_offset
-        )
+        return (canvas_width // 2) - (line.visual_width // 2) - line.left_offset
     if right_aligned:
         return canvas_width - position - line.right_offset
     return position - line.left_offset
@@ -580,9 +572,7 @@ def _shift_vertical(
     return shifted_lines, shifted_markers
 
 
-def build_layout(
-    passage: Passage, settings: Settings, measurer: Any
-) -> ImageLayout:
+def build_layout(passage: Passage, settings: Settings, measurer: Any) -> ImageLayout:
     """Build a validated draw plan without rendering or other I/O.
 
     Layout bounds use measured floating-point metrics. The Wand adapter draws at
@@ -617,9 +607,7 @@ def build_layout(
             marker = VerseMarker(
                 number=block.number,
                 x=(
-                    last_quran_line.left
-                    - settings.verse_number_x_offset
-                    - marker_width
+                    last_quran_line.left - settings.verse_number_x_offset - marker_width
                 ),
                 y=(
                     last_quran_line.y
@@ -666,9 +654,7 @@ def build_layout(
     if local_bounds is None:
         return ImageLayout(width, height, 0, (), (), None)
 
-    target_top = (
-        (height - local_bounds.height) // 2
-    ) + settings.total_y_offset
+    target_top = ((height - local_bounds.height) // 2) + settings.total_y_offset
     shifted_lines, shifted_markers = _shift_vertical(
         local_lines,
         local_markers,

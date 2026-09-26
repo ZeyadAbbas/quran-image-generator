@@ -70,22 +70,16 @@
                                               # Should be in the format [number].
                                               # If blank or omitted, the default is 30.
 
-'translation languages': 'en'            # Set the languages (and their fonts) of the translation.
-                                       # Should be in the format [language1:language1_font:language1_font_size, language2:language2_font...]
-                                       # Language font and language font size are both optional for each language.
-                                       # You are allowed to use a maximum of 3 languages at once.
-                                       # You can find a list of accepted languages on the GitHub page and in the README.md file.
-                                       # If blank or omitted, no translations are shown.
-                                       # Unknown codes and invalid font settings are reported at startup.
-                                       # Each translation font will be set to the default font for it (found in assets/fonts/multilingual_fonts)
-                                       # If you are experiencing issues with setting the font...
-                                       # Download a font that supports your language from Google
-                                       # Then set each font in the 'translation languages' option above this one by following the instructions
-                                       # Place the font file in the fonts folder inside the assets folder
-                                       # Then write the file name (and the extension) after the language code (ex: [fr:assets/fonts/french_font.ttf])
-                                       # The reason you may need to do this is that not all font files have multiple language support.
-                                       # Make sure the file extension (.ttf / .otf) is set correctly in this file
-                                       # More info on the GitHub page and in the README.md file
+'translation languages':               # Select up to 3 exact Quran Foundation translation resources.
+  - 'id': 131                          # Use one selector per entry: id, slug, or language.
+    'font size': 18                    # ID/slug is recommended because it identifies the translator exactly.
+                                       # Run `quran-image-generator --list-translations` to see current choices.
+                                       # A language shortcut such as {'language': 'en'} works only when the
+                                       # live catalog has exactly one translation for that language; otherwise
+                                       # startup lists the exact IDs/slugs to choose from.
+                                       # Optional per-entry keys are 'font' and 'font size'. If font is omitted,
+                                       # the bundled font for the catalog language is used when available,
+                                       # otherwise Arial is used. An empty list disables translations.
 
 'translation color': ''            # Set the translation color.
                                    # Should be in the format [#HEX], the hex code should look something like #FF00FF or #e6c134.

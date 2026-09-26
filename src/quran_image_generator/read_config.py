@@ -37,7 +37,9 @@ def get_settings() -> Settings:
     """Return active settings or explain how the caller should initialize them."""
 
     if _settings is None:
-        raise RuntimeError("Settings are not loaded. Call read_config.load_config(path) first.")
+        raise RuntimeError(
+            "Settings are not loaded. Call read_config.load_config(path) first."
+        )
     return _settings
 
 
@@ -80,8 +82,12 @@ def translation_font_size() -> int:
 
 def translation_languages() -> dict[str, dict[str, str | int]]:
     return {
-        translation.resource_id: {
-            "font": str(translation.font),
+        (
+            translation.resource.resource_id
+            if translation.resource is not None
+            else translation.selector.label
+        ): {
+            "font": str(translation.font or "automatic"),
             "font_size": translation.font_size,
         }
         for translation in get_settings().translations

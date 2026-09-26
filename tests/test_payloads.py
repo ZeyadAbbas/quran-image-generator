@@ -9,7 +9,13 @@ from quran_image_generator.content import (
     QuranContentClient,
     parse_verse,
 )
-from quran_image_generator.models import GenerationRequest
+from quran_image_generator.generator import QuranImageGenerator
+from quran_image_generator.models import (
+    GenerationRequest,
+    TranslationResource,
+    TranslationSelector,
+)
+from quran_image_generator.settings import TranslationSettings
 
 
 class _FixtureSession:
@@ -58,10 +64,7 @@ def test_api_call_builds_expected_request(load_json_fixture):
     assert client.api_call("verses/by_key/1:1", ("131", "31")) == payload
     assert session.get_calls == [
         (
-            (
-                "https://apis-prelive.quran.foundation/content/api/v4/"
-                "verses/by_key/1:1"
-            ),
+            ("https://apis-prelive.quran.foundation/content/api/v4/verses/by_key/1:1"),
             {
                 "headers": {
                     "Accept": "application/json",
@@ -86,9 +89,7 @@ def test_fetch_passage_gets_verses_then_chapter(load_json_fixture):
         lambda uri: chapter_payload if uri.endswith("chapters/1") else verse_payload
     )
 
-    passage = _client(session).fetch_passage(
-        GenerationRequest(1, 1, 1), ("131",)
-    )
+    passage = _client(session).fetch_passage(GenerationRequest(1, 1, 1), ("131",))
 
     assert [call[0] for call in session.get_calls] == [
         "https://apis-prelive.quran.foundation/content/api/v4/verses/by_key/1:1",
@@ -110,8 +111,7 @@ def test_fetch_passage_gets_verses_then_chapter(load_json_fixture):
     assert passage.chapter_name == "Al-Fatihah"
     assert [verse.key for verse in passage.verses] == ["1:1"]
     assert [
-        translation.resource_id
-        for translation in passage.verses[0].translations
+        translation.resource_id for translation in passage.verses[0].translations
     ] == ["131"]
 
 
@@ -250,6 +250,29 @@ def test_orders_multiple_translations_by_configuration(load_json_fixture):
     ]
 
 
+def test_unrequested_translation_resources_are_ignored(load_json_fixture):
+    payload = load_json_fixture("verse_multiple_translations.json")
+
+    verse = parse_verse(payload, ("131",))
+
+    assert [translation.resource_id for translation in verse.translations] == ["131"]
+
+
+def test_orders_three_translations_independently_of_api_order(load_json_fixture):
+    payload = load_json_fixture("verse_multiple_translations.json")
+    payload["verse"]["translations"].insert(
+        1, {"resource_id": 83, "text": "En el nombre de Alá."}
+    )
+
+    verse = parse_verse(payload, ("131", "83", "31"))
+
+    assert [translation.resource_id for translation in verse.translations] == [
+        "131",
+        "83",
+        "31",
+    ]
+
+
 def test_no_translations_are_an_empty_collection(load_json_fixture):
     payload = load_json_fixture("verse_no_translations.json")
 
@@ -349,8 +372,7 @@ def test_translation_markup_preserves_readable_text_and_removes_footnote():
                 {
                     "resource_id": 131,
                     "text": (
-                        "˹Read˺ <em>this</em>&nbsp;now"
-                        '<sup foot_note="42">42</sup>.'
+                        '˹Read˺ <em>this</em>&nbsp;now<sup foot_note="42">42</sup>.'
                     ),
                 }
             ],
@@ -391,13 +413,76 @@ def test_translation_footnote_suppression_is_tag_aware(text, expected):
     assert verse.translations[0].text == expected
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Known missing-resource behavior tracked by #13",
+@pytest.mark.parametrize(
+    "translation_text",
+    [
+        pytest.param(" \t\n&nbsp; ", id="blank"),
+        pytest.param(
+            '<sup foot_note="42">suppressed footnote</sup>',
+            id="markup-only",
+        ),
+    ],
 )
-def test_missing_requested_translation_is_skipped(load_json_fixture):
+def test_unreadable_requested_translation_stops_generation_before_output(
+    translation_text,
+    load_json_fixture,
+    settings_factory,
+):
     payload = load_json_fixture("verse_one_translation.json")
+    payload["verse"]["translations"][0]["text"] = translation_text
+    api_client = _client(_FixtureSession(lambda _uri: payload))
+    resource = TranslationResource(
+        "131",
+        "clearquran-with-tafsir",
+        "The Clear Quran",
+        "Dr. Mustafa Khattab",
+        "English",
+        "en",
+    )
 
-    verse = parse_verse(payload, ("131", "31"))
+    class ContentClient:
+        def resolve_translations(self, selectors):
+            return (resource,)
 
-    assert [translation.resource_id for translation in verse.translations] == ["131"]
+        def fetch_passage(self, request, resource_ids):
+            return api_client.fetch_passage(request, resource_ids)
+
+    class UnexpectedRenderer:
+        def render(self, image_layout, settings, destination):
+            pytest.fail("renderer must not run for an unreadable translation")
+
+    def unexpected_layout(*args):
+        pytest.fail("layout must not run for an unreadable translation")
+
+    configured = TranslationSettings(TranslationSelector("id", "131"), None, 18)
+    settings = settings_factory(translations=(configured,))
+    generator = QuranImageGenerator(
+        settings,
+        ContentClient(),
+        object(),
+        UnexpectedRenderer(),
+        image_opener=lambda path: pytest.fail("image opener must not run"),
+        layout_builder=unexpected_layout,
+    )
+
+    with pytest.raises(QuranApiPayloadError, match="resource 131.*readable text"):
+        generator.generate(GenerationRequest(1, 1, 1), open_output=True)
+
+    assert list(settings.output_path.iterdir()) == []
+
+
+def test_missing_requested_translation_fails_before_mapping(load_json_fixture):
+    payload = load_json_fixture("verse_one_translation.json")
+    session = _FixtureSession(lambda _uri: payload)
+
+    with pytest.raises(QuranApiPayloadError, match="resource 31"):
+        _client(session).api_call("verses/by_key/1:1", ("131", "31"))
+
+
+def test_duplicate_requested_translation_fails_before_mapping(load_json_fixture):
+    payload = load_json_fixture("verse_one_translation.json")
+    payload["verse"]["translations"].append({"resource_id": 131, "text": "duplicate"})
+    session = _FixtureSession(lambda _uri: payload)
+
+    with pytest.raises(QuranApiPayloadError, match="resource 131 is duplicated"):
+        _client(session).api_call("verses/by_key/1:1", ("131",))
