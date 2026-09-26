@@ -53,11 +53,13 @@ def get_randoms():
 
 def run():
     while True:
+        # Reload between runs so config.yaml can still be edited while the CLI is open.
+        # Loading is explicit; importing read_config no longer touches the filesystem.
+        config.load_config()
         if config.generate_random_verses():
             chapter, starting_verse, ending_verse = get_randoms()
         else:
             chapter, starting_verse, ending_verse = get_inputs()
-        config.load_config()
         gen = QuranImageGenerator(chapter, starting_verse, ending_verse)
         gen.fetch_verses()
         gen.create_image()

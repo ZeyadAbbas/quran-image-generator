@@ -185,6 +185,17 @@ Only follow this installation if you know what Docker is used for.
 The program has a file that you need to open to customize the images, that file is `config.yaml`.
 In there, there are options to change with descriptions next to them acting as documentation.
 
+Configuration is loaded and validated when the program starts. Existing quoted values such as
+`'18'` and `'true'` remain supported, and normal YAML numbers and booleans such as `18` and `true`
+work as well. Blank or missing options use the defaults described in `config.yaml`; invalid explicit
+values are reported together so they can be fixed in one pass. Relative paths are resolved beside
+the selected config file. A configured output directory is honored and created after validation;
+leaving it blank creates or uses an `outputs` directory beside the config file.
+
+Code that embeds the generator can load a caller-selected file explicitly with
+`settings.load_settings(path)`. It returns an immutable `Settings` object. The old `read_config`
+getter functions remain as a temporary compatibility layer for the current renderer.
+
 You have the ability to use any quran and translation fonts you like. However, there has been
 ones provided for you in `assets/fonts`. If you would like to add your own, you should follow
 the instructions in the config file.

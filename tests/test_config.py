@@ -1,60 +1,79 @@
 from pathlib import Path
 
 import pytest
+import yaml
 
 import read_config as config
+from settings import SettingsValidationError
 
 
-@pytest.mark.parametrize(
-    ("configured", "expected"),
-    [
-        ("640 x 480", (640, 480)),
-        ("640x480", (640, 480)),
-        ("invalid", (1080, 1080)),
-        ("640 x nope", (1080, 1080)),
-    ],
-)
-def test_resolution_validation(monkeypatch, configured, expected):
-    monkeypatch.setattr(config, "config", {"resolution": configured})
-
-    assert config.resolution() == expected
+def write_config(tmp_path, values):
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text(yaml.safe_dump(values), encoding="utf-8")
+    return config_path
 
 
-@pytest.mark.parametrize(
-    ("configured", "expected"),
-    [
-        ("#12abEF", "xc:#12abEF"),
-        ("12abEF", "xc:#12abEF"),
-        ("not-a-color", "xc:#000000"),
-    ],
-)
-def test_background_color_validation(monkeypatch, configured, expected):
-    monkeypatch.setattr(config, "config", {"background color": configured})
+@pytest.mark.parametrize("configured", ["640 x 480", "640x480", [640, 480]])
+def test_resolution_validation(tmp_path, configured):
+    config.load_config(
+        write_config(tmp_path, {"resolution": configured}), create_output_dir=False
+    )
 
-    assert config.background_color() == expected
+    assert config.resolution() == (640, 480)
 
 
-def test_invalid_font_size_uses_default(monkeypatch):
-    monkeypatch.setattr(config, "config", {"quran font size": "large"})
+@pytest.mark.parametrize("configured", ["invalid", "640 x nope", [640, -1]])
+def test_invalid_resolution_is_reported(tmp_path, configured):
+    with pytest.raises(SettingsValidationError) as caught:
+        config.load_config(
+            write_config(tmp_path, {"resolution": configured}),
+            create_output_dir=False,
+        )
 
-    assert config.quran_font_size() == config.DEFAULTS["quran font size"]
-
-
-def test_blank_output_path_creates_default_directory(monkeypatch, tmp_path):
-    monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(config, "config", {"output path": ""})
-
-    assert config.output_path() == "outputs"
-    assert (tmp_path / "outputs").is_dir()
+    assert [issue.field for issue in caught.value.issues] == ["resolution"]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Known configuration bug tracked by #7: valid output paths are discarded",
-)
-def test_valid_output_path_is_preserved(monkeypatch, tmp_path):
+@pytest.mark.parametrize("configured", ["#12abEF", "12abEF"])
+def test_background_color_validation(tmp_path, configured):
+    config.load_config(
+        write_config(tmp_path, {"background color": configured}),
+        create_output_dir=False,
+    )
+
+    assert config.background_color() == "xc:#12ABEF"
+
+
+def test_invalid_background_color_is_reported(tmp_path):
+    with pytest.raises(SettingsValidationError) as caught:
+        config.load_config(
+            write_config(tmp_path, {"background color": "not-a-color"}),
+            create_output_dir=False,
+        )
+
+    assert [issue.field for issue in caught.value.issues] == ["background color"]
+
+
+def test_invalid_font_size_is_reported(tmp_path):
+    with pytest.raises(SettingsValidationError) as caught:
+        config.load_config(
+            write_config(tmp_path, {"quran font size": "large"}),
+            create_output_dir=False,
+        )
+
+    assert [issue.field for issue in caught.value.issues] == ["quran font size"]
+
+
+def test_blank_output_path_creates_default_directory(tmp_path):
+    config.load_config(write_config(tmp_path, {"output path": ""}))
+
+    expected = tmp_path / "outputs"
+    assert Path(config.output_path()) == expected
+    assert expected.is_dir()
+
+
+def test_valid_output_path_is_preserved(tmp_path):
     output_path = tmp_path / "images"
     output_path.mkdir()
-    monkeypatch.setattr(config, "config", {"output path": str(output_path)})
+    config.load_config(write_config(tmp_path, {"output path": str(output_path)}))
 
     assert Path(config.output_path()) == output_path
