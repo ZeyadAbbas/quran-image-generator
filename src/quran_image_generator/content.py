@@ -11,7 +11,7 @@ import time
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
-from typing import Any
+from typing import Any, TypeGuard
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -399,7 +399,7 @@ def _has_json_content_type(response: Any) -> bool:
     return bool(subtype.removesuffix("+json")) and subtype.endswith("+json")
 
 
-def _is_non_string_sequence(value: Any) -> bool:
+def _is_non_string_sequence(value: object) -> TypeGuard[Sequence[Any]]:
     return isinstance(value, Sequence) and not isinstance(
         value, (str, bytes, bytearray)
     )

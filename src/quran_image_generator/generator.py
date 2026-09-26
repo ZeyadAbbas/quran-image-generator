@@ -28,7 +28,7 @@ def _output_path(passage: Passage, output_directory: Path) -> Path:
 def _open_image(path: Path) -> None:
     resolved = str(path.resolve())
     if sys.platform == "win32":
-        os.startfile(resolved)  # type: ignore[attr-defined]
+        os.startfile(resolved)
     elif sys.platform == "darwin":
         subprocess.Popen(["open", resolved])
     else:

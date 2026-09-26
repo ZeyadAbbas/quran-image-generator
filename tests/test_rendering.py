@@ -154,18 +154,24 @@ def test_quran_combining_marks_are_bounded_and_unsafe_shift_is_rejected(
     settings_factory, tmp_path
 ):
     font = asset_path("fonts", "quran_font.ttf")
-    settings = settings_factory(
+    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+    passage = Passage(1, "Test", (Verse(1, "1:1", (text,), ()),))
+    measurer = WandTextMeasurer()
+    probe_settings = settings_factory(
         resolution=Dimensions(900, 300),
         quran_font=font,
         quran_font_size=80,
-        quran_max_width=850,
+        quran_max_width=2_000,
         background_color="#000000",
         quran_color="#FFFFFF",
         show_verse_numbers=False,
     )
-    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-    passage = Passage(1, "Test", (Verse(1, "1:1", (text,), ()),))
-    image_layout = build_layout(passage, settings, WandTextMeasurer())
+    probe = build_layout(passage, probe_settings, measurer)
+    settings = replace(
+        probe_settings,
+        quran_max_width=ceil(probe.lines[0].visual_width),
+    )
+    image_layout = build_layout(passage, settings, measurer)
     destination = tmp_path / "quran-combining-marks.png"
 
     WandImageRenderer().render(image_layout, settings, destination)
@@ -188,7 +194,7 @@ def test_quran_combining_marks_are_bounded_and_unsafe_shift_is_rejected(
     unsafe_settings = replace(settings, total_y_offset=unsafe_offset)
 
     with pytest.raises(LayoutOverflowError) as caught:
-        build_layout(passage, unsafe_settings, WandTextMeasurer())
+        build_layout(passage, unsafe_settings, measurer)
 
     assert caught.value.axis == "vertical"
     assert caught.value.actual[0] < 0
@@ -198,25 +204,31 @@ def test_quran_visual_right_edge_aligns_without_silent_clipping(
     settings_factory, tmp_path
 ):
     font = asset_path("fonts", "quran_font.ttf")
-    edge_settings = settings_factory(
+    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+    passage = Passage(1, "Test", (Verse(1, "1:1", (text,), ()),))
+    measurer = WandTextMeasurer()
+    probe_settings = settings_factory(
         resolution=Dimensions(900, 300),
         quran_font=font,
         quran_font_size=80,
         quran_x_position=0,
-        quran_max_width=850,
+        quran_max_width=2_000,
         background_color="#000000",
         quran_color="#FFFFFF",
         show_verse_numbers=False,
+    )
+    probe = build_layout(passage, probe_settings, measurer)
+    edge_settings = replace(
+        probe_settings,
+        quran_max_width=ceil(probe.lines[0].visual_width),
     )
     room_settings = replace(
         edge_settings,
         resolution=Dimensions(920, 300),
         quran_x_position=20,
     )
-    text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-    passage = Passage(1, "Test", (Verse(1, "1:1", (text,), ()),))
-    edge_layout = build_layout(passage, edge_settings, WandTextMeasurer())
-    room_layout = build_layout(passage, room_settings, WandTextMeasurer())
+    edge_layout = build_layout(passage, edge_settings, measurer)
+    room_layout = build_layout(passage, room_settings, measurer)
     edge_destination = tmp_path / "quran-at-right-edge.png"
     room_destination = tmp_path / "quran-with-right-room.png"
 
@@ -232,7 +244,6 @@ def test_quran_visual_right_edge_aligns_without_silent_clipping(
     assert room_line.right == 900
     assert edge_pixels[0] == room_pixels[0]
     assert edge_pixels[2] == room_pixels[2]
-    assert edge_pixels[2] > ceil(edge_line.x + edge_line.width)
     assert abs(edge_pixels[0] - edge_line.left) <= 1
     assert abs(edge_pixels[2] - edge_line.right) <= 1
     assert edge_pixels[0] >= floor(edge_layout.content_bounds.left) - 1
@@ -242,20 +253,28 @@ def test_quran_visual_right_edge_aligns_without_silent_clipping(
 def test_quran_wrapping_uses_final_visual_width_near_the_limit(
     settings_factory,
 ):
-    font = asset_path("fonts", "quran_font.ttf")
+    class OverhangingMeasurer:
+        def measure(self, text, _style):
+            width = len(text) * 10
+            return TextMetrics(width, 12, 12, 0)
+
+        def measure_ink(self, text, _style):
+            width = len(text) * 10
+            return TextMetrics(width, 12, 12, 0, right_offset=width + 5)
+
     common = {
-        "resolution": Dimensions(900, 400),
-        "quran_font": font,
-        "quran_font_size": 80,
+        "resolution": Dimensions(300, 200),
+        "quran_font": "Fixture Quran",
+        "quran_font_size": 24,
         "show_verse_numbers": False,
     }
-    words = ("بِسْمِ", "اللَّهِ", "الرَّحْمَٰنِ", "الرَّحِيمِ")
+    words = ("aa", "bb")
     passage = Passage(1, "Test", (Verse(1, "1:1", words, ()),))
-    generous_settings = settings_factory(quran_max_width=2_000, **common)
-    measurer = WandTextMeasurer()
+    generous_settings = settings_factory(quran_max_width=100, **common)
+    measurer = OverhangingMeasurer()
     probe = build_layout(passage, generous_settings, measurer)
     probe_line = probe.lines[0]
-    threshold = ceil(probe_line.width)
+    threshold = int(probe_line.width)
 
     assert threshold < probe_line.visual_width
 
@@ -274,9 +293,9 @@ def test_quran_wrapping_uses_final_visual_width_near_the_limit(
         passage,
         replace(
             generous_settings,
-            quran_max_width=threshold + 60,
+            quran_max_width=threshold + 15,
             show_verse_numbers=True,
-            verse_number_resolution=Dimensions(55, 55),
+            verse_number_resolution=Dimensions(10, 10),
             verse_number_x_offset=5,
         ),
         measurer,

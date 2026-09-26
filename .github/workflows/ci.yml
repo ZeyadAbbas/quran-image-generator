@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  tests:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # Exercise the oldest and newest versions declared in pyproject.toml.
+        python-version: ["3.10", "3.14"]
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install ImageMagick and test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            imagemagick libmagickcore-6.q16-7-extra
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+      - name: Run tests
+        run: python -m pytest
+      - name: Compile package
+        run: python -m compileall -q -f src
+
+  static-analysis:
+    name: Lint and type-check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Install development dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Run Ruff
+        run: python -m ruff check .
+      - name: Run mypy
+        run: python -m mypy
+
+  package:
+    name: Build and inspect package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Install build and rendering dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends imagemagick
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Build wheel and source archive
+        run: python -m build
+      - name: Inspect artifact contents
+        run: python scripts/verify_artifacts.py
+      - name: Install and smoke-test outside the checkout
+        run: |
+          clean_root="${RUNNER_TEMP}/clean install with spaces"
+          python -m venv "${clean_root}/venv"
+          "${clean_root}/venv/bin/python" -m pip install --upgrade pip
+          "${clean_root}/venv/bin/python" -m pip install dist/*.whl
+          "${clean_root}/venv/bin/python" -m pip check
+          cd "${clean_root}"
+          "${clean_root}/venv/bin/quran-image-generator" --help
+          "${clean_root}/venv/bin/python" -m quran_image_generator --help
+          "${clean_root}/venv/bin/python" \
+            "${GITHUB_WORKSPACE}/scripts/offline_render_smoke.py" \
+            --fixture "${GITHUB_WORKSPACE}/tests/fixtures/verse_one_translation.json" \
+            --output-dir "${clean_root}/rendered output"
+          test -s "${clean_root}/rendered output/offline-smoke.png"
+
+  container:
+    name: Container smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build runtime and smoke targets
+        run: |
+          docker build --target runtime --tag quran-image-generator:ci .
+          docker build --target smoke --tag quran-image-generator:smoke .
+      - name: Check headless non-root runtime
+        run: |
+          test "$(docker image inspect --format '{{.Config.User}}' quran-image-generator:ci)" = "10001:10001"
+          docker run --rm --network none --read-only \
+            quran-image-generator:ci --help
+          docker run --rm --network none --read-only \
+            --entrypoint sh quran-image-generator:ci \
+            -c 'test "$(id -u)" -ne 0'
+      - name: Render offline into a host-writable mount
+        run: |
+          output_dir="${RUNNER_TEMP}/container output with spaces"
+          mkdir -p "${output_dir}"
+          docker run --rm --network none --read-only \
+            --tmpfs /tmp:rw,noexec,nosuid,size=16m \
+            --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp \
+            --mount "type=bind,src=${output_dir},dst=/output" \
+            quran-image-generator:smoke
+          test -s "${output_dir}/offline-smoke.png"
+          test -w "${output_dir}/offline-smoke.png"
+          test "$(stat -c '%u:%g' "${output_dir}/offline-smoke.png")" = \
+            "$(id -u):$(id -g)"

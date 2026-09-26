@@ -106,8 +106,8 @@ They also include all the information about the configuration options.
 
 ### Installation
 
-You must have Python installed to run this program. \
-If you don't have it installed then go to https://www.python.org/downloads/ to get the latest version of Python.
+You must have a supported Python version (3.10 through 3.14) installed to run this program. \
+If you don't have it installed then go to https://www.python.org/downloads/.
 
 1. Once you have installed Python, you must open your Command Prompt and run the command:
     ```sh
@@ -149,31 +149,31 @@ then run:
    This will start the program. Now you are ready to generate custom pictures.
 
 ### Installation with Docker
-Only follow this installation if you know what Docker is used for.
 
-1. Make sure you have [Docker](https://www.docker.com/) installed and running in the background.
-2. Clone the GitHub repository. 
-    ```sh
-    git clone https://github.com/ZeyadAbbas/quran-image-generator.git
-    ```
-3. cd into the directory.
-    ```sh
-    cd quran-image-generator 
-    ```
-4. Build the docker image.
-    ```sh
-    docker build -t quran-image-generator .
-    ```
-5. Go through `config.yaml` and set your preferences (you may change them while you have the program running in the future).
-  - IMPORTANT:
-    - Make sure to NOT change the `output path` option. This Docker configuration will not access any files outside the repository.
-    - If you want to use a background image, **make sure that its path is within your local repo**, not outside of it, or else Docker won't be able to access it.
-6. Run the docker container in interactive mode `-it` (make sure you are still inside the local repository):
-    ```sh
-    docker run -it --rm --name QIG -v "%cd%:/app" quran-image-generator
-    ```
-7. You will be prompted on the terminal, follow the instructions.
-8. The generated images can be found in the `outputs` directory inside the local repo.
+Build the non-root runtime image from the repository root:
+
+```sh
+docker build --target runtime -t quran-image-generator .
+```
+
+Copy `.env.example` to `.env`, add your Quran Foundation credentials, edit
+`config.yaml`, and create the host output directory. On Linux or macOS, run:
+
+```sh
+mkdir -p outputs
+docker run --rm -it \
+  --user "$(id -u):$(id -g)" \
+  --env HOME=/tmp \
+  --env-file .env \
+  --mount type=bind,src="$(pwd)/config.yaml",dst=/config/config.yaml,readonly \
+  --mount type=bind,src="$(pwd)/outputs",dst=/output \
+  quran-image-generator
+```
+
+The config is read-only, the application stays installed under `/app`, and
+generated PNGs are written to `outputs` with the host user's ownership. Mount
+any optional background/input directory read-only and reference its container
+path from `config.yaml`.
 
 <p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
@@ -332,12 +332,18 @@ Contributions are what make the open source community such an amazing place to l
 
 ### Testing
 
-Install the lightweight test dependencies with `python -m pip install -e ".[test]"`. Instagram support is not needed for the test suite.
+Install the development checks with `python -m pip install -e ".[dev]"`.
+Instagram support is not needed for any of them.
 
 Run the offline test suite from the project root:
 
 ```sh
 python -m pytest
+python -m ruff check .
+python -m mypy
+python -m compileall -q -f src
+python -m build
+python scripts/verify_artifacts.py
 ```
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
