@@ -263,6 +263,72 @@ def test_real_adapter_path_disables_client_loggers(
     assert clients[0].private_request_logger is logger
 
 
+def test_real_client_challenge_path_never_prompts_or_prints_secrets(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys
+):
+    image_path = tmp_path / "generated.png"
+    image_path.write_bytes(b"retained image")
+    username = "sentinel-username"
+    password = "sentinel-password"
+    challenge_code = "sentinel-verification-code"
+    clients = []
+
+    class ChallengeRequired(RuntimeError):
+        pass
+
+    class RealisticClient:
+        def __init__(self, *, logger):
+            self.logger = logger
+            self.private_request_logger = logging.getLogger("unsafe-default")
+            self.handle_exception = None
+            self.challenge_code_handler = lambda account, choice: input(
+                f"Enter code for {account}: "
+            )
+            self.change_password_handler = lambda account: input(
+                f"Enter new password for {account}: "
+            )
+            clients.append(self)
+
+        def login(self, account: str, account_password: str) -> bool:
+            self.username = account
+            try:
+                raise ChallengeRequired(
+                    f"challenge payload for {account} using {account_password}"
+                )
+            except Exception as error:  # noqa: BLE001 - mirrors instagrapi boundary
+                if self.handle_exception:
+                    self.handle_exception(self, error)
+                code = self.challenge_code_handler(self.username, "sms")
+                print(f'Code entered "{code}" for {self.username}')
+                return False
+
+    fake_module = ModuleType("instagrapi")
+    fake_module.Client = RealisticClient  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "instagrapi", fake_module)
+    monkeypatch.setattr(
+        builtins,
+        "input",
+        lambda prompt="": pytest.fail(f"challenge attempted to prompt: {prompt}"),
+    )
+
+    publisher = InstagramPublisher(InstagramCredentials(username, password))
+    with pytest.raises(PublishingError) as caught:
+        publisher.publish(image_path, PublishTarget.POST)
+
+    output = capsys.readouterr()
+    rendered_error = f"{caught.value!s} {caught.value!r}"
+    assert "requires account verification" in rendered_error
+    for secret in (username, password, challenge_code):
+        assert secret not in rendered_error
+        assert secret not in output.out
+        assert secret not in output.err
+    assert caught.value.__cause__ is None
+    assert caught.value.__context__ is None
+    assert clients[0].handle_exception is not None
+    assert clients[0].challenge_code_handler is not None
+    assert clients[0].change_password_handler is not None
+
+
 @pytest.mark.parametrize("failure_stage", ["client", "login", "upload"])
 def test_dependency_failures_are_sanitized_and_keep_output(
     tmp_path: Path, failure_stage: str

@@ -61,6 +61,18 @@ def _discarding_logger() -> logging.Logger:
     return logger
 
 
+def _reraise_client_exception(_client: Any, error: BaseException) -> None:
+    """Stop instagrapi from entering its automatic challenge resolver."""
+
+    raise error
+
+
+def _reject_interactive_handler(*_args: Any, **_kwargs: Any) -> None:
+    """Prevent optional-client fallbacks from reading secrets interactively."""
+
+    raise RuntimeError("Interactive Instagram challenge handling is disabled.")
+
+
 def _failure_category(error: BaseException) -> str:
     """Classify optional-client failures without retaining their payloads."""
 
@@ -195,6 +207,9 @@ class InstagramPublisher:
         client = client_class(logger=logger)
         client.logger = logger
         client.private_request_logger = logger
+        client.handle_exception = _reraise_client_exception
+        client.challenge_code_handler = _reject_interactive_handler
+        client.change_password_handler = _reject_interactive_handler
         return client
 
     def publish(self, image_path: Path, target: PublishTarget) -> None:
