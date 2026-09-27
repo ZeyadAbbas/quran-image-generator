@@ -23,7 +23,25 @@ publishing credentials out of configuration files.
 - Validated YAML configuration, a non-root CLI Docker image, and offline tests
   and render smoke checks.
 
-![Quran Image Generator desktop app showing Al-Fatihah 1:1 and its rendered preview](readme_images/gui.webp)
+### Desktop app
+
+![Quran Image Generator desktop app showing an authenticated live passage and its rendered preview](readme_images/gui.webp)
+
+### Example outputs
+
+The same passage can be presented in very different ways by changing the
+canvas, typography, colors, spacing, verse markers, and translations.
+
+<p align="center">
+  <img src="readme_images/ex1.png" alt="Portrait Quran verse image with a soft blue background and two translations" width="265">
+  <img src="readme_images/ex3.png" alt="Portrait Quran verse image over a waterfront mosque photograph" width="265">
+  <img src="readme_images/ex5.png" alt="Portrait Quran passage image with a dark minimal layout" width="265">
+</p>
+
+<p align="center">
+  <img src="readme_images/ex2.png" alt="Square framed Quran passage print in a bright room" width="350">
+  <img src="readme_images/ex4.png" alt="Square Quran passage image with a minimal white layout" width="350">
+</p>
 
 ## Requirements
 
@@ -65,30 +83,29 @@ python -m pip install --upgrade pip
 python -m pip install -e .
 ```
 
-Set credentials in the same terminal, then start the app:
+Start the app:
 
 ```powershell
 # PowerShell
-$env:QF_CLIENT_ID = "your-client-id"
-$env:QF_CLIENT_SECRET = "your-client-secret"
-$env:QF_ENV = "prelive"
 quran-image-generator-gui
 ```
 
 ```sh
 # POSIX shell
-export QF_CLIENT_ID='your-client-id'
-export QF_CLIENT_SECRET='your-client-secret'
-export QF_ENV='prelive'
 quran-image-generator-gui
 ```
 
+When prompted, enter the Quran Foundation environment, client ID, and client
+secret. The secret field is hidden and the credentials stay only in memory for
+that app session; they are never added to YAML or saved by the application. Use
+**API credentials…** on the Passage & Output tab to replace them later.
+
 Use `quran-image-generator-gui --config path/to/config.yaml` to start with a
 different configuration file. Choose a chapter and verse range, adjust the
-layout, and select **Generate / Refresh**. **Save PNG…** always opens a save dialog;
-the configured output directory is only its suggested starting location. Any
-edit makes the current preview stale until it is regenerated. Publishing is
-never implicit and requires confirmation in the app.
+layout, and select **Generate / Refresh**. **Save PNG…** always opens a save
+dialog; the configured output directory is only its suggested starting
+location. Any edit makes the current preview stale until it is regenerated.
+Publishing is never implicit and requires confirmation in the app.
 
 The GUI exposes the normal generation settings documented in
 [`docs/configuration.md`](docs/configuration.md). It can load and save YAML,
@@ -101,9 +118,10 @@ and the current display independently, run `python -m tkinter`.
    backend application.
 2. Follow the official [quickstart](https://api-docs.quran.foundation/docs/quickstart/)
    and [manual authentication guide](https://api-docs.quran.foundation/docs/quickstart/manual-authentication/).
-3. Export `QF_CLIENT_ID`, `QF_CLIENT_SECRET`, and optionally `QF_ENV` in the
-   process environment. Never put secrets in `config.yaml`, screenshots, logs,
-   issues, or commits.
+3. Enter the credentials in **API credentials…** in the GUI, use the CLI's
+   `--prompt-credentials` option, or export `QF_CLIENT_ID`, `QF_CLIENT_SECRET`,
+   and optionally `QF_ENV` for automation. Never put secrets in `config.yaml`,
+   screenshots, logs, issues, or commits.
 
 `QF_ENV` accepts `prelive` (the default) or `production`. New applications begin
 in pre-live, whose content dataset currently includes only Al-Fatihah (1) and
@@ -115,8 +133,8 @@ Endpoint details and current response fields are in the official
 
 `.env.example` is a template, not an application configuration loader. Local
 source runs do **not** read `.env` automatically: export the variables or use
-your own environment manager. Docker reads such a file only when you explicitly
-pass `--env-file`.
+your own environment manager when you need non-interactive credentials. Docker
+reads such a file only when you explicitly pass `--env-file`.
 
 ## Command line
 
@@ -138,6 +156,9 @@ quran-image-generator --chapter 2 --start 255 --end 255 --no-open --output-dir o
 
 # Select a configuration file explicitly
 quran-image-generator --config config.yaml --chapter 1 --start 1 --end 1
+
+# Enter API credentials interactively for this run; the secret input is hidden
+quran-image-generator --prompt-credentials --chapter 1 --start 1 --end 1
 ```
 
 `--chapter`, `--start`, and `--end` must be supplied together. They cannot be
@@ -156,7 +177,8 @@ the current working directory.
 ### Translation catalog
 
 Translations are resolved from the live Quran Foundation catalog rather than a
-bundled ID table:
+bundled ID table. Add `--prompt-credentials` to either command when the
+credentials are not already in the environment:
 
 ```sh
 quran-image-generator --list-translations
@@ -215,10 +237,10 @@ python -m pip install -e ".[instagram]"
 
 Set `QIG_INSTAGRAM_USERNAME` and `QIG_INSTAGRAM_PASSWORD`, then opt in per run
 with `--publish post` or `--publish story`. A CLI attached to a terminal may
-prompt for missing credentials (with a hidden password); the GUI never prompts
-for them. Publishing is attempted only after the PNG is saved, and a publishing
-failure does not remove the local file. Do not store credentials or publishing
-choices in YAML.
+prompt for missing Instagram credentials (with a hidden password); the GUI
+never prompts for them. Publishing is attempted only after the PNG is saved,
+and a publishing failure does not remove the local file. Do not store
+credentials or publishing choices in YAML.
 
 ## Configuration and help
 

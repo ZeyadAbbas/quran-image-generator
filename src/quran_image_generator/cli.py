@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import getpass
+import os
 import random
 import sys
 from collections.abc import Sequence
@@ -33,6 +35,7 @@ examples:
   quran-image-generator
   quran-image-generator --chapter 2 --start 255 --end 257
   quran-image-generator --random --open
+  quran-image-generator --prompt-credentials --chapter 1 --start 1 --end 1
   quran-image-generator --list-translations
   quran-image-generator --chapter 1 --start 1 --end 1 --publish story""",
     )
@@ -76,6 +79,14 @@ examples:
             "publish every successfully generated image in this run to Instagram; requires "
             "the optional instagram extra and QIG_INSTAGRAM_USERNAME/"
             "QIG_INSTAGRAM_PASSWORD credentials (or interactive prompts)"
+        ),
+    )
+    parser.add_argument(
+        "--prompt-credentials",
+        action="store_true",
+        help=(
+            "prompt for Quran Foundation credentials for this run; the client "
+            "secret is hidden and neither value is saved"
         ),
     )
     parser.add_argument(
@@ -197,17 +208,67 @@ def _publish_generated_image(image_path: Path, target_value: str) -> None:
     publisher.publish(image_path, PublishTarget(target_value))
 
 
-def _list_translations(parser: argparse.ArgumentParser, *, refresh: bool) -> int:
+def _prompt_for_quran_api_config(parser: argparse.ArgumentParser) -> Any:
+    """Read session-only API credentials without exposing the secret."""
+
+    from .content import QuranApiConfig, QuranApiConfigurationError
+
+    if not sys.stdin.isatty():
+        parser.exit(
+            2,
+            "--prompt-credentials requires an interactive terminal. "
+            "Use QF_CLIENT_ID and QF_CLIENT_SECRET for automation.\n",
+        )
+
+    current_environment = os.environ.get("QF_ENV", "prelive").strip() or "prelive"
+    current_client_id = os.environ.get("QF_CLIENT_ID", "").strip()
+    current_secret = os.environ.get("QF_CLIENT_SECRET", "")
+    environment = input(
+        f"Quran Foundation environment [{current_environment}]: "
+    ).strip()
+    client_id_prompt = (
+        "Client ID [use environment value]: "
+        if current_client_id
+        else "Client ID: "
+    )
+    client_id = input(client_id_prompt).strip() or current_client_id
+    secret_prompt = (
+        "Client secret [press Enter to use environment value]: "
+        if current_secret
+        else "Client secret: "
+    )
+    client_secret = getpass.getpass(secret_prompt).strip() or current_secret
+    try:
+        return QuranApiConfig(
+            environment=environment or current_environment,
+            client_id=client_id,
+            client_secret=client_secret,
+        )
+    except QuranApiConfigurationError as error:
+        parser.exit(2, f"{error}\n")
+
+
+def _content_client(parser: argparse.ArgumentParser, args: argparse.Namespace) -> Any:
+    from .content import QuranContentClient
+
+    if args.prompt_credentials:
+        return QuranContentClient(_prompt_for_quran_api_config(parser))
+    return QuranContentClient.from_environment()
+
+
+def _list_translations(
+    parser: argparse.ArgumentParser,
+    args: argparse.Namespace,
+    *,
+    refresh: bool,
+) -> int:
     from .content import (
         QuranApiConfigurationError,
         QuranApiError,
-        QuranContentClient,
     )
 
     try:
-        catalog = QuranContentClient.from_environment().translation_catalog(
-            refresh=refresh
-        )
+        catalog = _content_client(parser, args).translation_catalog(refresh=refresh)
     except QuranApiConfigurationError as error:
         parser.exit(2, f"{error}\n")
     except QuranApiError as error:
@@ -234,17 +295,16 @@ def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
     from .content import (
         QuranApiConfigurationError,
         QuranApiError,
-        QuranContentClient,
     )
     from .generator import build_generator
     from .settings import SettingsValidationError, load_settings
 
     if args.list_translations:
-        return _list_translations(parser, refresh=args.refresh_catalog)
+        return _list_translations(parser, args, refresh=args.refresh_catalog)
 
     one_shot = args.random or args.chapter is not None
     try:
-        content_client = QuranContentClient.from_environment()
+        content_client = _content_client(parser, args)
         chapters = content_client.list_chapters()
     except QuranApiConfigurationError as error:
         parser.exit(2, f"{error}\n")

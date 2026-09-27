@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import random
 import sys
 import tkinter as tk
@@ -12,7 +13,7 @@ from pathlib import Path
 from tkinter import colorchooser, filedialog, messagebox, ttk
 from typing import Any
 
-from .content import QuranApiConfigurationError, QuranContentClient
+from .content import QuranApiConfig, QuranApiConfigurationError, QuranContentClient
 from .generator import build_generator, open_output
 from .gui_state import (
     QURAN_FOUNDATION_ACCESS_URL,
@@ -99,6 +100,7 @@ class QuranImageGeneratorApp:
 
         self._closing = False
         self._catalog_after_id: str | None = None
+        self._credential_prompt_after_id: str | None = None
         self._poll_after_id: str | None = None
         self._loading_form = True
         self._resize_after_id: str | None = None
@@ -146,8 +148,12 @@ class QuranImageGeneratorApp:
         if content_client is None:
             try:
                 content_client = QuranContentClient.from_environment()
-            except QuranApiConfigurationError as error:
-                setup_error = str(error)
+            except QuranApiConfigurationError:
+                setup_error = (
+                    "Open API credentials... to enter a client ID and secret for "
+                    "this session, or provide QF_CLIENT_ID and QF_CLIENT_SECRET "
+                    "for automated launches."
+                )
         if content_client is not None:
             self._workflow, renderer_error = _create_preview_workflow(
                 self._settings,
@@ -179,6 +185,10 @@ class QuranImageGeneratorApp:
             startup_notices.append(renderer_error)
         if startup_notices:
             self._status_var.set(" ".join(startup_notices))
+        if setup_error is not None:
+            self._credential_prompt_after_id = self.root.after(
+                120, self.show_api_credentials
+            )
         if (
             setup_error is None
             and renderer_error is None
@@ -360,6 +370,11 @@ class QuranImageGeneratorApp:
         ttk.Button(config_actions, text="Save config…", command=self.save_config).grid(
             row=0, column=1
         )
+        ttk.Button(
+            config_actions,
+            text="API credentials…",
+            command=self.show_api_credentials,
+        ).grid(row=0, column=2, padx=(5, 0))
         self._next_row["Passage & Output"] = 2
 
     def _build_translation_catalog_controls(self) -> None:
@@ -586,9 +601,11 @@ class QuranImageGeneratorApp:
             "scaled only for the window; Save PNG copies the exact full-resolution "
             "preview bytes. Save before Open or Publish.\n\n"
             "Quran Foundation setup\n"
-            "Set QF_CLIENT_ID and QF_CLIENT_SECRET in the process environment. "
-            "Credentials are never shown or written to config. Translation choices "
-            "come from the live catalog; exact IDs identify the translator reliably.\n\n"
+            "Use API credentials on Passage & Output to enter a client ID, hidden "
+            "client secret, and environment for this app session. Environment "
+            "variables remain available for automated launches. Credentials are "
+            "never written to config. Translation choices come from the live "
+            "catalog; exact IDs identify the translator reliably.\n\n"
             "Common errors\n"
             "Check that the range fits the selected chapter, paths exist, text fits "
             "the canvas, ImageMagick is installed, and API credentials/network access "
@@ -904,6 +921,124 @@ class QuranImageGeneratorApp:
         self._current_config_path = Path(selected).resolve()
         self._apply_settings(saved_settings)
         self._status_var.set(f"Saved configuration: {self._current_config_path}")
+
+    def show_api_credentials(self) -> None:
+        """Collect Quran Foundation credentials for this process only."""
+
+        self._credential_prompt_after_id = None
+        if self._worker.busy:
+            self._status_var.set("Cancel or finish the current operation first.")
+            return
+
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Quran Foundation API credentials")
+        dialog.transient(self.root)
+        dialog.resizable(False, False)
+        dialog.columnconfigure(1, weight=1)
+
+        environment_value = os.environ.get("QF_ENV", "prelive").strip().lower()
+        if environment_value not in {"prelive", "production"}:
+            environment_value = "prelive"
+        environment = tk.StringVar(value=environment_value)
+        client_id = tk.StringVar(value=os.environ.get("QF_CLIENT_ID", ""))
+        client_secret = tk.StringVar(value="")
+        error = tk.StringVar(value="")
+
+        ttk.Label(
+            dialog,
+            text=(
+                "Used only until the application closes. Credentials are not saved "
+                "to the config file or repository."
+            ),
+            wraplength=430,
+        ).grid(row=0, column=0, columnspan=2, sticky="w", padx=12, pady=(12, 10))
+        ttk.Label(dialog, text="Environment").grid(
+            row=1, column=0, sticky="w", padx=(12, 8), pady=4
+        )
+        ttk.Combobox(
+            dialog,
+            textvariable=environment,
+            values=("prelive", "production"),
+            state="readonly",
+            width=34,
+        ).grid(row=1, column=1, sticky="ew", padx=(0, 12), pady=4)
+        ttk.Label(dialog, text="Client ID").grid(
+            row=2, column=0, sticky="w", padx=(12, 8), pady=4
+        )
+        client_id_entry = ttk.Entry(dialog, textvariable=client_id, width=38)
+        client_id_entry.grid(row=2, column=1, sticky="ew", padx=(0, 12), pady=4)
+        ttk.Label(dialog, text="Client secret").grid(
+            row=3, column=0, sticky="w", padx=(12, 8), pady=4
+        )
+        secret_entry = ttk.Entry(
+            dialog,
+            textvariable=client_secret,
+            show="•",
+            width=38,
+        )
+        secret_entry.grid(row=3, column=1, sticky="ew", padx=(0, 12), pady=4)
+        ttk.Label(
+            dialog,
+            textvariable=error,
+            foreground="#B00020",
+            wraplength=430,
+        ).grid(row=4, column=0, columnspan=2, sticky="w", padx=12, pady=(5, 0))
+
+        buttons = ttk.Frame(dialog)
+        buttons.grid(row=5, column=0, columnspan=2, sticky="e", padx=12, pady=12)
+
+        def dismiss() -> None:
+            client_secret.set("")
+            dialog.destroy()
+
+        def apply_credentials() -> None:
+            try:
+                config = QuranApiConfig(
+                    environment=environment.get(),
+                    client_id=client_id.get(),
+                    client_secret=client_secret.get(),
+                )
+                workflow, renderer_error = _create_preview_workflow(
+                    self._settings,
+                    QuranContentClient(config),
+                )
+            except QuranApiConfigurationError as problem:
+                error.set(str(problem))
+                return
+            if workflow is None:
+                error.set(renderer_error or _RENDERER_SETUP_MESSAGE)
+                return
+
+            previous_workflow = self._workflow
+            self._workflow = workflow
+            if previous_workflow is not None:
+                previous_workflow.close()
+            self._chapters = ()
+            self._chapter_by_label.clear()
+            self._chapter_combo.configure(values=())
+            self._translation_resources = ()
+            self._translation_list.delete(0, tk.END)
+            self._invalidate_preview()
+            dismiss()
+            self._status_var.set("Credentials accepted. Loading the live catalog…")
+            self.refresh_catalog()
+
+        ttk.Button(buttons, text="Cancel", command=dismiss).grid(
+            row=0, column=0, padx=(0, 6)
+        )
+        ttk.Button(
+            buttons,
+            text="Use for this session",
+            command=apply_credentials,
+        ).grid(row=0, column=1)
+        dialog.protocol("WM_DELETE_WINDOW", dismiss)
+        dialog.bind("<Escape>", lambda _event: dismiss())
+        dialog.bind("<Return>", lambda _event: apply_credentials())
+        dialog.grab_set()
+        if client_id.get().strip():
+            secret_entry.focus_set()
+        else:
+            client_id_entry.focus_set()
 
     def refresh_catalog(self) -> None:
         if self._workflow is None or self._worker.busy:
@@ -1265,6 +1400,7 @@ class QuranImageGeneratorApp:
         self._closing = True
         for after_id in (
             self._catalog_after_id,
+            self._credential_prompt_after_id,
             self._poll_after_id,
             self._resize_after_id,
         ):
@@ -1274,6 +1410,7 @@ class QuranImageGeneratorApp:
                 except tk.TclError:
                     pass
         self._catalog_after_id = None
+        self._credential_prompt_after_id = None
         self._poll_after_id = None
         self._resize_after_id = None
         self._worker.close()

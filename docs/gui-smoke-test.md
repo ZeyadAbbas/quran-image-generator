@@ -1,15 +1,17 @@
 # Desktop GUI manual smoke test
 
-Use a normal graphical Windows or Linux session. Keep Quran Foundation and
-Instagram credentials in environment variables; never put them in YAML.
+Use a normal graphical Windows or Linux session. Never put Quran Foundation or
+Instagram credentials in YAML.
 
 1. Run `quran-image-generator-gui`. Confirm one resizable window titled
    **Quran Image Generator** opens and its Help / About tab works. With Quran
    Foundation credentials absent, confirm config/help remain usable and the
-   window shows setup guidance instead of crashing.
-2. With valid `QF_CLIENT_ID` and `QF_CLIENT_SECRET`, refresh the live catalog.
-   Confirm chapter names/bounds and translation name, language, author, and ID
-   are visible. Select a chapter, range, and up to three translations.
+   session-only API credential dialog opens instead of crashing.
+2. Enter a valid environment, client ID, and hidden client secret in the dialog.
+   Confirm the live catalog refreshes, then reopen **API credentials…** and
+   cancel without changing the active session. Confirm chapter names/bounds and
+   translation name, language, author, and ID are visible. Select a chapter,
+   range, and up to three translations.
 3. Change representative values on every settings tab, including colors,
    fonts, resolution, spacing, verse-number visibility, and a background.
    Enter one invalid value and confirm its error appears beside that field.

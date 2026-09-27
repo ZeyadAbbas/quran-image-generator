@@ -13,7 +13,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="quran-image-generator-gui",
         description=(
             "Open the lightweight Quran image generator desktop interface. "
-            "API credentials stay in environment variables."
+            "API credentials can be entered in the app for the current session."
         ),
     )
     parser.add_argument(
