@@ -7,8 +7,12 @@ tokens, Instagram passwords, private images, or personal paths in a bug report.
 
 ## Credentials or Quran Foundation requests fail
 
-- Confirm `QF_CLIENT_ID` and `QF_CLIENT_SECRET` are exported in the same process
-  environment that starts the application. Local runs do not auto-load `.env`.
+- In the GUI, reopen **API credentials…** and enter the client ID and hidden
+  client secret for this app session. In the CLI, use `--prompt-credentials` in
+  an interactive terminal. Neither prompt saves the credentials.
+- For non-interactive use, confirm `QF_CLIENT_ID` and `QF_CLIENT_SECRET` are
+  exported in the same process environment that starts the application. Local
+  runs do not auto-load `.env`.
 - Confirm `QF_ENV` is either `prelive` or `production` and matches the app that
   issued the credentials. Tokens are environment-specific.
 - New apps start in pre-live. Its dataset currently contains only Al-Fatihah (1)
@@ -36,6 +40,7 @@ Refresh and inspect the authenticated live catalog:
 
 ```sh
 quran-image-generator --list-translations --refresh-catalog
+quran-image-generator --prompt-credentials --list-translations --refresh-catalog
 ```
 
 Then use the exact reported `id` or `slug`. A `language` selector succeeds only

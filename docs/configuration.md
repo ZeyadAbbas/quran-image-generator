@@ -111,8 +111,10 @@ larger images are cropped and a smaller image can leave the configured solid
 
 These values are deliberately not YAML settings:
 
-- `QF_CLIENT_ID`, `QF_CLIENT_SECRET`, and `QF_ENV` configure Quran Foundation
-  access in the process environment.
+- Quran Foundation credentials can be entered for the current GUI session with
+  **API credentials…**, entered for one CLI run with `--prompt-credentials`, or
+  supplied non-interactively through `QF_CLIENT_ID`, `QF_CLIENT_SECRET`, and
+  `QF_ENV`.
 - `QIG_INSTAGRAM_USERNAME` and `QIG_INSTAGRAM_PASSWORD` configure optional
   publishing.
 - `--publish post` and `--publish story` are explicit per-run actions.

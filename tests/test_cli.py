@@ -83,6 +83,7 @@ def test_help_has_no_runtime_imports_or_filesystem_side_effects(tmp_path):
     assert "quran-image-generator --chapter 2 --start 255 --end 257" in completed.stdout
     assert "--publish {post,story}" in completed.stdout
     assert "--list-translations" in completed.stdout
+    assert "--prompt-credentials" in completed.stdout
     assert list(outside.iterdir()) == []
 
 
@@ -223,6 +224,57 @@ def test_list_translations_reports_api_failure_without_traceback(monkeypatch, ca
     assert "Quran API error:" in error
     assert "/resources/translations" in error
     assert "Traceback" not in error
+
+
+def test_prompt_credentials_builds_session_only_config(monkeypatch):
+    answers = iter(("production", "typed-client-id"))
+    monkeypatch.setattr(cli.sys, "stdin", SimpleNamespace(isatty=lambda: True))
+    monkeypatch.setattr(builtins, "input", lambda _prompt="": next(answers))
+    monkeypatch.setattr(cli.getpass, "getpass", lambda _prompt="": "typed-secret")
+
+    config = cli._prompt_for_quran_api_config(cli.build_parser())
+
+    assert config.environment == "production"
+    assert config.client_id == "typed-client-id"
+    assert config.client_secret == "typed-secret"
+    assert "typed-client-id" not in repr(config)
+    assert "typed-secret" not in repr(config)
+
+
+def test_prompt_credentials_can_use_existing_environment_values(monkeypatch):
+    answers = iter(("", ""))
+    monkeypatch.setattr(cli.sys, "stdin", SimpleNamespace(isatty=lambda: True))
+    monkeypatch.setenv("QF_ENV", "prelive")
+    monkeypatch.setenv("QF_CLIENT_ID", "environment-client")
+    monkeypatch.setenv("QF_CLIENT_SECRET", "environment-secret")
+    monkeypatch.setattr(builtins, "input", lambda _prompt="": next(answers))
+    monkeypatch.setattr(cli.getpass, "getpass", lambda _prompt="": "")
+
+    config = cli._prompt_for_quran_api_config(cli.build_parser())
+
+    assert config.environment == "prelive"
+    assert config.client_id == "environment-client"
+    assert config.client_secret == "environment-secret"
+
+
+def test_prompt_credentials_requires_an_interactive_terminal(monkeypatch, capsys):
+    monkeypatch.setattr(cli.sys, "stdin", SimpleNamespace(isatty=lambda: False))
+    monkeypatch.setattr(
+        builtins,
+        "input",
+        lambda _prompt="": pytest.fail("non-interactive input must not be read"),
+    )
+    monkeypatch.setattr(
+        cli.getpass,
+        "getpass",
+        lambda _prompt="": pytest.fail("non-interactive secret must not be read"),
+    )
+
+    with pytest.raises(SystemExit) as caught:
+        cli._prompt_for_quran_api_config(cli.build_parser())
+
+    assert caught.value.code == 2
+    assert "interactive terminal" in capsys.readouterr().err
 
 
 def test_out_of_bounds_range_fails_before_config_or_output_side_effects(

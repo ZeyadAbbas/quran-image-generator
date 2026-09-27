@@ -70,6 +70,7 @@ def test_gui_help_needs_neither_tkinter_nor_display(tmp_path):
     assert completed.returncode == 0, completed.stderr
     assert "quran-image-generator-gui" in completed.stdout
     assert "--config" in completed.stdout
+    assert "current session" in completed.stdout
 
 
 def test_missing_tkinter_has_a_concise_launcher_error(tmp_path):
