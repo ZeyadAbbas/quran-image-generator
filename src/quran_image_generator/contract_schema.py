@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import fields
-from typing import Any
+from typing import Any, get_type_hints
 
 from .scenes import Layer
 
@@ -44,6 +44,7 @@ ASSET = obj(
 
 def style_schema() -> dict[str, Any]:
     properties: dict[str, Any] = {}
+    types = get_type_hints(Layer)
     for field in fields(Layer):
         # Content comes only from references/bindings and explicit asset selectors.
         if field.name in (
@@ -51,7 +52,6 @@ def style_schema() -> dict[str, Any]:
             "text",
             "font",
             "image",
-            "sha256",
             "persistent",
             "suffix",
         ):
@@ -59,6 +59,8 @@ def style_schema() -> dict[str, Any]:
         default = field.default
         if isinstance(default, bool):
             properties[field.name] = {"type": "boolean"}
+        elif types[field.name] is float:
+            properties[field.name] = {"type": "number"}
         elif isinstance(default, int):
             properties[field.name] = {"type": "integer"}
         elif isinstance(default, float):
@@ -179,7 +181,13 @@ REQUEST_SCHEMA = {
             "schema_version": {"const": 1},
             "request_id": TEXT,
             "operation": {
-                "enum": ["capabilities", "validate", "layout", "render_batch"]
+                "enum": [
+                    "capabilities",
+                    "preflight",
+                    "validate",
+                    "layout",
+                    "render_batch",
+                ]
             },
             "source_corpus": CORPUS,
             "canvas": obj(
@@ -268,6 +276,7 @@ RESPONSE_SCHEMA = {
             "profile": {"type": "object"},
             "runtime": {"type": "object"},
             "capabilities": {"type": "object"},
+            "preflight": {"type": "object"},
             "cues": {
                 "type": "array",
                 "items": obj(

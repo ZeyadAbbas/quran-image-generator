@@ -102,6 +102,57 @@ jobs:
             "${GITHUB_WORKSPACE}/scripts/offline_render_smoke.py" \
             --output-dir "${clean_root}/rendered output"
           test -s "${clean_root}/rendered output/offline-smoke.png"
+          "${clean_root}/venv/bin/python" \
+            "${GITHUB_WORKSPACE}/scripts/offline_caption_smoke.py" \
+            --output-dir "${clean_root}/caption output"
+          test -s "${clean_root}/caption output/caption-smoke-summary.json"
+
+  windows-caption:
+    name: Windows installed caption contract
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Prepare pinned native ImageMagick
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP 'imagemagick.7z'
+          $taskMagick = Join-Path $env:RUNNER_TEMP 'native imagemagick'
+          Invoke-WebRequest -Uri 'https://github.com/ImageMagick/ImageMagick/releases/download/7.1.2-32/ImageMagick-7.1.2-32-portable-Q16-HDRI-x64.7z' -OutFile $archive
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLower() -ne 'bac9155acac3147c460082282e01646596c054c613c77e6616f7e3ad0ed38e54') { throw 'Native runtime checksum mismatch' }
+          & "$env:ProgramFiles\7-Zip\7z.exe" x "-o$taskMagick" -y $archive | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Native runtime extraction failed' }
+          $taskNativeDirectory = (Get-ChildItem -LiteralPath $taskMagick -Filter magick.exe -Recurse | Select-Object -First 1).DirectoryName
+          if (-not $taskNativeDirectory) { throw 'Native runtime executable missing' }
+          "MAGICK_HOME=$taskNativeDirectory" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Test and build
+        shell: pwsh
+        run: |
+          python -m pip install -e ".[dev]"
+          python -m pytest
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/verify_artifacts.py
+      - name: Render from a clean installed package outside checkout
+        shell: pwsh
+        run: |
+          $taskCleanRoot = Join-Path $env:RUNNER_TEMP 'clean caption install with spaces'
+          python -m venv "$taskCleanRoot\venv"
+          $taskPython = Join-Path $taskCleanRoot 'venv\Scripts\python.exe'
+          $taskWheel = (Get-ChildItem -Path dist -Filter *.whl).FullName
+          & $taskPython -m pip install $taskWheel
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Set-Location -LiteralPath $taskCleanRoot
+          & $taskPython "$env:GITHUB_WORKSPACE\scripts\offline_caption_smoke.py" --output-dir "$taskCleanRoot\caption output"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Test-Path -LiteralPath "$taskCleanRoot\caption output\caption-smoke-summary.json")) { throw 'Caption smoke summary missing' }
 
   container:
     name: Container smoke

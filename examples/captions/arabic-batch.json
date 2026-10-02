@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "request_id": "arabic-example",
+  "operation": "render_batch",
+  "source_corpus": {
+    "edition": "Tanzil Simple Hafs",
+    "version": "1.1",
+    "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+  },
+  "canvas": {
+    "width": 576,
+    "height": 1024
+  },
+  "output_directory": "caption jobs",
+  "cues": [
+    {
+      "cue_id": "first",
+      "spans": [
+        {
+          "surah": 31,
+          "ayah": 9,
+          "word_start": 1,
+          "word_end": 5
+        }
+      ],
+      "metadata": {
+        "start_seconds": 0,
+        "end_seconds": 4
+      }
+    },
+    {
+      "cue_id": "repeat",
+      "spans": [
+        {
+          "surah": 31,
+          "ayah": 9,
+          "word_start": 1,
+          "word_end": 5
+        }
+      ],
+      "metadata": {
+        "start_seconds": 4,
+        "end_seconds": 8
+      }
+    }
+  ]
+}
