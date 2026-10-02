@@ -21,6 +21,8 @@ from quran_image_generator.bindings import (
 )
 from quran_image_generator.excerpts import ExcerptRequest, select_excerpt
 from quran_image_generator.references import CorpusIdentity, SourceSpan
+from quran_image_generator.resources import asset_path
+from quran_image_generator.scenes import checked_asset
 from quran_image_generator.snapshots import SnapshotStore
 
 
@@ -79,6 +81,41 @@ def smoke(output: Path) -> None:
             for key in ("occurrence 1", "repeat 2")
         ],
     }
+    # Exercise generic scene controls from the installed package, without any
+    # creator preset or source-tree imports. Bundled glyph Q is a test brand.
+    font = str(asset_path("fonts", "multilingual_fonts", "am.ttf"))
+    selector = {
+        "path": font,
+        "sha256": checked_asset(font),
+        "license": "Bundled test font",
+        "attribution": "Authored smoke fixture",
+    }
+    request["assets"] = {
+        "decorations": selector,
+        "logo": {**selector, "glyph": "Q"},
+    }
+    request["profile"] = {
+        "id": "installed-client-fixture",
+        "revision": "1",
+        "approval": "approved",
+        "styles": {
+            "arabic": {
+                "font_size": 29.25,
+                "horizontal_scale": 1.05,
+                "quote_open": "(",
+                "quote_close": ")",
+                "numeral_system": "latin",
+                "marker_prefix": "(",
+                "marker_suffix": ")",
+                "suffix_offset": -4,
+                "outline_width": 0.5,
+                "shadow_blur": 1,
+                "shadow_opacity": 0.3,
+            },
+            "logo": {"font_size": 45.5},
+        },
+        "provenance": {"purpose": "Installed general capability check"},
+    }
     preflight = execute_request({**request, "operation": "preflight"}).to_dict()
     assert preflight["status"] == "complete", preflight
     python_result = execute_request(request).to_dict()
@@ -101,6 +138,13 @@ def smoke(output: Path) -> None:
     assert not process.stderr and machine["status"] == "complete"
     assert machine["assets"] == python_result["assets"]
     assert machine["cues"] == python_result["cues"]
+    assert {asset["roles"][0] for asset in machine["assets"]} == {
+        "arabic",
+        "translation",
+        "arabic_title",
+        "latin_title",
+        "logo",
+    }
     for asset in machine["assets"]:
         png = Path(machine["job_directory"]) / asset["path"]
         assert hashlib.sha256(png.read_bytes()).hexdigest() == asset["sha256"]

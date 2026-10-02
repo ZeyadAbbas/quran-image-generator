@@ -46,6 +46,7 @@ def fixture_dataset():
 
 def test_override_round_trip_and_exact_span_binding(tmp_path):
     dataset = fixture_dataset()
+    assert BindingDataset.from_dict(dataset.to_dict()) == dataset
     path = tmp_path / "reviewed English.json"
     export_bindings(dataset, path)
     assert import_bindings(path) == dataset

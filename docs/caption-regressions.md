@@ -51,15 +51,15 @@ before claiming pixel reproducibility. Fonts are always content-hash pinned.
 
 Regenerate authored content only with `scripts/build_caption_fixtures.py`,
 then inspect exact Arabic/translation/provenance changes. Do not automatically
-replace golden PNGs after a test failure. Original font/logo licenses, approved
-phrase translations, reference measurements and creator signoff remain the
-gates for closing issues #39, #40, #42 and #46. The four explicit 17:13 spelling
+replace golden PNGs after a test failure. The renderer issues cover capabilities
+and technical regression gates; production content/visual approval belongs to
+the caller and is not fabricated by tests. The four explicit 17:13 spelling
 equivalences are recorded separately; the other 4,194 boundary groups remain
 on the exhaustive mapping review list, with typed errors for partial selection.
 
 ## Creator-font comparison
 
-The later font discovery is implemented by `creator_assets` and reviewed with
+The later font discovery is an example in `scripts/reference_caption_options.py`, reviewed with
 `scripts/creator_font_review.py`. It uses the identical me_quran body/title font,
 AL-QURAN-ALI ornaments/numerals, Arial English, and Quran Surah 01's `y` emblem.
 This is a separate revision from the bundled preview; existing golden masks are
@@ -77,3 +77,39 @@ reference line breaks. English remains an authored review fixture with its
 existing provenance, not an approved production translation dataset.
 No source media or proprietary font binaries are committed. Review the generated
 `creator-font-comparison.jpg` and `review.json` before approving a final match.
+
+## Per-layer matched regression and local handoff
+
+`tests/fixtures/captions/matched` holds 30 small rendered layer masks, exact asset
+hashes, request/content/font signatures and a recorded raster runtime. They are
+a **technical baseline marked needs_review**, not approved reference pixels.
+Each verse, English caption, Arabic title, English title and symbol-font emblem
+gets its own pixel/bounds/alpha gate; losing a small logo cannot be hidden by
+larger caption bounds. Deliberate missing, shifted and wrong-color layers fail
+in ordinary CI. Real bundled-font scene/contract rendering still runs on Linux
+and Windows; original creator/system font binaries are not distributed to CI.
+
+Run the actual matched-font gate and generate local consumer requests:
+
+```text
+python scripts/reference_handoff.py --font-directory "/local/fonts" --latin-font "/local/Arial.ttf" --output-dir "outputs/quranscribe-handoff"
+```
+
+It checks every authored cue at both portrait sizes (**64 layouts**), separately
+checks all **30 layers**, and compares each of the six first-cue Python results
+with a separate JSON process. Run the absolute script using the fresh installed
+renderer interpreter from outside the checkout, with no source-tree PYTHONPATH.
+The output includes six full requests, six first-cue examples, the handoff,
+layout matrix and comparison report. There are no ASR/video export dependencies.
+
+The same gate is available in pytest by setting `QIG_REFERENCE_FONT_DIRECTORY`
+and `QIG_REFERENCE_LATIN_FONT`. Without those explicit caller-font paths that
+optional test is skipped; CI's generic rendering and defect gates still run.
+If raster identity matches, each layer must stay within two pixels and 2.5%
+alpha/black-and-white composite error. A different runtime receives a separately
+reported structural check (four pixels and 10% integrated-alpha tolerance), not
+pixel approval. Different font/text/style hashes fail regardless of runtime.
+
+The only baseline-writing path is the explicitly supplied `--capture-baseline`
+option. It must be inspected and committed deliberately, never run as a repair
+after a failing comparison. Bulk videos and source fonts remain outside Git.

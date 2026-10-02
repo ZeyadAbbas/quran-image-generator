@@ -169,6 +169,7 @@ class BindingDataset:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> BindingDataset:
         try:
+            data = json.loads(json.dumps(data, allow_nan=False))
             jsonschema.Draft202012Validator(BINDING_DATASET).validate(data)
             bindings = tuple(
                 PhraseBinding(
@@ -193,6 +194,7 @@ class BindingDataset:
             KeyError,
             TypeError,
             AttributeError,
+            ValueError,
         ) as error:
             raise ReferenceError(
                 "invalid_translation", "Malformed binding dataset"
