@@ -64,6 +64,7 @@ quran_image_generator = [
   "assets/verse_numbers/*.png",
   "assets/data/*.txt",
   "assets/data/*.xml",
+  "assets/data/*.json",
 ]
 
 [tool.ruff]
