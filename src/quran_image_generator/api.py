@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import shutil
 import tempfile
 import uuid
+from collections import OrderedDict
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
@@ -15,6 +18,7 @@ import jsonschema
 import PIL
 from PIL import features
 
+from .batching import AssetCache, BatchControl, BatchProgress
 from .bindings import BindingDataset
 from .content import TANZIL_TEXT_SHA256
 from .contract_schema import REQUEST_SCHEMA, RESPONSE_SCHEMA
@@ -293,7 +297,12 @@ def _prepare_cue(
 
 
 def execute_request(
-    request: RenderRequest | dict[str, Any], *, asset_root: Path | None = None
+    request: RenderRequest | dict[str, Any],
+    *,
+    asset_root: Path | None = None,
+    progress: Callable[[BatchProgress], None] | None = None,
+    cancelled: Callable[[], bool] | None = None,
+    deadline_seconds: float | None = None,
 ) -> RenderResponse:
     """Execute one batch in one process; paths are rooted explicitly, no viewer/UI."""
     raw = request.payload if isinstance(request, RenderRequest) else request
@@ -332,10 +341,35 @@ def execute_request(
             dataset = SnapshotStore(_local_path(pin["directory"], root)).bindings(
                 pin["sha256"]
             )
+        control = BatchControl(
+            deadline_seconds
+            if deadline_seconds is not None
+            else data.get("deadline_seconds", 300),
+            cancelled,
+            progress,
+        )
         prepared = []
-        for cue in data["cues"]:
+        layout_cache: OrderedDict[str, Any] = OrderedDict()
+        for index, cue in enumerate(data["cues"]):
+            control.checkpoint("layout", index, len(data["cues"]), cue["cue_id"])
             try:
-                entry, scene, plans = _prepare_cue(data, cue, root, dataset)
+                cue_identity = {
+                    k: v for k, v in cue.items() if k not in ("cue_id", "metadata")
+                }
+                key = hashlib.sha256(canonical_bytes(cue_identity)).hexdigest()
+                if key in layout_cache:
+                    cached_entry, scene, plans = layout_cache[key]
+                    entry = copy.deepcopy(cached_entry)
+                    entry["cue_id"], entry["metadata"] = (
+                        cue["cue_id"],
+                        cue.get("metadata", {}),
+                    )
+                    layout_cache.move_to_end(key)
+                else:
+                    entry, scene, plans = _prepare_cue(data, cue, root, dataset)
+                    layout_cache[key] = (copy.deepcopy(entry), scene, plans)
+                    if len(layout_cache) > 256:
+                        layout_cache.popitem(last=False)
                 prepared.append((entry, scene, plans))
                 result["cues"].append(entry)
             except ReferenceError as error:
@@ -380,53 +414,162 @@ def execute_request(
             return RenderResponse(result)
         output = _local_path(data["output_directory"], root)
         output.mkdir(parents=True, exist_ok=True)
+        cache = (
+            AssetCache(_local_path(data["asset_cache_directory"], root))
+            if data.get("asset_cache_directory")
+            else None
+        )
         job_name = "job-" + uuid.uuid4().hex
         staging = Path(tempfile.mkdtemp(prefix=".pending-", dir=output))
+        published = False
         try:
             shared: dict[str, dict[str, Any]] = {}
-            for entry, scene, plans in prepared:
-                for plan in plans:
-                    if plan.status != "ready":
-                        entry["warnings"].append(f"{plan.layer.role}: {plan.status}")
-                        continue
-                    identity = {
-                        "scene_size": [scene.width, scene.height],
-                        "plan": asdict(plan),
-                        "renderer": RENDERER_VERSION,
-                        "runtime": result["runtime"],
-                        "mapping": BRIDGE_SHA256,
-                        "cropped": data.get("cropped", False),
-                    }
-                    asset_id = hashlib.sha256(canonical_bytes(identity)).hexdigest()
-                    if asset_id not in shared:
-                        asset = render_layer(
-                            scene,
-                            plan,
-                            staging / f"{asset_id}.png",
-                            cropped=data.get("cropped", False),
+            output_bytes = 0
+            for index, (entry, scene, plans) in enumerate(prepared):
+                control.checkpoint("render", index, len(prepared), entry["cue_id"])
+                try:
+                    for plan in plans:
+                        control.checkpoint(
+                            "render", index, len(prepared), entry["cue_id"]
                         )
-                        shared[asset_id] = {
-                            "asset_id": asset_id,
-                            "path": f"{asset_id}.png",
-                            **asdict(asset),
-                            "roles": [plan.layer.role],
-                            "persistent": plan.layer.persistent,
-                            "effect_bounds": plan.bounds,
-                            "anchor": plan.layer.anchor,
-                            "font_sha256": plan.asset_sha256,
+                        if plan.status != "ready":
+                            entry["warnings"].append(
+                                f"{plan.layer.role}: {plan.status}"
+                            )
+                            continue
+                        visual_plan = asdict(plan)
+                        visual_plan["layer"]["font"] = ""
+                        visual_plan["layer"]["image"] = ""
+                        identity = {
+                            "scene_size": [scene.width, scene.height],
+                            "plan": visual_plan,
+                            "renderer": RENDERER_VERSION,
+                            "runtime": result["runtime"],
+                            "mapping": BRIDGE_SHA256,
+                            "profile": result["profile"],
+                            "cropped": data.get("cropped", False),
                         }
-                    entry["asset_ids"].append(asset_id)
-            result["assets"] = list(shared.values())
+                        if not plan.layer.persistent:
+                            identity["content"] = {
+                                "source": entry["source_spans"],
+                                "translation": entry["translation"],
+                            }
+                        asset_id = hashlib.sha256(canonical_bytes(identity)).hexdigest()
+                        if asset_id not in shared:
+                            if len(shared) >= 512:
+                                raise ReferenceError(
+                                    "resource_limit",
+                                    "Batch exceeds 512 unique assets; split the job",
+                                )
+                            path = staging / f"{asset_id}.png"
+                            asset = cache.restore(asset_id, path) if cache else None
+                            if asset is None:
+                                asset = render_layer(
+                                    scene,
+                                    plan,
+                                    path,
+                                    cropped=data.get("cropped", False),
+                                )
+                                if cache:
+                                    cache.store(asset_id, path, asset)
+                            output_bytes += path.stat().st_size
+                            if output_bytes > 512_000_000:
+                                raise ReferenceError(
+                                    "resource_limit",
+                                    "Batch exceeds 512 MB of PNG output; split the job",
+                                )
+                            shared[asset_id] = {
+                                "asset_id": asset_id,
+                                "path": path.name,
+                                **asdict(asset),
+                                "roles": [plan.layer.role],
+                                "persistent": plan.layer.persistent,
+                                "effect_bounds": plan.bounds,
+                                "anchor": plan.layer.anchor,
+                                "font_sha256": plan.asset_sha256,
+                            }
+                        entry["asset_ids"].append(asset_id)
+                except Exception as error:
+                    if isinstance(error, ReferenceError) and error.code in (
+                        "cancelled",
+                        "deadline_exceeded",
+                    ):
+                        raise
+                    failure = (
+                        error
+                        if isinstance(error, ReferenceError)
+                        else ReferenceError(
+                            "output_io"
+                            if isinstance(error, OSError)
+                            else "render_failed",
+                            "Required layer production failed",
+                        )
+                    )
+                    entry.update(
+                        status="failed", asset_ids=[], error=error_record(failure)
+                    )
+                    if data.get("error_mode", "all_or_nothing") == "all_or_nothing":
+                        result.update(status="failed", assets=[])
+                        return RenderResponse(result)
+            used = {key for entry in result["cues"] for key in entry["asset_ids"]}
+            for key in set(shared) - used:
+                (staging / shared[key]["path"]).unlink(missing_ok=True)
+            result["assets"] = [record for key, record in shared.items() if key in used]
+            failed = any(entry["status"] == "failed" for entry in result["cues"])
+            result["status"] = (
+                "partial"
+                if failed and used
+                else "failed"
+                if failed
+                else "needs_review"
+                if any(entry["status"] == "needs_review" for entry in result["cues"])
+                else "complete"
+            )
+            if not used:
+                return RenderResponse(result)
+            # Verify bytes and required input identities before publishing the manifest.
+            for record in result["assets"]:
+                if (
+                    hashlib.sha256((staging / record["path"]).read_bytes()).hexdigest()
+                    != record["sha256"]
+                ):
+                    raise ReferenceError(
+                        "output_io", "Asset checksum changed before publication"
+                    )
+            inputs = {
+                (plan.layer.image or plan.layer.font, plan.asset_sha256)
+                for _, _, plans in prepared
+                for plan in plans
+                if plan.status == "ready"
+            }
+            for path, digest in inputs:
+                checked_asset(path, digest)
+            control.checkpoint("publish", len(prepared), len(prepared))
             result["job_directory"] = str(output / job_name)
-            manifest = staging / "manifest.json"
-            manifest.write_bytes(canonical_bytes(RenderResponse(result).to_dict()))
+            (staging / "manifest.json").write_bytes(
+                canonical_bytes(RenderResponse(result).to_dict())
+            )
             staging.rename(output / job_name)
-        except BaseException:
-            shutil.rmtree(staging)
-            raise
+            published = True
+        finally:
+            if not published:
+                shutil.rmtree(staging)
         return RenderResponse(result)
     except ReferenceError as error:
-        return failure_response(request_id, error)
+        response = failure_response(request_id, error)
+        if error.code in ("cancelled", "deadline_exceeded") and "data" in locals():
+            response.payload["cues"] = [
+                {
+                    "cue_id": cue["cue_id"],
+                    "status": "failed",
+                    "metadata": cue.get("metadata", {}),
+                    "warnings": [],
+                    "asset_ids": [],
+                    "error": error_record(error),
+                }
+                for cue in data.get("cues", [])
+            ]
+        return response
     except (OSError, ValueError, TypeError) as error:
         return failure_response(
             request_id,

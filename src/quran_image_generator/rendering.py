@@ -46,6 +46,8 @@ class WandTextMeasurer:
             ascender=max(0.0, metrics.ascender),
             descender=max(0.0, -metrics.descender),
         )
+        if len(self._metric_cache) >= 512:
+            self._metric_cache.pop(next(iter(self._metric_cache)))
         self._metric_cache[key] = measured
         return measured
 
@@ -90,12 +92,7 @@ class WandTextMeasurer:
                     right = left + trimmed.width
                     bottom = top + trimmed.height
 
-            if (
-                left > 0
-                and top > 0
-                and right < canvas_width
-                and bottom < canvas_height
-            ):
+            if left > 0 and top > 0 and right < canvas_width and bottom < canvas_height:
                 result = TextMetrics(
                     width=measured.width,
                     height=measured.height,
@@ -106,6 +103,8 @@ class WandTextMeasurer:
                     left_offset=left - padding,
                     right_offset=right - padding,
                 )
+                if len(self._ink_cache) >= 512:
+                    self._ink_cache.pop(next(iter(self._ink_cache)))
                 self._ink_cache[key] = result
                 return result
             padding *= 2
