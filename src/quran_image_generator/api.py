@@ -21,7 +21,7 @@ from PIL import features
 from .batching import AssetCache, BatchControl, BatchProgress
 from .bindings import BindingDataset
 from .content import TANZIL_TEXT_SHA256
-from .contract_schema import REQUEST_SCHEMA, RESPONSE_SCHEMA
+from .contract_schema import REQUEST_SCHEMA, RESPONSE_SCHEMA, style_schema
 from .excerpts import ExcerptRequest, select_excerpt
 from .profiles import CaptionProfile, decorate_excerpt
 from .references import (
@@ -42,7 +42,7 @@ from .scenes import (
 from .snapshots import SnapshotStore, canonical_bytes
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.2.1"
+RENDERER_VERSION = "0.3.0"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -141,20 +141,21 @@ def capabilities() -> dict[str, Any]:
             "version": "1.1",
             "sha256": TANZIL_TEXT_SHA256,
         },
-        "profiles": [
-            {"id": "plain", "revision": "1", "approval": "approved"},
-            {
-                "id": "islamstruebeauty",
-                "revision": "1-preview",
-                "approval": "needs_review",
-            },
-            {
-                "id": "islamstruebeauty",
-                "revision": "2-matched",
-                "approval": "needs_review",
-                "requires_local_creator_fonts": True,
-            },
-        ],
+        "profiles": [{"id": "plain", "revision": "1", "approval": "approved"}],
+        "custom_profiles": True,
+        "layer_roles": ["arabic", "translation", "arabic_title", "latin_title", "logo"],
+        "style_fields": sorted(style_schema()["properties"]),
+        "features": {
+            "transparent_layers": True,
+            "independent_titles_and_branding": True,
+            "font_glyph_branding": True,
+            "separate_decoration_font": True,
+            "fractional_font_sizes": True,
+            "whole_line_horizontal_scale": True,
+            "outline_and_shadow": True,
+            "reviewed_phrase_bindings": True,
+            "offline_translation_snapshots": True,
+        },
         "limits": {
             "request_bytes": MAX_REQUEST_BYTES,
             "cues": 1000,
@@ -264,12 +265,12 @@ def _prepare_cue(
             "provenance": {},
         },
     )
-    if (profile_data["id"], profile_data["revision"]) not in (
-        ("plain", "1"),
-        ("islamstruebeauty", "1-preview"),
+    if (profile_data["id"], profile_data["revision"]) != (
+        "plain",
+        "1",
     ) and not profile_data["provenance"]:
         raise ReferenceError("invalid_profile", "Custom profiles require provenance")
-    profile = CaptionProfile(**profile_data)
+    profile = CaptionProfile.from_dict(profile_data)
     if profile.approval != "approved":
         if data.get("require_approved_profile", False):
             raise ReferenceError(

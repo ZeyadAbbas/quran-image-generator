@@ -120,13 +120,15 @@ Arabic-only images. Translation material remains subject to
 
 ## QuranScribe caption integration
 
-Renderer 0.2.x exposes a versioned static-caption Python/JSON API. It supports
+Renderer 0.3.x exposes a versioned static-caption Python/JSON API. It supports
 verified partial source spans, reviewed offline English bindings, independent
 transparent title/caption/logo assets and isolated batches. Start with
 `quran-caption-render --capabilities` and `--preflight`; see
 [the independent install guide](docs/integration-install.md) and
-[API v1](docs/render-api-v1.md). The creator profile is a review-required preview;
-original creator assets and unresolved mapping boundaries need approval.
+[API v1](docs/render-api-v1.md). Styling is supplied by each request; the app does
+not install a QuranScribe preset or change its still-image defaults. The
+[sample-video handoff](docs/quranscribe-handoff.md) provides measured request
+options, font identities, translation requirements and composition instructions.
 
 ## Command line
 

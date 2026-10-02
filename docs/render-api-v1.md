@@ -1,8 +1,8 @@
-# Static caption API v1 (renderer 0.2.1)
+# Static caption API v1 (renderer 0.3.0)
 
 Public imports: `quran_image_generator.api` (`RenderRequest`, `RenderResponse`,
 `execute_request`, `capabilities`), `quran_image_generator.requests` (`Canvas`,
-`CueRequest`, `BatchRequest`), and the documented references, bindings, snapshots
+`CueRequest`, `BatchRequest`, `AssetSelector`, `TranslationSnapshot`), and the documented references, bindings, snapshots
 and profiles modules. Private layout/content helpers are not consumer APIs.
 
 Published UTF-8 JSON schemas ship in `assets/schemas`: `request-v1.json`,
@@ -15,7 +15,8 @@ Layer anchors/regions are normalized 0..1; styles use 576-pixel reference units.
 
 ## Operations
 
-- `capabilities` returns versions, exact corpus/mapping hashes, profiles, runtime
+- `capabilities` returns versions, exact corpus/mapping hashes, generic feature
+  flags, supported layer roles/style fields, runtime
   shaping support, output conventions and limits. It needs no fonts/credentials.
 - `preflight` verifies native libraries, shaping, corpus, fonts/glyphs, offline
   bindings and writable output. With cues it also checks the actual layouts.
@@ -34,8 +35,9 @@ Arabic hashes and binding revision are pinned; translation is never downloaded
 during export. Use explicit prepare/import APIs first.
 
 `profile` is complete structured configuration (ID/revision/approval/styles/
-provenance); `plain/1` defaults to undecorated white text. Creator revision
-`1-preview` needs approval. `assets` maps layer roles to a local path, SHA-256,
+provenance); `plain/1` defaults to undecorated white text. Profile names are caller
+metadata, never switches selecting an installed creator or QuranScribe preset.
+Every custom style is supplied in the request. `assets` maps layer roles to a local path, SHA-256,
 license and attribution; absent fonts use identified bundled fallbacks. Logo is
 absent unless explicitly supplied. `titles`, `quotations`, `verse_numbers` and
 `cropped` default to false. Separate basmala with titles needs `title_surah`.

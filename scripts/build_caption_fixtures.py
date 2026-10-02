@@ -6,6 +6,8 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
+from reference_caption_options import creator_profile
+
 from quran_image_generator.bindings import (
     BindingDataset,
     PhraseBinding,
@@ -13,7 +15,6 @@ from quran_image_generator.bindings import (
     text_hash,
 )
 from quran_image_generator.excerpts import ExcerptRequest, select_excerpt
-from quran_image_generator.profiles import creator_profile
 from quran_image_generator.references import CorpusIdentity, SourceSpan, bridge_data
 from quran_image_generator.scenes import caption_scene
 

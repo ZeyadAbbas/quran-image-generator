@@ -7,7 +7,6 @@ from PIL import Image
 from test_api import fixture_request
 
 from quran_image_generator.api import execute_request
-from quran_image_generator.creator_assets import matched_creator_configuration
 from quran_image_generator.excerpts import ExcerptRequest, select_excerpt
 from quran_image_generator.profiles import decorate_excerpt
 from quran_image_generator.references import ReferenceError, SourceSpan
@@ -18,6 +17,7 @@ from quran_image_generator.scenes import (
     plan_scene,
     render_layer,
 )
+from scripts.reference_caption_options import matched_creator_configuration
 
 
 def test_custom_ornaments_and_regular_numerals_preserve_source():
@@ -157,7 +157,7 @@ def test_mixed_decoration_font_handles_wrapping_and_multiple_verse_endings(tmp_p
 def test_creator_factory_pins_three_discovered_fonts(tmp_path, monkeypatch):
     from pathlib import Path
 
-    import quran_image_generator.creator_assets as creator
+    import scripts.reference_caption_options as creator
 
     font = asset_path("fonts", "multilingual_fonts", "am.ttf")
     looked_up = []

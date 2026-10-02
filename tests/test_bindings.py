@@ -1,3 +1,4 @@
+import json
 from dataclasses import replace
 
 import pytest
@@ -79,3 +80,45 @@ def test_unreviewed_binding_cannot_be_ready():
     with pytest.raises(ReferenceError) as error:
         dataset.lookup("31-9-prefix", dataset.bindings[0].spans)
     assert error.value.code == "translation_review"
+
+
+def test_edits_and_reordered_segments_need_explicit_edit_provenance():
+    dataset = fixture_dataset()
+    binding = dataset.bindings[0]
+    for segments in (
+        ("Allah's promise is false.",),
+        ("Allah's promise is true.", "staying there forever."),
+    ):
+        changed = replace(dataset, bindings=(replace(binding, segments=segments),))
+        with pytest.raises(ReferenceError, match="edited=true"):
+            changed.validate()
+        changed = replace(
+            changed, bindings=(replace(changed.bindings[0], edited=True),)
+        )
+        changed.validate()
+        assert changed.lookup(binding.binding_id, binding.spans).edited
+    reflowed = replace(
+        dataset,
+        bindings=(
+            replace(
+                binding, segments=("staying there forever.", "Allah's promise is true.")
+            ),
+        ),
+    )
+    reflowed.validate()
+    assert not reflowed.bindings[0].edited
+
+
+@pytest.mark.parametrize("change", [{"unknown": 1}, {"schema_version": True}])
+def test_import_uses_the_same_strict_schema_as_machine_requests(change):
+    data = json.loads(json.dumps(fixture_dataset().to_dict()))
+    with pytest.raises(ReferenceError) as error:
+        BindingDataset.from_dict({**data, **change})
+    assert error.value.code == "invalid_translation"
+
+
+def test_changed_translation_version_invalidates_previously_reviewed_bindings():
+    dataset = fixture_dataset()
+    with pytest.raises(ReferenceError) as error:
+        replace(dataset, source=replace(dataset.source, version="2")).validate()
+    assert error.value.code == "stale_translation"
