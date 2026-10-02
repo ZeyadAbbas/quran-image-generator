@@ -36,6 +36,9 @@
     "capabilities": {
       "type": "object"
     },
+    "preflight": {
+      "type": "object"
+    },
     "cues": {
       "type": "array",
       "items": {

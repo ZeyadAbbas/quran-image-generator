@@ -33,15 +33,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         type=float,
         help="Maximum batch seconds; checked between cues/layers",
     )
+    parser.add_argument(
+        "--preflight",
+        action="store_true",
+        help="Check native/assets/offline/output readiness",
+    )
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     try:
-        if args.capabilities:
+        if args.capabilities or args.preflight and args.request == "-":
             value = {
                 "schema_version": 1,
                 "request_id": "capabilities",
-                "operation": "capabilities",
+                "operation": "capabilities" if args.capabilities else "preflight",
             }
             root = args.asset_root
         else:
@@ -58,6 +63,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             value = json.loads(
                 raw.decode("utf-8-sig"), object_pairs_hook=_unique_fields
             )
+
+        if args.preflight:
+            value["operation"] = "preflight"
 
         def report(event: BatchProgress) -> None:
             print(json.dumps(asdict(event), ensure_ascii=True), file=sys.stderr)

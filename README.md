@@ -118,6 +118,16 @@ that service or the network is unavailable, the GUI remains usable for
 Arabic-only images. Translation material remains subject to
 [QuranEnc's terms](https://quranenc.com/en/terms).
 
+## QuranScribe caption integration
+
+Renderer 0.2.x exposes a versioned static-caption Python/JSON API. It supports
+verified partial source spans, reviewed offline English bindings, independent
+transparent title/caption/logo assets and isolated batches. Start with
+`quran-caption-render --capabilities` and `--preflight`; see
+[the independent install guide](docs/integration-install.md) and
+[API v1](docs/render-api-v1.md). The creator profile is a review-required preview;
+original creator assets and unresolved mapping boundaries need approval.
+
 ## Command line
 
 Run the CLI as either `quran-image-generator` or

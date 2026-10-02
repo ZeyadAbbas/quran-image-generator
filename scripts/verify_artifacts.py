@@ -39,9 +39,7 @@ def _verify_wheel(wheel: Path, expected: tuple[PurePosixPath, ...]) -> None:
         if len(entry_point_names) != 1:
             _fail("wheel must contain exactly one dist-info/entry_points.txt")
         entry_points = configparser.ConfigParser()
-        entry_points.read_string(
-            archive.read(entry_point_names[0]).decode("utf-8")
-        )
+        entry_points.read_string(archive.read(entry_point_names[0]).decode("utf-8"))
     duplicates = _duplicates(names)
     if duplicates:
         _fail(f"wheel has duplicate entries: {', '.join(duplicates)}")
@@ -56,6 +54,10 @@ def _verify_wheel(wheel: Path, expected: tuple[PurePosixPath, ...]) -> None:
         _fail("wheel unexpectedly contains tests or README images")
     expected_entries = {
         ("console_scripts", "quran-image-generator"): "quran_image_generator.cli:main",
+        (
+            "console_scripts",
+            "quran-caption-render",
+        ): "quran_image_generator.machine_cli:main",
         ("gui_scripts", "quran-image-generator-gui"): (
             "quran_image_generator.gui_cli:main"
         ),

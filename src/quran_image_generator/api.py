@@ -118,7 +118,7 @@ def runtime_identity() -> dict[str, Any]:
 def capabilities() -> dict[str, Any]:
     return {
         "schema_versions": [1],
-        "operations": ["capabilities", "validate", "layout", "render_batch"],
+        "operations": ["capabilities", "preflight", "validate", "layout", "render_batch"],
         "renderer_version": RENDERER_VERSION,
         "mapping_revision": MAPPING_REVISION,
         "mapping_sha256": BRIDGE_SHA256,
@@ -329,6 +329,18 @@ def execute_request(
             result["capabilities"] = capabilities()
             return RenderResponse(result)
         root = (asset_root or Path.cwd()).resolve()
+        if data["operation"] == "preflight":
+            from .preflight import preflight
+
+            result["preflight"] = preflight(data, root)
+            if data.get("cues"):
+                preview = execute_request(
+                    {**data, "operation": "layout"}, asset_root=root
+                ).to_dict()
+                preview["preflight"] = result["preflight"]
+                preview["preflight"]["ready"] = preview["status"] == "complete"
+                return RenderResponse(preview)
+            return RenderResponse(result)
         corpus = CorpusIdentity(**data["source_corpus"])
         corpus.validate()
         dataset = (

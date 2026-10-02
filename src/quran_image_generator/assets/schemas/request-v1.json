@@ -14,6 +14,7 @@
     "operation": {
       "enum": [
         "capabilities",
+        "preflight",
         "validate",
         "layout",
         "render_batch"
@@ -116,7 +117,7 @@
                 "maxLength": 64
               },
               "opacity": {
-                "type": "integer"
+                "type": "number"
               },
               "z_order": {
                 "type": "integer"
@@ -127,8 +128,12 @@
               "required": {
                 "type": "boolean"
               },
+              "sha256": {
+                "type": "string",
+                "maxLength": 64
+              },
               "outline_width": {
-                "type": "integer"
+                "type": "number"
               },
               "outline_color": {
                 "type": "string",
@@ -143,14 +148,14 @@
                 "maxItems": 2
               },
               "shadow_blur": {
-                "type": "integer"
+                "type": "number"
               },
               "shadow_color": {
                 "type": "string",
                 "maxLength": 64
               },
               "shadow_opacity": {
-                "type": "integer"
+                "type": "number"
               },
               "suffix_scale": {
                 "type": "number"
@@ -162,7 +167,7 @@
                 "type": "integer"
               },
               "line_spacing": {
-                "type": "integer"
+                "type": "number"
               },
               "baseline_anchor": {
                 "type": "string",
@@ -177,7 +182,7 @@
                 "maxLength": 64
               },
               "safe_margin": {
-                "type": "integer"
+                "type": "number"
               }
             },
             "required": [],
