@@ -44,6 +44,13 @@ class Layer:
     shadow_opacity: float = 0
     suffix: str = ""
     suffix_scale: float = 0.55
+    min_font_size: int = 12
+    max_lines: int = 3
+    line_spacing: float = 8
+    baseline_anchor: str = "last"
+    fit: str = "wrap"
+    alignment: str = "center"
+    safe_margin: float = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,6 +78,19 @@ class Scene:
                 "invalid_request", "Layer roles must be unique, at most 16"
             )
         for layer in self.layers:
+            if (
+                layer.fit not in ("wrap", "shrink")
+                or layer.baseline_anchor not in ("first", "last")
+                or layer.alignment not in ("left", "center", "right")
+                or not 1 <= layer.min_font_size <= layer.font_size
+                or not 1 <= layer.max_lines <= 8
+                or not 0 <= layer.line_spacing <= 64
+                or not 0 <= layer.safe_margin <= 64
+            ):
+                raise ReferenceError(
+                    "invalid_request",
+                    "Invalid fit, readable font bounds or line constraints",
+                )
             if (
                 not layer.role
                 or not 0 <= layer.opacity <= 1
@@ -194,83 +214,31 @@ def plan_scene(scene: Scene) -> tuple[LayerPlan, ...]:
             continue
         digest = checked_asset(layer.image or layer.font, layer.sha256)
         if layer.image:
+            from .caption_fit import FitError, pixel_region, within
+
+            allowed = pixel_region(scene, layer)
             with Image.open(layer.image) as logo:
-                max_w = (layer.region[2] - layer.region[0]) * scene.width
-                max_h = (layer.region[3] - layer.region[1]) * scene.height
+                max_w = allowed[2] - allowed[0]
+                max_h = allowed[3] - allowed[1]
                 scale = min(max_w / logo.width, max_h / logo.height)
                 w, h = (
-                    max(1, round(logo.width * scale)),
-                    max(1, round(logo.height * scale)),
+                    max(1, math.floor(logo.width * scale)),
+                    max(1, math.floor(logo.height * scale)),
                 )
             image_x, image_y = (
                 round(layer.anchor[0] * scene.width - w / 2),
                 round(layer.anchor[1] * scene.height - h / 2),
             )
-            plans.append(
-                LayerPlan(
-                    layer, (), (image_x, image_y, image_x + w, image_y + h), 0, digest
+            image_bounds = (image_x, image_y, image_x + w, image_y + h)
+            if not within(image_bounds, pixel_region(scene, layer)):
+                raise FitError(
+                    layer.role, image_bounds, pixel_region(scene, layer), 0, 0
                 )
-            )
+            plans.append(LayerPlan(layer, (), image_bounds, 0, digest))
             continue
-        size = max(1, round(layer.font_size * scene.width / 576))
-        check_glyphs(layer)
-        font = layer_font(layer, size)
-        box = font.getbbox(layer.text, anchor="ls", direction=layer.direction)
-        x = layer.anchor[0] * scene.width - (box[0] + box[2]) / 2
-        y = layer.anchor[1] * scene.height
-        bounds = (
-            math.floor(x + box[0]),
-            math.floor(y + box[1]),
-            math.ceil(x + box[2]),
-            math.ceil(y + box[3]),
-        )
-        suffix_position = None
-        if layer.suffix:
-            suffix_size = max(1, round(size * layer.suffix_scale))
-            suffix_box = layer_font(layer, suffix_size).getbbox(layer.suffix)
-            suffix_x = (
-                bounds[0] - (suffix_box[2] - suffix_box[0]) - 3 * scene.width / 576
-            )
-            suffix_position = (suffix_x, y, suffix_size)
-            bounds = (
-                math.floor(suffix_x + suffix_box[0]),
-                min(bounds[1], math.floor(y + suffix_box[1])),
-                bounds[2],
-                max(bounds[3], math.ceil(y + suffix_box[3])),
-            )
-        scale = scene.width / 576
-        pad = math.ceil((layer.outline_width + 4 * layer.shadow_blur) * scale)
-        dx, dy = (v * scale for v in layer.shadow_offset)
-        bounds = (
-            math.floor(bounds[0] - pad + min(0, dx)),
-            math.floor(bounds[1] - pad + min(0, dy)),
-            math.ceil(bounds[2] + pad + max(0, dx)),
-            math.ceil(bounds[3] + pad + max(0, dy)),
-        )
-        allowed = tuple(
-            round(v * (scene.width if i % 2 == 0 else scene.height))
-            for i, v in enumerate(layer.region)
-        )
-        if (
-            bounds[0] < allowed[0]
-            or bounds[1] < allowed[1]
-            or bounds[2] > allowed[2]
-            or bounds[3] > allowed[3]
-        ):
-            raise ReferenceError(
-                "layout_overflow",
-                f"{layer.role} exceeds its region; split the phrase or enlarge the region",
-            )
-        plans.append(
-            LayerPlan(
-                layer,
-                ((layer.text, x, y),),
-                bounds,
-                size,
-                digest,
-                suffix_position=suffix_position,
-            )
-        )
+        from .caption_fit import plan_text
+
+        plans.append(plan_text(scene, layer, digest))
     return tuple(plans)
 
 
@@ -392,6 +360,7 @@ def caption_scene(
                 anchor=(0.5, 0.56),
                 region=(0.05, 0.53, 0.95, 0.68),
                 direction="ltr",
+                baseline_anchor="first",
                 z_order=1,
             )
         )
