@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "renderer_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "request_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "needs_review",
+        "partial",
+        "failed"
+      ]
+    },
+    "corpus": {
+      "type": "object"
+    },
+    "profile": {
+      "type": "object"
+    },
+    "runtime": {
+      "type": "object"
+    },
+    "capabilities": {
+      "type": "object"
+    },
+    "cues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "cue_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "needs_review",
+              "failed"
+            ]
+          },
+          "arabic": {
+            "type": "string"
+          },
+          "source_spans": {
+            "type": "array"
+          },
+          "translation": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "layers": {
+            "type": "array"
+          },
+          "asset_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "message": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "details": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "retryable"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "cue_id",
+          "status",
+          "metadata",
+          "warnings",
+          "asset_ids"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "width": {
+            "type": "integer"
+          },
+          "height": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "bounds": {
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "alpha_mode": {
+            "const": "straight"
+          },
+          "color_space": {
+            "const": "sRGB"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "persistent": {
+            "type": "boolean"
+          },
+          "effect_bounds": {
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "anchor": {
+            "type": "array"
+          },
+          "font_sha256": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_id",
+          "path",
+          "sha256",
+          "width",
+          "height",
+          "offset",
+          "bounds",
+          "alpha_mode",
+          "color_space",
+          "roles",
+          "persistent",
+          "effect_bounds",
+          "anchor",
+          "font_sha256"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "job_directory": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "message": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "details": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "renderer_version",
+    "request_id",
+    "status",
+    "cues",
+    "assets"
+  ],
+  "additionalProperties": false
+}

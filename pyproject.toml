@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "quran-image-generator"
-version = "0.1.0"
+version = "0.2.0"
 description = "Generate customizable images from Quran passages"
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
@@ -25,6 +25,7 @@ classifiers = [
 dependencies = [
   "Pillow>=11.3,<13",
   "fonttools>=4.59,<5",
+  "jsonschema>=4.25,<5",
   "PyYAML>=6.0.2,<7",
   "requests>=2.32.5,<3",
   "Wand>=0.6.13,<0.8",
@@ -44,6 +45,7 @@ dev = [
 
 [project.scripts]
 quran-image-generator = "quran_image_generator.cli:main"
+quran-caption-render = "quran_image_generator.machine_cli:main"
 
 [project.gui-scripts]
 quran-image-generator-gui = "quran_image_generator.gui_cli:main"
@@ -67,6 +69,7 @@ quran_image_generator = [
   "assets/data/*.txt",
   "assets/data/*.xml",
   "assets/data/*.json",
+  "assets/schemas/*.json",
 ]
 
 [tool.ruff]
@@ -92,5 +95,5 @@ warn_unused_ignores = true
 
 # Wand does not publish type information and Instagram support stays optional.
 [[tool.mypy.overrides]]
-module = ["wand.*", "instagrapi", "fontTools.*"]
+module = ["wand.*", "instagrapi", "fontTools.*", "jsonschema"]
 ignore_missing_imports = true

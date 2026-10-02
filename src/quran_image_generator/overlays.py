@@ -2,26 +2,15 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass
 from pathlib import Path
 
 from wand.drawing import Drawing
 from wand.image import Image
 
+from .asset_records import OverlayAsset
 from .layout import ImageLayout
 from .references import ReferenceError
 from .rendering import VERSE_NUMBERS_FOLDER, _apply_style
-
-
-@dataclass(frozen=True, slots=True)
-class OverlayAsset:
-    sha256: str
-    width: int
-    height: int
-    offset: tuple[int, int]
-    bounds: tuple[int, int, int, int] | None
-    alpha_mode: str = "straight"
-    color_space: str = "sRGB"
 
 
 def alpha_bounds(image: Image) -> tuple[int, int, int, int] | None:
