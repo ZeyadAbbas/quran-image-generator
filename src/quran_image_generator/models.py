@@ -7,11 +7,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, Protocol
 
-TranslationSelectorKind = Literal["id", "slug", "language"]
+TranslationSelectorKind = Literal["key", "language"]
 
 
 class InvalidVerseRangeError(ValueError):
-    """A passage request cannot be satisfied by the live chapter catalog."""
+    """A passage request cannot be satisfied by the bundled Quran data."""
 
 
 class RandomSource(Protocol):
@@ -44,7 +44,7 @@ class GenerationRequest:
             )
 
     def verse_keys(self) -> tuple[str, ...]:
-        """Return the requested Quran.com verse keys in their original order."""
+        """Return the requested verse keys in their original order."""
 
         return tuple(
             f"{self.chapter}:{verse_number}"
@@ -54,7 +54,7 @@ class GenerationRequest:
 
 @dataclass(frozen=True, slots=True)
 class Chapter:
-    """Chapter metadata advertised by the current Content API environment."""
+    """Chapter metadata loaded from the bundled Tanzil data."""
 
     number: int
     name_simple: str
@@ -64,7 +64,7 @@ class Chapter:
 def validate_generation_request(
     request: GenerationRequest, chapters: Sequence[Chapter]
 ) -> Chapter:
-    """Return matching metadata or reject a request outside the live catalog."""
+    """Return matching metadata or reject a request outside the Quran."""
 
     chapter = next(
         (item for item in chapters if item.number == request.chapter),
@@ -72,8 +72,7 @@ def validate_generation_request(
     )
     if chapter is None:
         raise InvalidVerseRangeError(
-            f"chapter {request.chapter} is not available in the current Quran "
-            "Foundation environment"
+            f"chapter {request.chapter} is not available in the bundled Quran data"
         )
     if request.ending_verse > chapter.verses_count:
         raise InvalidVerseRangeError(
@@ -91,7 +90,7 @@ def random_generation_request(
     available = tuple(chapters)
     if not available:
         raise InvalidVerseRangeError(
-            "the Quran Foundation chapter catalog did not contain any chapters"
+            "the bundled Quran data did not contain any chapters"
         )
     chapter = available[rng.randrange(len(available))]
     starting_verse = rng.randint(1, chapter.verses_count)
@@ -106,7 +105,7 @@ def random_generation_request(
 
 @dataclass(frozen=True, slots=True)
 class TranslationSelector:
-    """One offline-configurable way to select a translation resource."""
+    """One configurable way to select a QuranEnc translation."""
 
     kind: TranslationSelectorKind
     value: str
@@ -115,19 +114,7 @@ class TranslationSelector:
         normalized = self.value.strip()
         if not normalized:
             raise ValueError("translation selector value cannot be blank")
-        if self.kind == "id":
-            try:
-                resource_id = int(normalized)
-            except ValueError as error:
-                raise ValueError(
-                    "translation resource ID must be a positive whole number"
-                ) from error
-            if resource_id < 1:
-                raise ValueError(
-                    "translation resource ID must be a positive whole number"
-                )
-            normalized = str(resource_id)
-        elif self.kind not in {"slug", "language"}:
+        if self.kind not in {"key", "language"}:
             raise ValueError(f"unsupported translation selector kind: {self.kind}")
         object.__setattr__(self, "value", normalized)
 
@@ -138,7 +125,7 @@ class TranslationSelector:
 
 @dataclass(frozen=True, slots=True)
 class LanguageResource:
-    """A language advertised by the Quran Foundation resource catalog."""
+    """A language derived from the QuranEnc translation catalog."""
 
     resource_id: int
     name: str
@@ -150,25 +137,24 @@ class LanguageResource:
 
 @dataclass(frozen=True, slots=True)
 class TranslationResource:
-    """The exact translator/resource identity used for verse requests."""
+    """The exact QuranEnc translation identity used for verse requests."""
 
     resource_id: str
-    slug: str | None
     name: str
-    author_name: str
+    description: str
     language_name: str
     language_code: str
+    version: str
+    direction: str
 
     @property
     def display_name(self) -> str:
-        if self.author_name.casefold() in self.name.casefold():
-            return self.name
-        return f"{self.name} — {self.author_name}"
+        return self.name
 
 
 @dataclass(frozen=True, slots=True)
 class TranslationCatalog:
-    """One immutable snapshot of the live language and translation catalogs."""
+    """One immutable snapshot of the QuranEnc translation catalog."""
 
     resources: tuple[TranslationResource, ...]
     languages: tuple[LanguageResource, ...]

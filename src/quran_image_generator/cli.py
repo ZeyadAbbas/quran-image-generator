@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import getpass
-import os
 import random
 import sys
 from collections.abc import Sequence
@@ -35,7 +33,6 @@ examples:
   quran-image-generator
   quran-image-generator --chapter 2 --start 255 --end 257
   quran-image-generator --random --open
-  quran-image-generator --prompt-credentials --chapter 1 --start 1 --end 1
   quran-image-generator --list-translations
   quran-image-generator --chapter 1 --start 1 --end 1 --publish story""",
     )
@@ -82,19 +79,11 @@ examples:
         ),
     )
     parser.add_argument(
-        "--prompt-credentials",
-        action="store_true",
-        help=(
-            "prompt for Quran Foundation credentials for this run; the client "
-            "secret is hidden and neither value is saved"
-        ),
-    )
-    parser.add_argument(
         "--list-translations",
         action="store_true",
         help=(
-            "list live Quran Foundation translation IDs, slugs, languages, "
-            "names, and authors, then exit"
+            "list available QuranEnc translation keys, languages, versions, "
+            "and titles, then exit"
         ),
     )
     parser.add_argument(
@@ -208,52 +197,10 @@ def _publish_generated_image(image_path: Path, target_value: str) -> None:
     publisher.publish(image_path, PublishTarget(target_value))
 
 
-def _prompt_for_quran_api_config(parser: argparse.ArgumentParser) -> Any:
-    """Read session-only API credentials without exposing the secret."""
+def _content_client() -> Any:
+    from .content import QuranDataClient
 
-    from .content import QuranApiConfig, QuranApiConfigurationError
-
-    if not sys.stdin.isatty():
-        parser.exit(
-            2,
-            "--prompt-credentials requires an interactive terminal. "
-            "Use QF_CLIENT_ID and QF_CLIENT_SECRET for automation.\n",
-        )
-
-    current_environment = os.environ.get("QF_ENV", "prelive").strip() or "prelive"
-    current_client_id = os.environ.get("QF_CLIENT_ID", "").strip()
-    current_secret = os.environ.get("QF_CLIENT_SECRET", "")
-    environment = input(
-        f"Quran Foundation environment [{current_environment}]: "
-    ).strip()
-    client_id_prompt = (
-        "Client ID [use environment value]: "
-        if current_client_id
-        else "Client ID: "
-    )
-    client_id = input(client_id_prompt).strip() or current_client_id
-    secret_prompt = (
-        "Client secret [press Enter to use environment value]: "
-        if current_secret
-        else "Client secret: "
-    )
-    client_secret = getpass.getpass(secret_prompt).strip() or current_secret
-    try:
-        return QuranApiConfig(
-            environment=environment or current_environment,
-            client_id=client_id,
-            client_secret=client_secret,
-        )
-    except QuranApiConfigurationError as error:
-        parser.exit(2, f"{error}\n")
-
-
-def _content_client(parser: argparse.ArgumentParser, args: argparse.Namespace) -> Any:
-    from .content import QuranContentClient
-
-    if args.prompt_credentials:
-        return QuranContentClient(_prompt_for_quran_api_config(parser))
-    return QuranContentClient.from_environment()
+    return QuranDataClient()
 
 
 def _list_translations(
@@ -262,40 +209,32 @@ def _list_translations(
     *,
     refresh: bool,
 ) -> int:
-    from .content import (
-        QuranApiConfigurationError,
-        QuranApiError,
-    )
+    from .content import QuranDataError
 
     try:
-        catalog = _content_client(parser, args).translation_catalog(refresh=refresh)
-    except QuranApiConfigurationError as error:
-        parser.exit(2, f"{error}\n")
-    except QuranApiError as error:
-        parser.exit(1, f"Quran API error: {error}\n")
+        catalog = _content_client().translation_catalog(refresh=refresh)
+    except QuranDataError as error:
+        parser.exit(1, f"Translation service error: {error}\n")
 
-    print("ID | Slug | Language | Translation | Author")
+    print("Key | Language | Version | Translation")
     for resource in sorted(
         catalog.resources,
         key=lambda item: (
             item.language_name.casefold(),
             item.name.casefold(),
-            int(item.resource_id),
+            item.resource_id.casefold(),
         ),
     ):
         language = resource.language_code or resource.language_name
         print(
-            f"{resource.resource_id} | {resource.slug or '-'} | {language} | "
-            f"{resource.name} | {resource.author_name}"
+            f"{resource.resource_id} | {language} | {resource.version} | "
+            f"{resource.name}"
         )
     return 0
 
 
 def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
-    from .content import (
-        QuranApiConfigurationError,
-        QuranApiError,
-    )
+    from .content import QuranDataError
     from .generator import build_generator
     from .settings import SettingsValidationError, load_settings
 
@@ -304,12 +243,10 @@ def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
 
     one_shot = args.random or args.chapter is not None
     try:
-        content_client = _content_client(parser, args)
+        content_client = _content_client()
         chapters = content_client.list_chapters()
-    except QuranApiConfigurationError as error:
-        parser.exit(2, f"{error}\n")
-    except QuranApiError as error:
-        parser.exit(1, f"Quran API error: {error}\n")
+    except QuranDataError as error:
+        parser.exit(1, f"Quran data error: {error}\n")
 
     rng = random.Random()
     explicit_request: GenerationRequest | None = None
@@ -348,8 +285,8 @@ def _run(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
                 parser.exit(2, f"{error}\n")
             print(f"Invalid passage: {error}", file=sys.stderr)
             continue
-        except QuranApiError as error:
-            parser.exit(1, f"Quran API error: {error}\n")
+        except QuranDataError as error:
+            parser.exit(1, f"Quran data error: {error}\n")
 
         if args.publish is not None:
             from .publishing import PublishingError

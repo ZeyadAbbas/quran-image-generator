@@ -2,7 +2,8 @@
 # duplicate of every built-in default. See docs/configuration.md for the
 # canonical defaults, accepted values, and path rules.
 #
-# API and Instagram credentials belong in environment variables, never here.
+# Optional Instagram credentials belong in environment variables, never here.
+# Quran content needs no account, key, or secret.
 
 'output path': outputs
 'resolution': '1080 x 1080'
@@ -20,13 +21,13 @@
 'quran and translation spacing': 34
 
 # Discover current resources with `quran-image-generator --list-translations`.
-# Select up to three exact IDs/slugs in display order. An empty list gives an
-# Arabic-only image and avoids depending on a catalog ID in this example.
+# Select up to three exact QuranEnc keys in display order. An empty list gives
+# an Arabic-only image and works entirely from the bundled Tanzil text.
 #
 # 'translation languages':
-#   - id: 123  # example only: replace with an ID from the live list command
+#   - key: english_saheeh
 #     font size: 18
-#   - slug: another-catalog-slug
+#   - key: french_montada
 #     font: Arial
 'translation languages': []
 'translation color': '#E8E8E8'

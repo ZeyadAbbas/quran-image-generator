@@ -1,18 +1,16 @@
-"""Render one fixture-backed PNG without credentials, network, or a GUI."""
+"""Render one bundled Quran verse without credentials, network, or a GUI."""
 
 from __future__ import annotations
 
 import argparse
-import json
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, cast
 
 from wand.image import Image
 
-from quran_image_generator.content import parse_verse
+from quran_image_generator.content import QuranDataClient
 from quran_image_generator.layout import build_layout
-from quran_image_generator.models import Chapter, Passage
+from quran_image_generator.models import GenerationRequest
 from quran_image_generator.rendering import WandImageRenderer, WandTextMeasurer
 from quran_image_generator.resources import asset_path
 from quran_image_generator.settings import Dimensions, Settings
@@ -20,16 +18,9 @@ from quran_image_generator.settings import Dimensions, Settings
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
-def _load_fixture(path: Path) -> Mapping[str, Any]:
-    payload: object = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(payload, dict):
-        raise ValueError(f"fixture must contain a JSON object: {path}")
-    return cast(dict[str, Any], payload)
-
-
-def _settings(output_directory: Path, fixture: Path) -> Settings:
+def _settings(output_directory: Path) -> Settings:
     return Settings(
-        source_path=fixture,
+        source_path=output_directory / "smoke-config.yaml",
         output_path=output_directory,
         resolution=Dimensions(640, 420),
         background_image=None,
@@ -62,13 +53,12 @@ def _settings(output_directory: Path, fixture: Path) -> Settings:
     )
 
 
-def render_smoke(fixture: Path, output_directory: Path) -> Path:
-    """Render and validate a real PNG from a checked-in API fixture."""
+def render_smoke(output_directory: Path) -> Path:
+    """Render and validate a real PNG from the installed bundled corpus."""
 
     output_directory.mkdir(parents=True, exist_ok=True)
-    verse = parse_verse(_load_fixture(fixture), ())
-    passage = Passage(Chapter(1, "Al-Fatihah", 7), (verse,))
-    settings = _settings(output_directory, fixture)
+    passage = QuranDataClient().fetch_passage(GenerationRequest(1, 1, 1), ())
+    settings = _settings(output_directory)
     layout = build_layout(passage, settings, WandTextMeasurer())
     destination = output_directory / "offline-smoke.png"
     WandImageRenderer().render(layout, settings, destination)
@@ -86,10 +76,9 @@ def render_smoke(fixture: Path, output_directory: Path) -> Path:
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--fixture", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
     args = parser.parse_args(argv)
-    rendered = render_smoke(args.fixture.resolve(), args.output_dir.resolve())
+    rendered = render_smoke(args.output_dir.resolve())
     print(f"Offline render smoke passed: {rendered}")
     return 0
 

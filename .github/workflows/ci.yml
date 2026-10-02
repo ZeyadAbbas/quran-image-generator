@@ -100,7 +100,6 @@ jobs:
           "${clean_root}/venv/bin/python" -m quran_image_generator --help
           "${clean_root}/venv/bin/python" \
             "${GITHUB_WORKSPACE}/scripts/offline_render_smoke.py" \
-            --fixture "${GITHUB_WORKSPACE}/tests/fixtures/verse_one_translation.json" \
             --output-dir "${clean_root}/rendered output"
           test -s "${clean_root}/rendered output/offline-smoke.png"
 

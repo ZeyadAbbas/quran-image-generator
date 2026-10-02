@@ -156,8 +156,8 @@ class SettingsTests(unittest.TestCase):
                 root,
                 {
                     "translation languages": [
-                        {"id": 131, "font size": 20},
-                        {"slug": "muhammad-hamidullah", "font": "Arial"},
+                        {"key": "english_saheeh", "font size": 20},
+                        {"key": "french_montada", "font": "Arial"},
                         {"language": "es"},
                     ]
                 },
@@ -167,8 +167,8 @@ class SettingsTests(unittest.TestCase):
 
             self.assertEqual(
                 [
-                    ("id", "131", None, 20),
-                    ("slug", "muhammad-hamidullah", "Arial", 16),
+                    ("key", "english_saheeh", None, 20),
+                    ("key", "french_montada", "Arial", 16),
                     ("language", "es", None, 16),
                 ],
                 [
@@ -188,7 +188,7 @@ class SettingsTests(unittest.TestCase):
                 Path(temporary_directory),
                 {
                     "translation languages": [
-                        {"id": 131, "slug": "clearquran-with-tafsir"}
+                        {"key": "english_saheeh", "language": "en"}
                     ]
                 },
             )
@@ -211,7 +211,7 @@ class SettingsTests(unittest.TestCase):
                     "show verse numbers": "sometimes",
                     "verse number x offset": 501,
                     "space between verses": -11,
-                    "translation languages": [{"id": 0}],
+                    "translation languages": [{"key": 0}],
                 },
             )
 

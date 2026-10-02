@@ -40,13 +40,12 @@ WORKDIR /app
 USER 10001:10001
 
 
-# CI-only target: fixture-backed rendering without credentials or network calls.
+# CI-only target: render from the installed bundled corpus without network calls.
 FROM runtime-base AS smoke
 
 COPY --chown=10001:10001 scripts/offline_render_smoke.py /smoke/offline_render_smoke.py
-COPY --chown=10001:10001 tests/fixtures/verse_one_translation.json /smoke/verse.json
 ENTRYPOINT ["python", "/smoke/offline_render_smoke.py"]
-CMD ["--fixture", "/smoke/verse.json", "--output-dir", "/output"]
+CMD ["--output-dir", "/output"]
 
 
 FROM runtime-base AS runtime
