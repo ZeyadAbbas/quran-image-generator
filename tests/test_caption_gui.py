@@ -410,6 +410,59 @@ def test_snapshot_pinning_and_local_copy_use_native_controls(
     assert snapshot_file.read_bytes() == before
 
 
+def test_import_bindings_and_snapshots_preserve_pending_caption_fields(
+    studio, monkeypatch, tmp_path
+):
+    from test_bindings import fixture_dataset
+
+    from quran_image_generator import caption_gui
+    from quran_image_generator.bindings import export_bindings
+    from quran_image_generator.snapshots import SnapshotStore
+
+    app = studio
+    dataset = fixture_dataset()
+    file = tmp_path / "bindings.json"
+    export_bindings(dataset, file)
+    monkeypatch.setattr(
+        caption_gui.filedialog, "askopenfilename", lambda **k: str(file)
+    )
+    app._vars["cue_id"].set("Pending caption name")
+    app._vars["latin_title"].set("Pending title")
+    app._vars["translation_policy"].set("review")
+    app._vars["start_seconds"].set("1.2")
+    app._import_bindings()
+    assert app._vars["cue_id"].get() == "Pending caption name"
+    assert app._vars["latin_title"].get() == "Pending title"
+    assert app._vars["translation_policy"].get() == "review"
+    assert app.document.data["cues"][0]["metadata"]["start_seconds"] == 1.2
+    store = SnapshotStore(tmp_path / "Snapshot")
+    pin = store.import_dataset(dataset)
+    monkeypatch.setattr(
+        caption_gui.filedialog,
+        "askopenfilename",
+        lambda **k: str(store.directory / f"{pin}.json"),
+    )
+    app._vars["latin_title"].set("Before snapshot")
+    app._open_snapshot()
+    assert app._vars["latin_title"].get() == "Before snapshot"
+    app._vars["latin_title"].set("Before local copy")
+    app._edit_snapshot()
+    assert app._vars["latin_title"].get() == "Before local copy"
+
+
+def test_close_invalid_save_preserves_editor_and_shows_error(studio, monkeypatch):
+    from quran_image_generator import caption_gui
+
+    errors = []
+    monkeypatch.setattr(caption_gui.messagebox, "askyesnocancel", lambda *a, **k: True)
+    monkeypatch.setattr(
+        caption_gui.messagebox, "showerror", lambda *a, **k: errors.append(a)
+    )
+    studio._vars["height"].set("invalid")
+    assert not studio.close()
+    assert errors and not studio._closed and studio.window.winfo_exists()
+
+
 def test_whole_verse_source_loading_preserves_provenance(studio, monkeypatch, tmp_path):
     from quran_image_generator import caption_gui
     from quran_image_generator.snapshots import SnapshotStore

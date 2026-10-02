@@ -1218,7 +1218,9 @@ class CaptionStudio:
             parent=self.window, filetypes=[("Phrase bindings", "*.json")]
         )
         if path:
-            self.document.set_dataset(import_bindings(Path(path)))
+            dataset = import_bindings(Path(path))
+            self._apply_cue()
+            self.document.set_dataset(dataset)
             self._fill_cue()
             self._changed()
 
@@ -1239,6 +1241,7 @@ class CaptionStudio:
         )
         if path:
             file = Path(path)
+            self._apply_cue()
             self.document.pin_snapshot(file.parent, file.stem)
             self._fill_cue()
             self._changed()
@@ -1258,6 +1261,7 @@ class CaptionStudio:
     def _edit_snapshot(self) -> None:
         dataset = self.document.dataset()
         if dataset:
+            self._apply_cue()
             self.document.set_dataset(dataset)
             self._fill_cue()
             self._changed()
@@ -1549,8 +1553,14 @@ class CaptionStudio:
     def close(self, *, discard: bool = False) -> bool:
         if self._closed:
             return True
-        if not discard and not self._confirm_replace():
-            return False
+        if not discard:
+            try:
+                if not self._confirm_replace():
+                    return False
+            except (ReferenceError, ValueError, OSError) as error:
+                self._status.set(str(error))
+                messagebox.showerror("Caption settings", str(error), parent=self.window)
+                return False
         self._closed = True
         self._shutdown.set()
         if self._poll_id:

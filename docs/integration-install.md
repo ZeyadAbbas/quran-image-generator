@@ -1,14 +1,14 @@
 # Independent QuranScribe handoff
 
 Install renderer **0.3.x**, schema **1** in a separate environment. The integrated
-release tag is `v0.3.1`; a pinned merged commit or wheel is also supported.
+release tag is `v0.3.2`; a pinned merged commit or wheel is also supported.
 There is no claim of PyPI publication. Pick the executable/environment
 explicitly, check `--capabilities`, and reject incompatible schema/renderer versions.
 
 ```
 python -m venv renderer-env
 # Activate renderer-env using the platform's normal venv activation.
-python -m pip install "git+https://github.com/ZeyadAbbas/quran-image-generator.git@v0.3.1"
+python -m pip install "git+https://github.com/ZeyadAbbas/quran-image-generator.git@v0.3.2"
 quran-caption-render --capabilities
 quran-caption-render --preflight
 quran-caption-render --request "/absolute/inputs/arabic-batch.json"

@@ -293,7 +293,7 @@ def verify_handoff(
             return match.group(0)
         relative = (ROOT / "docs" / target).resolve().relative_to(ROOT)
         return (
-            "](https://github.com/ZeyadAbbas/quran-image-generator/blob/v0.3.1/"
+            "](https://github.com/ZeyadAbbas/quran-image-generator/blob/v0.3.2/"
             + quote(relative.as_posix())
             + ")"
         )
