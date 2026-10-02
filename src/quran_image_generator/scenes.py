@@ -11,9 +11,9 @@ from pathlib import Path
 from fontTools.ttLib import TTFont
 from PIL import Image, ImageColor, ImageFilter
 
+from .asset_records import OverlayAsset
 from .content import QuranDataClient
 from .excerpts import Excerpt
-from .overlays import OverlayAsset
 from .references import ReferenceError
 from .resources import asset_path
 from .shaping import ShapedFont
@@ -337,6 +337,7 @@ def caption_scene(
     logo: str = "",
     arabic_title: str = "",
     latin_title: str = "",
+    title_surah: int | None = None,
 ) -> Scene:
     arabic_font = str(asset_path("fonts", "quran_font.ttf"))
     latin_font = str(asset_path("fonts", "multilingual_fonts", "am.ttf"))
@@ -365,7 +366,16 @@ def caption_scene(
             )
         )
     if titles:
-        surah = next((s.source.surah for s in excerpt.spans if s.source.surah), None)
+        chapter_ids = {s.source.surah for s in excerpt.spans if s.source.surah}
+        if len(chapter_ids) > 1:
+            raise ReferenceError(
+                "invalid_reference", "Title cues must refer to one chapter"
+            )
+        surah = title_surah or next(iter(chapter_ids), None)
+        if chapter_ids and title_surah and title_surah not in chapter_ids:
+            raise ReferenceError(
+                "invalid_reference", "Title chapter does not match source"
+            )
         if surah is None:
             # Caller must supply an actual upcoming chapter for an opening basmala.
             raise ReferenceError(

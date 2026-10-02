@@ -262,7 +262,8 @@ def test_gui_entrypoint_is_separate_and_adds_no_dependency():
     project = _toml_table(pyproject, "project").casefold()
 
     assert scripts == [
-        'quran-image-generator = "quran_image_generator.cli:main"'
+        'quran-image-generator = "quran_image_generator.cli:main"',
+        'quran-caption-render = "quran_image_generator.machine_cli:main"',
     ]
     assert gui_scripts == [
         'quran-image-generator-gui = "quran_image_generator.gui_cli:main"'
