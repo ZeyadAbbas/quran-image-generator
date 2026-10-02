@@ -214,6 +214,16 @@ REQUEST_SCHEMA = {
             "quotations": {"type": "boolean"},
             "verse_numbers": {"type": "boolean"},
             "cropped": {"type": "boolean"},
+            "asset_cache_directory": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096,
+            },
+            "deadline_seconds": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 3600,
+            },
             "output_directory": {"type": "string", "minLength": 1, "maxLength": 4096},
             "error_mode": {"enum": ["all_or_nothing", "per_cue"]},
             "require_approved_profile": {"type": "boolean"},
