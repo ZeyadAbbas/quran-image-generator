@@ -24,6 +24,7 @@ classifiers = [
 ]
 dependencies = [
   "Pillow>=11.3,<13",
+  "fonttools>=4.59,<5",
   "PyYAML>=6.0.2,<7",
   "requests>=2.32.5,<3",
   "Wand>=0.6.13,<0.8",
@@ -91,5 +92,5 @@ warn_unused_ignores = true
 
 # Wand does not publish type information and Instagram support stays optional.
 [[tool.mypy.overrides]]
-module = ["wand.*", "instagrapi"]
+module = ["wand.*", "instagrapi", "fontTools.*"]
 ignore_missing_imports = true
