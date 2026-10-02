@@ -37,11 +37,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
-            imagemagick libmagickcore-6.q16-7-extra
+            imagemagick libmagickcore-6.q16-7-extra xvfb xauth tk8.6
           python -m pip install --upgrade pip
           python -m pip install -e ".[test]"
       - name: Run tests
-        run: python -m pytest
+        run: xvfb-run -a python -m pytest
       - name: Compile package
         run: python -m compileall -q -f src
 
@@ -81,7 +81,7 @@ jobs:
       - name: Install build and rendering dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends imagemagick
+          sudo apt-get install --yes --no-install-recommends imagemagick xvfb xauth tk8.6
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
       - name: Build wheel and source archive
@@ -106,6 +106,10 @@ jobs:
             "${GITHUB_WORKSPACE}/scripts/offline_caption_smoke.py" \
             --output-dir "${clean_root}/caption output"
           test -s "${clean_root}/caption output/caption-smoke-summary.json"
+          xvfb-run -a "${clean_root}/venv/bin/python" \
+            "${GITHUB_WORKSPACE}/scripts/offline_caption_gui_smoke.py" \
+            --output-dir "${clean_root}/caption GUI output"
+          test -s "${clean_root}/caption GUI output/caption-gui-smoke-summary.json"
 
   windows-caption:
     name: Windows installed caption contract
@@ -153,6 +157,9 @@ jobs:
           & $taskPython "$env:GITHUB_WORKSPACE\scripts\offline_caption_smoke.py" --output-dir "$taskCleanRoot\caption output"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (-not (Test-Path -LiteralPath "$taskCleanRoot\caption output\caption-smoke-summary.json")) { throw 'Caption smoke summary missing' }
+          & $taskPython "$env:GITHUB_WORKSPACE\scripts\offline_caption_gui_smoke.py" --output-dir "$taskCleanRoot\caption GUI output"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Test-Path -LiteralPath "$taskCleanRoot\caption GUI output\caption-gui-smoke-summary.json")) { throw 'Caption GUI smoke summary missing' }
 
   container:
     name: Container smoke

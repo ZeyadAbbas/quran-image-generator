@@ -1,6 +1,6 @@
 # QuranScribe handoff: request the sample-video composition
 
-Use **quran-image-generator v0.3.0**, **JSON schema 1**. Install the renderer in
+Use **quran-image-generator v0.3.1**, **JSON schema 1**. Install the renderer in
 its own environment as described in [integration-install.md](integration-install.md).
 QuranScribe requests static transparent layers, then controls every occurrence's
 timing, fades and video composition. Preserve the input frames and audio.
@@ -157,5 +157,12 @@ Renderer issues #35–#46 cover these static capabilities. QuranScribe issues
 [#17](https://github.com/ZeyadAbbas/QuranScribe/issues/17) through
 [#21](https://github.com/ZeyadAbbas/QuranScribe/issues/21) own occurrence planning,
 the installed client, composition, GUI review and final-video regression gates.
+
+The renderer's own [Caption Studio](caption-studio.md) exposes these same general
+options to every user. Open a complete measured request with
+`quran-image-generator-gui --request "reference-request.json"` to inspect or
+customize each layer, asset and binding, then save ordinary request JSON. There
+is no special QuranScribe mode or preset. The renderer GUI is also useful for
+visual review before QuranScribe applies its own timing and video composition.
 Measured fonts/layout establish a reproducible request, not pixel identity,
 semantic translation approval or acoustic timing approval of a final video.

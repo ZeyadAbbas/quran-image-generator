@@ -21,11 +21,26 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="optionally load an existing YAML config after the window opens",
     )
+    parser.add_argument(
+        "--captions",
+        action="store_true",
+        help="open the general caption, layer and phrase translation editor",
+    )
+    parser.add_argument(
+        "--request",
+        type=Path,
+        help="open a saved caption JSON request in Caption Studio",
+    )
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.config and (args.captions or args.request):
+        parser.error(
+            "--config is for still-image YAML; use --request for Caption Studio"
+        )
     # Importing Tk is intentionally delayed until after argparse handles --help.
     try:
         from .gui import launch
@@ -39,6 +54,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 2
         raise
 
+    if args.captions or args.request:
+        return launch(captions=True, request_path=args.request)
     return launch(args.config)
 
 

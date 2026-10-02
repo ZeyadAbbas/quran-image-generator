@@ -98,6 +98,14 @@ The GUI exposes the normal generation settings documented in
 open the most recently saved PNG, and includes its own Help / About tab. To
 verify Tk and the current display independently, run `python -m tkinter`.
 
+Choose **Caption Studio…** for the general caption editor, or run
+`quran-image-generator-gui --captions`. It exposes all caption layer styles,
+custom fonts and decoration glyphs, branding, ordered partial ranges/repeats,
+reviewed phrase translations, offline snapshots and transparent exports. Load
+and save complete requests for reuse by any user or program. See the
+[Caption Studio guide](docs/caption-studio.md); these capabilities are available
+without a QuranScribe-specific configuration.
+
 ## Content sources
 
 The package includes the verbatim Tanzil Uthmani Quran text, version 1.1, and
@@ -118,7 +126,7 @@ that service or the network is unavailable, the GUI remains usable for
 Arabic-only images. Translation material remains subject to
 [QuranEnc's terms](https://quranenc.com/en/terms).
 
-## QuranScribe caption integration
+## Static caption layers and integration
 
 Renderer 0.3.x exposes a versioned static-caption Python/JSON API. It supports
 verified partial source spans, reviewed offline English bindings, independent
