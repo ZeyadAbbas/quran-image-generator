@@ -21,3 +21,21 @@ bindings; explicitly choose Arabic-only or review-required behavior otherwise.
 The exact creator translation edition remains unconfirmed. Test fixtures are
 authored test material, not claims of approved reference provenance. Import the
 creator's reviewed wording and license before asserting a reference match.
+
+## Immutable offline snapshots
+
+`SnapshotStore(path).import_dataset(dataset)` publishes a content-addressed JSON
+snapshot atomically and returns its SHA-256. Pin that ID in a saved caption plan.
+`SnapshotStore(path).bindings(id)` only reads and verifies local bytes; it never
+updates a version or contacts HTTP. Copy the JSON to another cache to transfer a
+permitted dataset. Keep source licenses/attribution with it. Cleanup is explicit:
+delete only IDs no saved job references. No automatic expiration is applied.
+
+`prepare_quranenc_snapshot` is an explicit whole-ayah download, separate from
+export. It fetches each unique chapter once, checks catalog identity before/after,
+retains provider/resource/version/chapter provenance, and pins actual payload
+bytes. The default client has 5-second HTTP timeouts and at most two attempts;
+the overall 120-second deadline is checked between calls. A caller-supplied client
+must supply its own bounded HTTP timeouts. Latest lookup never replaces pinned
+content. Whole-ayah snapshots need reviewed phrase bindings before partial export.
+Missing/corrupt snapshots and changed provider versions fail explicitly.
