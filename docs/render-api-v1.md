@@ -1,4 +1,4 @@
-# Static caption API v1 (renderer 0.3.0)
+# Static caption API v1 (renderer 0.3.1)
 
 Public imports: `quran_image_generator.api` (`RenderRequest`, `RenderResponse`,
 `execute_request`, `capabilities`), `quran_image_generator.requests` (`Canvas`,
@@ -7,7 +7,9 @@ and profiles modules. Private layout/content helpers are not consumer APIs.
 
 Published UTF-8 JSON schemas ship in `assets/schemas`: `request-v1.json`,
 `response-v1.json`, `bindings-v1.json`. Python and CLI use the same schema and
-implementation. Unknown request fields/versions, duplicate occurrence IDs,
+implementation. [Caption Studio](caption-studio.md) edits these same requests in
+the desktop GUI, with native controls for every supported style field.
+Unknown request fields/versions, duplicate occurrence IDs,
 unsupported corpus hashes and oversized requests fail before image production.
 Sources use inclusive 1-based words. Target Unicode character ranges and pixel
 boxes are half-open. Pixel origin is upper left; x goes right, y goes down.
@@ -64,7 +66,8 @@ explicit `error_mode=per_cue`; failed cue records remain visible. Default
 contain a manifest; temporary jobs are removed on failures. Callers own published
 files and cleanup, and must use status plus checksum verification before export.
 Required fonts/glyphs/layers never disappear silently. Disabled/empty optional
-layers have explicit layer status. Existing human CLI/GUI/publishing stay separate.
+layers have explicit layer status. The headless adapter never opens the GUI or
+publishes; Caption Studio is an optional desktop caller of the same contract.
 
 Stable errors include `unsupported_version`, `invalid_request`, `duplicate_cue_id`,
 `unsupported_corpus`, `invalid_reference`, `mapping_boundary`, `missing_asset`,

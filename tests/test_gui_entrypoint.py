@@ -70,9 +70,20 @@ def test_gui_help_needs_neither_tkinter_nor_display(tmp_path):
     assert completed.returncode == 0, completed.stderr
     assert "quran-image-generator-gui" in completed.stdout
     assert "--config" in completed.stdout
+    assert "--captions" in completed.stdout
+    assert "--request" in completed.stdout
     normalized_help = " ".join(completed.stdout.split())
     assert "Bundled Arabic content works offline" in normalized_help
     assert "QuranEnc" in normalized_help
+
+
+def test_caption_launcher_dispatches_saved_request(monkeypatch):
+    from quran_image_generator import gui, gui_cli
+
+    calls = []
+    monkeypatch.setattr(gui, "launch", lambda **kwargs: calls.append(kwargs) or 0)
+    assert gui_cli.main(["--request", "saved.json"]) == 0
+    assert calls == [{"captions": True, "request_path": Path("saved.json")}]
 
 
 def test_missing_tkinter_has_a_concise_launcher_error(tmp_path):

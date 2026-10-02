@@ -28,3 +28,35 @@ without any credential setup. Never put Instagram credentials in YAML.
    confirm one publish; it must use the current saved PNG only.
 9. Close during an in-progress operation. Confirm the window closes promptly
    without another window, traceback, or lingering GUI worker.
+
+## Caption Studio
+
+1. Open **Caption Studio…** from the still-image editor; reopen it and confirm
+   the existing window is raised. Also launch `--captions` and `--request`.
+2. Offline, add and replace a partial word range, append a whole verse and
+   separate basmala, duplicate a caption and reorder both lists. Verify exact
+   source Arabic, unique occurrence IDs and optional timing/extra metadata.
+3. Visit every layer and customize sizes, anchor/region, direction/alignment,
+   fit limits, opacity, outline, shadow, quotation/number glyphs and scaling.
+   Switch layers and verify edits persist. Resize to 1000×700 and scroll all pages.
+4. Choose each text font, a separate decoration font, a PNG logo and a font-glyph
+   logo. Record terms/attribution. Check a missing glyph and a changed fingerprint
+   fail visibly; explicitly pin a reviewed changed file to repair it.
+5. Author/import phrase bindings with source provenance and original/edited
+   wording. Approve with a reviewer, edit wording, and verify approval is revoked.
+   Pin an offline snapshot; open it and edit a local copy without changing the pin.
+6. With network access, explicitly download a QuranEnc source snapshot and read
+   a verse. Verify it fills original source wording and leaves phrase segments
+   empty pending authoring/review. Disconnect before export.
+7. Check setup/fit, preview, export cropped layers and save a combined transparent
+   PNG. Inspect alpha and placement. Include a chosen background only by checking
+   that option. A failed caption in a partial batch must not be savable.
+8. Save/reload a full request and styles/bindings independently. Replay the same
+   request with the machine adapter and compare PNG checksums. Change settings
+   during a render, cancel a render, and confirm stale results cannot be saved.
+9. Cancel the save-before-close prompt once and verify the editor stays open.
+   Close during a render after saving or discarding the request; check prompt
+   completion, cancellation and worker shutdown.
+
+CI exercises native controls under Xvfb on Linux and native Tk on Windows, and
+also runs an installed Caption Studio smoke outside the source checkout.

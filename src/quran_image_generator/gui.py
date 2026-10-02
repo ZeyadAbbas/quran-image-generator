@@ -114,6 +114,7 @@ class QuranImageGeneratorApp:
         self._rng = random.Random()
         self._gate = RevisionGate()
         self._worker = SingleWorker()
+        self._caption_studio: Any | None = None
 
         self._current_config_path = (
             Path.cwd() / "config.yaml"
@@ -285,6 +286,9 @@ class QuranImageGeneratorApp:
         ttk.Button(actions, text="Close", command=self.close).grid(
             row=0, column=7, padx=(3, 0)
         )
+        ttk.Button(
+            actions, text="Caption Studio…", command=self.open_caption_studio
+        ).grid(row=1, column=0, columnspan=3, sticky="w", pady=(5, 0))
 
         status = ttk.Label(
             self.root,
@@ -1239,8 +1243,19 @@ class QuranImageGeneratorApp:
                 pass
         self._locked_form_widgets.clear()
 
+    def open_caption_studio(self) -> None:
+        from .caption_gui import CaptionStudio
+
+        if self._caption_studio is not None and not self._caption_studio._closed:
+            self._caption_studio.window.lift()
+            return
+        self._caption_studio = CaptionStudio(tk.Toplevel(self.root))
+
     def close(self) -> None:
         if self._closing:
+            return
+        studio = getattr(self, "_caption_studio", None)
+        if studio is not None and not studio.close():
             return
         self._closing = True
         for after_id in (
@@ -1263,7 +1278,12 @@ class QuranImageGeneratorApp:
         self.root.destroy()
 
 
-def launch(config_path: Path | None = None) -> int:
+def launch(
+    config_path: Path | None = None,
+    *,
+    captions: bool = False,
+    request_path: Path | None = None,
+) -> int:
     try:
         root = tk.Tk()
     except tk.TclError:
@@ -1273,6 +1293,16 @@ def launch(config_path: Path | None = None) -> int:
             file=sys.stderr,
         )
         return 2
-    QuranImageGeneratorApp(root, config_path)
+    if captions:
+        from .caption_gui import CaptionStudio
+
+        try:
+            CaptionStudio(root, request_path)
+        except (ValueError, OSError) as error:
+            print(f"Could not open caption request: {error}", file=sys.stderr)
+            root.destroy()
+            return 2
+    else:
+        QuranImageGeneratorApp(root, config_path)
     root.mainloop()
     return 0

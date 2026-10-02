@@ -25,5 +25,6 @@ Separate basmala defaults to title-off; the consumer decides its chapter context
 New scene text uses Pillow's RAQM/Harfbuzz path, or native ImageMagick RAQM on
 Windows wheels without it, for bidi and Arabic shaping. It fails if both lack
 shaping support. Existing Wand still
-image rendering remains intact. Scene fields are public API features; the current
-GUI edits the existing YAML still-image settings only.
+image rendering remains intact. [Caption Studio](caption-studio.md) provides GUI
+controls for the public caption request's styles, assets, bindings and export
+options. The still-image GUI retains its existing YAML settings.

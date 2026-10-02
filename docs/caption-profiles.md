@@ -23,9 +23,10 @@ quotation at the same baseline. Multi-span cues retain each true number beside
 its span in the shared run. This position/size is a reviewable starting profile,
 not a claim of creator approval. The old blue/gold still-image markers are separate.
 
-Profiles are integration JSON, editable in the public Python/machine API. The
-existing Tk GUI's YAML controls remain for still images; loading/saving those
-settings does not alter a separately saved caption profile.
+Profiles are reusable JSON, editable in the public Python/machine API and in
+[Caption Studio](caption-studio.md). Every public style field has a native GUI
+control, with separate import/export of profiles or complete caption requests.
+The existing still-image YAML controls and defaults remain available.
 
 ## Measured sample-video request example
 

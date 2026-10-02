@@ -1,14 +1,14 @@
 # Independent QuranScribe handoff
 
 Install renderer **0.3.x**, schema **1** in a separate environment. The integrated
-release tag is `v0.3.0`; a pinned merged commit or wheel is also supported.
+release tag is `v0.3.1`; a pinned merged commit or wheel is also supported.
 There is no claim of PyPI publication. Pick the executable/environment
 explicitly, check `--capabilities`, and reject incompatible schema/renderer versions.
 
 ```
 python -m venv renderer-env
 # Activate renderer-env using the platform's normal venv activation.
-python -m pip install "git+https://github.com/ZeyadAbbas/quran-image-generator.git@v0.3.0"
+python -m pip install "git+https://github.com/ZeyadAbbas/quran-image-generator.git@v0.3.1"
 quran-caption-render --capabilities
 quran-caption-render --preflight
 quran-caption-render --request "/absolute/inputs/arabic-batch.json"
@@ -25,7 +25,9 @@ and output writability with actionable errors. It never asks for credentials.
 `--preflight --request file.json` checks the actual requested cue/layout settings;
 plain `--preflight` checks bundled/native readiness. A missing/changed creator
 font or offline translation miss fails before video export. Export has no network
-fallback. Scene JSON fields are API-only; the Tk GUI still edits still-image YAML.
+fallback. [Caption Studio](caption-studio.md) exposes the same generic caption
+options in the GUI and loads/saves ordinary request JSON. The still-image editor
+continues to load/save its YAML.
 
 Copyable fixtures under `examples/captions` cover Arabic-only/repeats, partial
 ayahs, basmala, persistent titles, reviewed English imports, offline snapshots and
