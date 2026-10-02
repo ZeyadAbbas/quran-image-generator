@@ -17,6 +17,8 @@ Layer anchors/regions are normalized 0..1; styles use 576-pixel reference units.
 
 - `capabilities` returns versions, exact corpus/mapping hashes, profiles, runtime
   shaping support, output conventions and limits. It needs no fonts/credentials.
+- `preflight` verifies native libraries, shaping, corpus, fonts/glyphs, offline
+  bindings and writable output. With cues it also checks the actual layouts.
 - `validate` and `layout` resolve the same content and measure actual shaped fit,
   lines, glyph coverage, anchors and conservative effect boxes without writing
   images. `validate` includes layout validation; there is no acoustic analysis.
@@ -49,6 +51,9 @@ paths, actual PNG checksums/dimensions, straight alpha/sRGB, placement offsets,
 actual ink boxes, conservative effect boxes, anchor, role and persistent state.
 Titles/logo share stable asset references and update with actual chapter changes.
 Profile/runtime/corpus/mapping versions and source attribution accompany results.
+The copyable `examples/captions/render-response.json` documents a complete
+response, with installed font paths and the caller-owned job root replaced by
+portable placeholders. Use actual returned paths when consuming a live result.
 
 Top-level `complete` means all requested cues are ready; `needs_review` contains
 preview assets requiring content/profile review. `partial` is possible only with

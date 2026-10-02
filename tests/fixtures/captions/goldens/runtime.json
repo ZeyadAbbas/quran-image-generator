@@ -1,0 +1,11 @@
+{
+  "runtime": {
+    "pillow": "11.3.0",
+    "pillow_raqm": false,
+    "imagemagick": "ImageMagick 7.1.2-0 Q16-HDRI x64 3fcd081:20250713 https://imagemagick.org",
+    "native_raqm": true
+  },
+  "approval": "needs_review",
+  "source": "Bundled preview masks, NOT approved creator assets",
+  "fixtures": "six-references.json"
+}

@@ -1,0 +1,487 @@
+{
+  "assets": [
+    {
+      "alpha_mode": "straight",
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "asset_id": "8a1f3fd0a8548308b88710886f520f46b965b8e99ac6727821c653637edbc462",
+      "bounds": [
+        163,
+        475,
+        412,
+        524
+      ],
+      "color_space": "sRGB",
+      "effect_bounds": [
+        163,
+        475,
+        413,
+        524
+      ],
+      "font_sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+      "height": 1024,
+      "offset": [
+        0,
+        0
+      ],
+      "path": "8a1f3fd0a8548308b88710886f520f46b965b8e99ac6727821c653637edbc462.png",
+      "persistent": false,
+      "roles": [
+        "arabic"
+      ],
+      "sha256": "e4e56b01a0de42f4a5535e99143f838896ca15d0a5bb60dab4291bd29333596c",
+      "width": 576
+    },
+    {
+      "alpha_mode": "straight",
+      "anchor": [
+        0.5,
+        0.56
+      ],
+      "asset_id": "56ee9f3b857b28d962230014ad04ec141d4432d9686777994669f47250cdd83c",
+      "bounds": [
+        120,
+        561,
+        456,
+        577
+      ],
+      "color_space": "sRGB",
+      "effect_bounds": [
+        120,
+        561,
+        456,
+        578
+      ],
+      "font_sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+      "height": 1024,
+      "offset": [
+        0,
+        0
+      ],
+      "path": "56ee9f3b857b28d962230014ad04ec141d4432d9686777994669f47250cdd83c.png",
+      "persistent": false,
+      "roles": [
+        "translation"
+      ],
+      "sha256": "a37031acb7cc0f4f70e33bdd370900121e42274660d9816ffbe0f153171b6a79",
+      "width": 576
+    }
+  ],
+  "corpus": {
+    "attribution": "Tanzil Project, CC BY 3.0; original bundled notices preserved",
+    "mapping_revision": "simple-uthmani-2",
+    "mapping_sha256": "4d27fe3073aa2a8331570c0d60c574323c40f25e5051a74d65d1d608f8766f47",
+    "source": {
+      "edition": "Tanzil Simple Hafs",
+      "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b",
+      "version": "1.1"
+    },
+    "target_sha256": "bf4f57b968d03f4131c070b1e285da9be0e0a108a21c910e872801ca273312c8"
+  },
+  "cues": [
+    {
+      "arabic": "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا",
+      "asset_ids": [
+        "8a1f3fd0a8548308b88710886f520f46b965b8e99ac6727821c653637edbc462",
+        "56ee9f3b857b28d962230014ad04ec141d4432d9686777994669f47250cdd83c"
+      ],
+      "cue_id": "first",
+      "layers": [
+        {
+          "asset_sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+          "bounds": [
+            163,
+            475,
+            413,
+            524
+          ],
+          "font_size": 30,
+          "layer": {
+            "alignment": "center",
+            "anchor": [
+              0.5,
+              0.5
+            ],
+            "baseline_anchor": "last",
+            "color": "#FFFFFF",
+            "direction": "rtl",
+            "enabled": true,
+            "fit": "wrap",
+            "font": "/installed/package/fonts/quran_font.ttf",
+            "font_size": 30,
+            "image": "",
+            "line_spacing": 8,
+            "max_lines": 3,
+            "min_font_size": 12,
+            "opacity": 1,
+            "outline_color": "#000000",
+            "outline_width": 0,
+            "persistent": false,
+            "region": [
+              0.05,
+              0.35,
+              0.95,
+              0.53
+            ],
+            "required": true,
+            "role": "arabic",
+            "safe_margin": 0,
+            "sha256": "",
+            "shadow_blur": 0,
+            "shadow_color": "#000000",
+            "shadow_offset": [
+              0,
+              0
+            ],
+            "shadow_opacity": 0,
+            "suffix": "",
+            "suffix_scale": 0.55,
+            "text": "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا",
+            "z_order": 0
+          },
+          "lines": [
+            [
+              "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا",
+              162.5,
+              512.0
+            ]
+          ],
+          "status": "ready",
+          "suffix_position": null
+        },
+        {
+          "asset_sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+          "bounds": [
+            120,
+            561,
+            456,
+            578
+          ],
+          "font_size": 16,
+          "layer": {
+            "alignment": "center",
+            "anchor": [
+              0.5,
+              0.56
+            ],
+            "baseline_anchor": "first",
+            "color": "#FFFFFF",
+            "direction": "ltr",
+            "enabled": true,
+            "fit": "wrap",
+            "font": "/installed/package/fonts/am.ttf",
+            "font_size": 16,
+            "image": "",
+            "line_spacing": 8,
+            "max_lines": 3,
+            "min_font_size": 12,
+            "opacity": 1,
+            "outline_color": "#000000",
+            "outline_width": 0,
+            "persistent": false,
+            "region": [
+              0.05,
+              0.53,
+              0.95,
+              0.68
+            ],
+            "required": true,
+            "role": "translation",
+            "safe_margin": 0,
+            "sha256": "",
+            "shadow_blur": 0,
+            "shadow_color": "#000000",
+            "shadow_offset": [
+              0,
+              0
+            ],
+            "shadow_opacity": 0,
+            "suffix": "",
+            "suffix_scale": 0.55,
+            "text": "staying there forever. Allah's promise is true.",
+            "z_order": 1
+          },
+          "lines": [
+            [
+              "staying there forever. Allah's promise is true.",
+              120.0,
+              573.44
+            ]
+          ],
+          "status": "ready",
+          "suffix_position": null
+        }
+      ],
+      "metadata": {
+        "end_seconds": 4,
+        "start_seconds": 0
+      },
+      "source_spans": [
+        {
+          "character_end": 39,
+          "character_start": 0,
+          "ends_ayah": false,
+          "mapping_revision": "simple-uthmani-2",
+          "source": {
+            "ayah": 9,
+            "surah": 31,
+            "word_end": 5,
+            "word_start": 1
+          },
+          "starts_ayah": true,
+          "target_sha256": "bf4f57b968d03f4131c070b1e285da9be0e0a108a21c910e872801ca273312c8",
+          "target_verse": "31:9",
+          "text": "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا"
+        }
+      ],
+      "status": "ready",
+      "translation": {
+        "binding": {
+          "arabic_sha256": "ac13ac552e5307c4b4a955b1ac8cfdc9d866570044b5dd84a38e480275c68cac",
+          "binding_id": "phrase",
+          "edited": false,
+          "mapping_revision": "simple-uthmani-2",
+          "review_status": "approved",
+          "reviewer": "Authored example fixture",
+          "revision": "1",
+          "segments": [
+            "staying there forever. Allah's promise is true."
+          ],
+          "source_identity_sha256": "4cef2ac1e5b08c722f88143935d2b4c9274dcc0d7b8955ad9a5bb84348566dd6",
+          "source_text": "staying there forever. Allah's promise is true.",
+          "source_text_sha256": "5d068b352e1d6b337aa5f7785b6e14205ea0e97bbfc9c640da04c69af8328ad0",
+          "spans": [
+            {
+              "ayah": 9,
+              "surah": 31,
+              "word_end": 5,
+              "word_start": 1
+            }
+          ]
+        },
+        "source": {
+          "attribution": "Authored example, not an identified creator translation",
+          "direction": "ltr",
+          "license": "test-only",
+          "provider": "local",
+          "resource": "authored-example",
+          "translator": "Example author",
+          "version": "1"
+        }
+      },
+      "warnings": []
+    },
+    {
+      "arabic": "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا",
+      "asset_ids": [
+        "8a1f3fd0a8548308b88710886f520f46b965b8e99ac6727821c653637edbc462",
+        "56ee9f3b857b28d962230014ad04ec141d4432d9686777994669f47250cdd83c"
+      ],
+      "cue_id": "repeat",
+      "layers": [
+        {
+          "asset_sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+          "bounds": [
+            163,
+            475,
+            413,
+            524
+          ],
+          "font_size": 30,
+          "layer": {
+            "alignment": "center",
+            "anchor": [
+              0.5,
+              0.5
+            ],
+            "baseline_anchor": "last",
+            "color": "#FFFFFF",
+            "direction": "rtl",
+            "enabled": true,
+            "fit": "wrap",
+            "font": "/installed/package/fonts/quran_font.ttf",
+            "font_size": 30,
+            "image": "",
+            "line_spacing": 8,
+            "max_lines": 3,
+            "min_font_size": 12,
+            "opacity": 1,
+            "outline_color": "#000000",
+            "outline_width": 0,
+            "persistent": false,
+            "region": [
+              0.05,
+              0.35,
+              0.95,
+              0.53
+            ],
+            "required": true,
+            "role": "arabic",
+            "safe_margin": 0,
+            "sha256": "",
+            "shadow_blur": 0,
+            "shadow_color": "#000000",
+            "shadow_offset": [
+              0,
+              0
+            ],
+            "shadow_opacity": 0,
+            "suffix": "",
+            "suffix_scale": 0.55,
+            "text": "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا",
+            "z_order": 0
+          },
+          "lines": [
+            [
+              "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا",
+              162.5,
+              512.0
+            ]
+          ],
+          "status": "ready",
+          "suffix_position": null
+        },
+        {
+          "asset_sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+          "bounds": [
+            120,
+            561,
+            456,
+            578
+          ],
+          "font_size": 16,
+          "layer": {
+            "alignment": "center",
+            "anchor": [
+              0.5,
+              0.56
+            ],
+            "baseline_anchor": "first",
+            "color": "#FFFFFF",
+            "direction": "ltr",
+            "enabled": true,
+            "fit": "wrap",
+            "font": "/installed/package/fonts/am.ttf",
+            "font_size": 16,
+            "image": "",
+            "line_spacing": 8,
+            "max_lines": 3,
+            "min_font_size": 12,
+            "opacity": 1,
+            "outline_color": "#000000",
+            "outline_width": 0,
+            "persistent": false,
+            "region": [
+              0.05,
+              0.53,
+              0.95,
+              0.68
+            ],
+            "required": true,
+            "role": "translation",
+            "safe_margin": 0,
+            "sha256": "",
+            "shadow_blur": 0,
+            "shadow_color": "#000000",
+            "shadow_offset": [
+              0,
+              0
+            ],
+            "shadow_opacity": 0,
+            "suffix": "",
+            "suffix_scale": 0.55,
+            "text": "staying there forever. Allah's promise is true.",
+            "z_order": 1
+          },
+          "lines": [
+            [
+              "staying there forever. Allah's promise is true.",
+              120.0,
+              573.44
+            ]
+          ],
+          "status": "ready",
+          "suffix_position": null
+        }
+      ],
+      "metadata": {
+        "end_seconds": 8,
+        "start_seconds": 4
+      },
+      "source_spans": [
+        {
+          "character_end": 39,
+          "character_start": 0,
+          "ends_ayah": false,
+          "mapping_revision": "simple-uthmani-2",
+          "source": {
+            "ayah": 9,
+            "surah": 31,
+            "word_end": 5,
+            "word_start": 1
+          },
+          "starts_ayah": true,
+          "target_sha256": "bf4f57b968d03f4131c070b1e285da9be0e0a108a21c910e872801ca273312c8",
+          "target_verse": "31:9",
+          "text": "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا"
+        }
+      ],
+      "status": "ready",
+      "translation": {
+        "binding": {
+          "arabic_sha256": "ac13ac552e5307c4b4a955b1ac8cfdc9d866570044b5dd84a38e480275c68cac",
+          "binding_id": "phrase",
+          "edited": false,
+          "mapping_revision": "simple-uthmani-2",
+          "review_status": "approved",
+          "reviewer": "Authored example fixture",
+          "revision": "1",
+          "segments": [
+            "staying there forever. Allah's promise is true."
+          ],
+          "source_identity_sha256": "4cef2ac1e5b08c722f88143935d2b4c9274dcc0d7b8955ad9a5bb84348566dd6",
+          "source_text": "staying there forever. Allah's promise is true.",
+          "source_text_sha256": "5d068b352e1d6b337aa5f7785b6e14205ea0e97bbfc9c640da04c69af8328ad0",
+          "spans": [
+            {
+              "ayah": 9,
+              "surah": 31,
+              "word_end": 5,
+              "word_start": 1
+            }
+          ]
+        },
+        "source": {
+          "attribution": "Authored example, not an identified creator translation",
+          "direction": "ltr",
+          "license": "test-only",
+          "provider": "local",
+          "resource": "authored-example",
+          "translator": "Example author",
+          "version": "1"
+        }
+      },
+      "warnings": []
+    }
+  ],
+  "job_directory": "/caller/output/job-<unique-id>",
+  "metadata": {},
+  "profile": {
+    "approval": "approved",
+    "asset_provenance": {},
+    "id": "plain",
+    "revision": "1"
+  },
+  "renderer_version": "0.2.0",
+  "request_id": "reviewed-example",
+  "runtime": {
+    "imagemagick": "ImageMagick 7.1.2-0 Q16-HDRI x64 3fcd081:20250713 https://imagemagick.org",
+    "native_raqm": true,
+    "pillow": "11.3.0",
+    "pillow_raqm": false
+  },
+  "schema_version": 1,
+  "status": "complete"
+}

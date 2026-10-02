@@ -1,0 +1,6 @@
+[
+  {"verse":"17:13","source_words":[4,4],"source_text":"طَائِرَهُ","target_text":"طَٰٓئِرَهُۥ","method":"Explicit authored equivalence: dagger alif and small connecting waw; same word and surrounding anchors"},
+  {"verse":"17:13","source_words":[6,6],"source_text":"عُنُقِهِ","target_text":"عُنُقِهِۦ","method":"Explicit authored equivalence: small connecting ya; same word and surrounding anchors"},
+  {"verse":"17:13","source_words":[8,8],"source_text":"لَهُ","target_text":"لَهُۥ","method":"Explicit authored equivalence: small connecting waw; same word and surrounding anchors"},
+  {"verse":"17:13","source_words":[12,12],"source_text":"يَلْقَاهُ","target_text":"يَلْقَىٰهُ","method":"Explicit authored equivalence: written alif versus alif maqsura with dagger alif; same word and surrounding anchors"}
+]

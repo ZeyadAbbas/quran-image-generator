@@ -264,6 +264,80 @@ ERROR_SCHEMA = obj(
     },
     ("code", "message", "retryable"),
 )
+PIXEL_BOX = {
+    "type": ["array", "null"],
+    "items": {"type": "integer"},
+    "minItems": 4,
+    "maxItems": 4,
+}
+POINT = {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}
+RESOLVED_SPAN = obj(
+    {
+        "source": SPAN,
+        "text": {"type": "string"},
+        "target_verse": TEXT,
+        "character_start": {"type": "integer", "minimum": 0},
+        "character_end": {"type": "integer", "minimum": 0},
+        "starts_ayah": {"type": "boolean"},
+        "ends_ayah": {"type": "boolean"},
+        "mapping_revision": TEXT,
+        "target_sha256": HASH,
+    },
+    (
+        "source",
+        "text",
+        "target_verse",
+        "character_start",
+        "character_end",
+        "starts_ayah",
+        "ends_ayah",
+        "mapping_revision",
+        "target_sha256",
+    ),
+)
+LAYER_PROPERTIES = {
+    **style_schema()["properties"],
+    "role": TEXT,
+    **{name: {"type": "string"} for name in ("text", "font", "image", "suffix")},
+    "persistent": {"type": "boolean"},
+}
+LAYER_PLAN = obj(
+    {
+        "layer": obj(LAYER_PROPERTIES, tuple(LAYER_PROPERTIES)),
+        "lines": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "prefixItems": [
+                    {"type": "string"},
+                    {"type": "number"},
+                    {"type": "number"},
+                ],
+                "minItems": 3,
+                "maxItems": 3,
+            },
+        },
+        "bounds": PIXEL_BOX,
+        "font_size": {"type": "integer", "minimum": 0},
+        "asset_sha256": {"anyOf": [HASH, {"const": ""}]},
+        "status": {"enum": ["ready", "disabled", "omitted_optional"]},
+        "suffix_position": {
+            "type": ["array", "null"],
+            "items": {"type": "number"},
+            "minItems": 3,
+            "maxItems": 3,
+        },
+    },
+    (
+        "layer",
+        "lines",
+        "bounds",
+        "font_size",
+        "asset_sha256",
+        "status",
+        "suffix_position",
+    ),
+)
 RESPONSE_SCHEMA = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     **obj(
@@ -284,10 +358,18 @@ RESPONSE_SCHEMA = {
                         "cue_id": TEXT,
                         "status": {"enum": ["ready", "needs_review", "failed"]},
                         "arabic": {"type": "string"},
-                        "source_spans": {"type": "array"},
-                        "translation": {"type": ["object", "null"]},
+                        "source_spans": {"type": "array", "items": RESOLVED_SPAN},
+                        "translation": {
+                            "anyOf": [
+                                {"type": "null"},
+                                obj(
+                                    {"source": TRANSLATION_SOURCE, "binding": BINDING},
+                                    ("source", "binding"),
+                                ),
+                            ]
+                        },
                         "metadata": {"type": "object"},
-                        "layers": {"type": "array"},
+                        "layers": {"type": "array", "items": LAYER_PLAN},
                         "asset_ids": {"type": "array", "items": HASH},
                         "warnings": {"type": "array", "items": {"type": "string"}},
                         "error": ERROR_SCHEMA,
@@ -310,14 +392,14 @@ RESPONSE_SCHEMA = {
                             "minItems": 2,
                             "maxItems": 2,
                         },
-                        "bounds": {"type": ["array", "null"]},
+                        "bounds": PIXEL_BOX,
                         "alpha_mode": {"const": "straight"},
                         "color_space": {"const": "sRGB"},
                         "roles": {"type": "array", "items": {"type": "string"}},
                         "persistent": {"type": "boolean"},
-                        "effect_bounds": {"type": ["array", "null"]},
-                        "anchor": {"type": "array"},
-                        "font_sha256": {"type": "string"},
+                        "effect_bounds": PIXEL_BOX,
+                        "anchor": POINT,
+                        "font_sha256": HASH,
                     },
                     (
                         "asset_id",

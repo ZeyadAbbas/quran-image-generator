@@ -242,6 +242,10 @@ python scripts/verify_artifacts.py
 Tests run without external network access. A separate manual smoke test covers
 the current QuranEnc catalog and translation responses.
 
+Caption regression fixtures and the six-reference preview sheet are documented
+in [caption regressions](docs/caption-regressions.md). Creator assets and visual
+approval remain explicit pending inputs.
+
 ## License and support
 
 The application code is released under the [MIT License](LICENSE.txt).

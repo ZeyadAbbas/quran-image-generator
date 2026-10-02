@@ -1,0 +1,1932 @@
+{
+  "schema_version": 1,
+  "approval": "needs_review",
+  "notes": "Authored content/geometry fixtures; original assets and translation edition unconfirmed. No timing approval.",
+  "translation_dataset": {
+    "source": {
+      "provider": "local",
+      "resource": "authored-six-reference-fixtures",
+      "version": "1",
+      "translator": "Fixture author",
+      "license": "CC0-1.0",
+      "attribution": "Authored test segments, NOT approved creator translations",
+      "direction": "ltr"
+    },
+    "corpus": {
+      "edition": "Tanzil Simple Hafs",
+      "version": "1.1",
+      "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+    },
+    "bindings": [
+      {
+        "binding_id": "31:9:1-5",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 31,
+            "ayah": 9,
+            "word_start": 1,
+            "word_end": 5
+          }
+        ],
+        "arabic_sha256": "ac13ac552e5307c4b4a955b1ac8cfdc9d866570044b5dd84a38e480275c68cac",
+        "source_text": "staying there forever. Allah's promise is true.",
+        "source_text_sha256": "5d068b352e1d6b337aa5f7785b6e14205ea0e97bbfc9c640da04c69af8328ad0",
+        "segments": [
+          "staying there forever. Allah's promise is true."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "31:9:6-8",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 31,
+            "ayah": 9,
+            "word_start": 6,
+            "word_end": 8
+          }
+        ],
+        "arabic_sha256": "4b750e29dc19a851bae5a2713c23924989045be2bd2242e1a06a74eb3378bbae",
+        "source_text": "He is the Almighty, the Wise.",
+        "source_text_sha256": "c2f9228276575a3eed29b47121064f577c1e8d5c110ef983efee26ef69d6ce98",
+        "segments": [
+          "He is the Almighty, the Wise."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "31:10:1-27",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 31,
+            "ayah": 10,
+            "word_start": 1,
+            "word_end": 27
+          }
+        ],
+        "arabic_sha256": "846b3742d276c85a6ab41d541af501a6f0a5ccccc14f0cf7c5f7976bb7565d1e",
+        "source_text": "He created the heavens without pillars you can see, and placed firm mountains on earth.",
+        "source_text_sha256": "d87ce631cd0be8a8e0e9daa4eb7516e9c7e5e6a9c812ee6a0a8d0af2e7c6a44e",
+        "segments": [
+          "He created the heavens without pillars you can see, and placed firm mountains on earth."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "31:11:1-3",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 31,
+            "ayah": 11,
+            "word_start": 1,
+            "word_end": 3
+          }
+        ],
+        "arabic_sha256": "a7dac001c1a6c72c8facab8141721a3069174b663a7213baef5c6fb95912d803",
+        "source_text": "This is Allah's creation.",
+        "source_text_sha256": "577bdc64df852c7b01a3e9e871fca9507a61b3578ff60b2d4253227b2fc6f90b",
+        "segments": [
+          "This is Allah's creation."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "31:11:1-14",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 31,
+            "ayah": 11,
+            "word_start": 1,
+            "word_end": 14
+          }
+        ],
+        "arabic_sha256": "ff71da1f47eacb69708107e0b61d63f1e159e5d1ced4082160e9f583832fe514",
+        "source_text": "This is Allah's creation. Show what others have created.",
+        "source_text_sha256": "4e930845406bfa4521c699a25240b4bf027f6a1cd34ca6eb0d345e2452793338",
+        "segments": [
+          "This is Allah's creation. Show what others have created."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "17:13:1-6",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 17,
+            "ayah": 13,
+            "word_start": 1,
+            "word_end": 6
+          }
+        ],
+        "arabic_sha256": "a0fca8d33b8baaa63faf1e62a900cc60e3d304df224528930c8522cb536d4b5e",
+        "source_text": "We have bound every human's destiny to their neck.",
+        "source_text_sha256": "74a3e95eee227d84d64e4cc3a8b1a122c11d545047fb13a92ca96f570bb66ea2",
+        "segments": [
+          "We have bound every human's destiny to their neck."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "17:13:1-11",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 17,
+            "ayah": 13,
+            "word_start": 1,
+            "word_end": 11
+          }
+        ],
+        "arabic_sha256": "0c2434905aa564ef68b61dced67a4cc84f8be2cbc32071c5b054614f1ad20acb",
+        "source_text": "A record will be brought out on the Day of Resurrection.",
+        "source_text_sha256": "7eb47208dfa8f8a0c3b6c1818982203014cf377d21cf9226d2135d4353d3dbba",
+        "segments": [
+          "A record will be brought out on the Day of Resurrection."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "17:13:7-11",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 17,
+            "ayah": 13,
+            "word_start": 7,
+            "word_end": 11
+          }
+        ],
+        "arabic_sha256": "29f2dbda2f07852b4df6421841d43b310212681a2e7d3cd85a346633b58388a2",
+        "source_text": "A record will be brought out on the Day of Resurrection.",
+        "source_text_sha256": "7eb47208dfa8f8a0c3b6c1818982203014cf377d21cf9226d2135d4353d3dbba",
+        "segments": [
+          "A record will be brought out on the Day of Resurrection."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "17:13:7-13",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 17,
+            "ayah": 13,
+            "word_start": 7,
+            "word_end": 13
+          }
+        ],
+        "arabic_sha256": "84b73452c421b14a8e459c7e5a2ae99d9f47fcdb8edadc5adefb5586489adb85",
+        "source_text": "A record will be brought out and found spread open.",
+        "source_text_sha256": "21397c7506a072b6e2165abdc006185ca1ed395123f7e2266f3b20f18cf478c7",
+        "segments": [
+          "A record will be brought out and found spread open."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "17:14:1-7",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 17,
+            "ayah": 14,
+            "word_start": 1,
+            "word_end": 7
+          }
+        ],
+        "arabic_sha256": "ac4ce5228939acbffa4e596654ea7e4b69840b0e1438fe94c9d8426ae8cfb7ce",
+        "source_text": "Read your record. You suffice as your own reckoner today.",
+        "source_text_sha256": "1779a04276e340dbade9f6d065073cc182b6e070e78bd015a4f852987f6b3700",
+        "segments": [
+          "Read your record. You suffice as your own reckoner today."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "17:15:1-21",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 17,
+            "ayah": 15,
+            "word_start": 1,
+            "word_end": 21
+          }
+        ],
+        "arabic_sha256": "f5c55173eae818d48300733a24fd783f1bced557c79930d641ed8cd227d5bf81",
+        "source_text": "Whoever is guided benefits themselves. No bearer carries another's burden.",
+        "source_text_sha256": "c6c148c391af8b1fe0a9c7902eca55181473ee2d8ed4211d1919617ab2d6e407",
+        "segments": [
+          "Whoever is guided benefits themselves. No bearer carries another's burden."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "2:43:5-7",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 2,
+            "ayah": 43,
+            "word_start": 5,
+            "word_end": 7
+          }
+        ],
+        "arabic_sha256": "d3d8bd2f84e6e03e195cdc73cd3aff56a46b2bcbd05b1d8e105c35c29f0abb6e",
+        "source_text": "and bow down with those who bow down.",
+        "source_text_sha256": "310178cd6b2f106495b73a32e39738440c81f405925a4a58b07efb3f9adf7112",
+        "segments": [
+          "and bow down with those who bow down."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "2:44:1-5",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 2,
+            "ayah": 44,
+            "word_start": 1,
+            "word_end": 5
+          }
+        ],
+        "arabic_sha256": "9a1c23324885e9f968fa88656f6d4c241ad6a69b7d3ffca4f050e5867848c330",
+        "source_text": "Do you urge people to righteousness and forget yourselves?",
+        "source_text_sha256": "00004f9b033b2917e23adc8964e21b46cbb432a8ef1a5ad9f28bcda264df3a49",
+        "segments": [
+          "Do you urge people to righteousness and forget yourselves?"
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "2:44:1-10",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 2,
+            "ayah": 44,
+            "word_start": 1,
+            "word_end": 10
+          }
+        ],
+        "arabic_sha256": "86eee0d13d19f16598240ab31e1a053acead66790871a7f43c0948f667822f28",
+        "source_text": "Do you urge righteousness while forgetting yourselves, though you read the Scripture?",
+        "source_text_sha256": "a9a7f56d5b8e538d0cdfdb48deb047b2965090f048f620b2657d2558b9a14ec0",
+        "segments": [
+          "Do you urge righteousness while forgetting yourselves, though you read the Scripture?"
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "2:45:1-1",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 2,
+            "ayah": 45,
+            "word_start": 1,
+            "word_end": 1
+          }
+        ],
+        "arabic_sha256": "23aacd497d5304a9861965f85d15e1ef5ad7a207dcd08439fff05ae59609f8f2",
+        "source_text": "Seek help.",
+        "source_text_sha256": "eb9e3ca61d04f857869bf9516d6c3b4659413fde2ae56df7ffd49043d14ebaf5",
+        "segments": [
+          "Seek help."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "5:23:1-5",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 5,
+            "ayah": 23,
+            "word_start": 1,
+            "word_end": 5
+          }
+        ],
+        "arabic_sha256": "86c7bb06db79b176ef3374cce7da3837eae2cf998e890f92c08c67855b1649c4",
+        "source_text": "Two God-fearing men",
+        "source_text_sha256": "5d90b2828facc9b306b83780167358050b30d9ace5c0a1da5fea12485c78255a",
+        "segments": [
+          "Two God-fearing men"
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "5:23:1-10",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 5,
+            "ayah": 23,
+            "word_start": 1,
+            "word_end": 10
+          }
+        ],
+        "arabic_sha256": "5f0de856bb2c23a5fa11f47ad048b5cbd1218fe669632efa3c975d5d29b15826",
+        "source_text": "Two God-fearing men blessed by Allah said to enter upon them.",
+        "source_text_sha256": "87ab16880853131e22373d0703a53a962d0a335212ed7331f98f844577bfca74",
+        "segments": [
+          "Two God-fearing men blessed by Allah said to enter upon them."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "5:23:9-18",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 5,
+            "ayah": 23,
+            "word_start": 9,
+            "word_end": 18
+          }
+        ],
+        "arabic_sha256": "46c4a5ecd6d26462d517f5bb9f602908f28893f86c10478cac33fa747e4d9eb1",
+        "source_text": "Enter the gate upon them. When you enter, you will prevail. Trust in Allah.",
+        "source_text_sha256": "6dce98611fddb6b03ae598f6225a03d9ba74b82b5e1c5d1f31f9ad239a50fd2e",
+        "segments": [
+          "Enter the gate upon them. When you enter, you will prevail. Trust in Allah."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "5:23:16-21",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 5,
+            "ayah": 23,
+            "word_start": 16,
+            "word_end": 21
+          }
+        ],
+        "arabic_sha256": "88a9f09abe06a9e881c7e084c020f493fb7c23716aa7ff5a977cce356d15ffb7",
+        "source_text": "Trust in Allah if you are believers.",
+        "source_text_sha256": "884b64286592836a3cfe4ea3eec876feae468a5c853741d57c6cd11a8a0a005a",
+        "segments": [
+          "Trust in Allah if you are believers."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "39:29:1-7",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 39,
+            "ayah": 29,
+            "word_start": 1,
+            "word_end": 7
+          }
+        ],
+        "arabic_sha256": "19b8bc88ff091f0858a802d780bc4749964659493225c7be9ef34e6f68b8bb7c",
+        "source_text": "Allah sets forth the parable of a slave owned by several quarrelsome masters,",
+        "source_text_sha256": "bba812da43aecb83cf3af03169f19abbab2bdc7d65dfae8c258f50867339c274",
+        "segments": [
+          "Allah sets forth the parable of a slave owned by several quarrelsome masters,"
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "39:29:1-19",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 39,
+            "ayah": 29,
+            "word_start": 1,
+            "word_end": 19
+          }
+        ],
+        "arabic_sha256": "19231d02afc1aa39fe494b226f5eea85779b1975f74c70fbd1a91aa950f63d47",
+        "source_text": "Allah sets forth a parable of disputed ownership and one owner. Are they equal?",
+        "source_text_sha256": "83989d861987bb601f6814ae6e4f78c4da079b5e4c38d38d15e2e34af64fb97e",
+        "segments": [
+          "Allah sets forth a parable of disputed ownership and one owner. Are they equal?"
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "39:30:1-4",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 39,
+            "ayah": 30,
+            "word_start": 1,
+            "word_end": 4
+          }
+        ],
+        "arabic_sha256": "b342576f5408e2cfcab09d534fc3720b23c1f834b0e0898ee2a81aa236b2e303",
+        "source_text": "You will die, and they will die.",
+        "source_text_sha256": "04e771232167a1e862e21c63cb2adb106683681145881b98490d0f01279cb70e",
+        "segments": [
+          "You will die, and they will die."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "39:30:4-4",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 39,
+            "ayah": 30,
+            "word_start": 4,
+            "word_end": 4
+          }
+        ],
+        "arabic_sha256": "7919678655f0671d12f9245a0788e3c7a7a6e240a5725b979b57439c139bc07f",
+        "source_text": "they will die.",
+        "source_text_sha256": "66b585c020b1110c3c63b33fae84485c2a4db8d1463330bc954753da9411aaa4",
+        "segments": [
+          "they will die."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "39:31:1-7",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 39,
+            "ayah": 31,
+            "word_start": 1,
+            "word_end": 7
+          }
+        ],
+        "arabic_sha256": "33475a146a76b04cff2d06625caaaec2ef5d782fc607dcd3bd0565a1731cff64",
+        "source_text": "Then you will dispute before your Lord on the Day of Resurrection.",
+        "source_text_sha256": "8577f24f6c5815c4c20b24e2a35a0a67f2a69d659cdaf5c9d3e4cf609b2724b9",
+        "segments": [
+          "Then you will dispute before your Lord on the Day of Resurrection."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "5:72:1-10",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 5,
+            "ayah": 72,
+            "word_start": 1,
+            "word_end": 10
+          }
+        ],
+        "arabic_sha256": "8a881b818164d43d22ef97f6bcdcdf2e6e99b67068a575d9bab62cd95cdc8943",
+        "source_text": "Those who say, \"Allah is the Messiah, son of Mary,\" have certainly fallen into disbelief.",
+        "source_text_sha256": "39c7477c3de9fb6c003ae00f50230a3f74b09aaa54d0fd547c3d81bdcf9002ce",
+        "segments": [
+          "Those who say, \"Allah is the Messiah, son of Mary,\" have certainly fallen into disbelief."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "5:72:1-34",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 5,
+            "ayah": 72,
+            "word_start": 1,
+            "word_end": 34
+          }
+        ],
+        "arabic_sha256": "64237e9f32fca5c2cdc070b4e0cfda03f0bd05569f9dc8ba69a8e31fbdb8a3a4",
+        "source_text": "The Messiah said to worship Allah, his Lord and your Lord.",
+        "source_text_sha256": "12be24eb9c0cefd7630a1dbb9657351f40d083cb0ed975f81ffb032ce227bdfb",
+        "segments": [
+          "The Messiah said to worship Allah, his Lord and your Lord."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "5:73:1-25",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 5,
+            "ayah": 73,
+            "word_start": 1,
+            "word_end": 25
+          }
+        ],
+        "arabic_sha256": "820a881ea24d432b721f5e00a5bbf17c7f8c9dfb13303dc4f5a20d71b0b995e0",
+        "source_text": "There is only one God. Those persisting in disbelief face painful punishment.",
+        "source_text_sha256": "8e50c17e35034023afe22cc61c7d0adc25bb52f48a75800187dc29723fdfff19",
+        "segments": [
+          "There is only one God. Those persisting in disbelief face painful punishment."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      },
+      {
+        "binding_id": "5:73:25-25",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 5,
+            "ayah": 73,
+            "word_start": 25,
+            "word_end": 25
+          }
+        ],
+        "arabic_sha256": "d621977e84fee10157bcef212d542c293db719e268f9bf39d61cfedc59842701",
+        "source_text": "painful.",
+        "source_text_sha256": "b1dbf61f0dbeeb014422682885a977b0846842d924b136a4c147f4bfd6bfe678",
+        "segments": [
+          "painful."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      }
+    ],
+    "schema_version": 1
+  },
+  "cases": [
+    {
+      "clip_id": "7339743928691821854",
+      "source": "https://www.tiktok.com/@islamstruebeauty/video/7339743928691821854",
+      "media_sha256": "1ef61916208cae13eb036d1761372774cb3b904d671ef86c51f9d19c51505656",
+      "reference_seconds": 2,
+      "approval": "needs_review",
+      "expected": [
+        {
+          "arabic": "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا",
+          "arabic_sha256": "ac13ac552e5307c4b4a955b1ac8cfdc9d866570044b5dd84a38e480275c68cac",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "وَهُوَ ٱلْعَزِيزُ ٱلْحَكِيمُ",
+          "arabic_sha256": "4b750e29dc19a851bae5a2713c23924989045be2bd2242e1a06a74eb3378bbae",
+          "starts_ayah": false,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "خَلَقَ ٱلسَّمَٰوَٰتِ بِغَيْرِ عَمَدٍ تَرَوْنَهَا وَأَلْقَىٰ فِى ٱلْأَرْضِ رَوَٰسِىَ أَن تَمِيدَ بِكُمْ وَبَثَّ فِيهَا مِن كُلِّ دَآبَّةٍ وَأَنزَلْنَا مِنَ ٱلسَّمَآءِ مَآءً فَأَنۢبَتْنَا فِيهَا مِن كُلِّ زَوْجٍ كَرِيمٍ",
+          "arabic_sha256": "846b3742d276c85a6ab41d541af501a6f0a5ccccc14f0cf7c5f7976bb7565d1e",
+          "starts_ayah": true,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "هَٰذَا خَلْقُ ٱللَّهِ",
+          "arabic_sha256": "a7dac001c1a6c72c8facab8141721a3069174b663a7213baef5c6fb95912d803",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "هَٰذَا خَلْقُ ٱللَّهِ",
+          "arabic_sha256": "a7dac001c1a6c72c8facab8141721a3069174b663a7213baef5c6fb95912d803",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "هَٰذَا خَلْقُ ٱللَّهِ فَأَرُونِى مَاذَا خَلَقَ ٱلَّذِينَ مِن دُونِهِۦ بَلِ ٱلظَّٰلِمُونَ فِى ضَلَٰلٍ مُّبِينٍ",
+          "arabic_sha256": "ff71da1f47eacb69708107e0b61d63f1e159e5d1ced4082160e9f583832fe514",
+          "starts_ayah": true,
+          "ends_ayah": true
+        }
+      ],
+      "request": {
+        "schema_version": 1,
+        "request_id": "7339743928691821854",
+        "operation": "render_batch",
+        "source_corpus": {
+          "edition": "Tanzil Simple Hafs",
+          "version": "1.1",
+          "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+        },
+        "canvas": {
+          "width": 576,
+          "height": 1024
+        },
+        "profile": {
+          "id": "islamstruebeauty",
+          "revision": "1-preview",
+          "approval": "needs_review",
+          "styles": {
+            "arabic": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+              "fit": "shrink",
+              "min_font_size": 20,
+              "max_lines": 4
+            },
+            "translation": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            },
+            "arabic_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d"
+            },
+            "latin_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            }
+          },
+          "provenance": {
+            "assets": {
+              "arabic": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "translation": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "arabic_title": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "latin_title": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              }
+            },
+            "reference_geometry": "observed, not approved",
+            "word_highlighting": false
+          }
+        },
+        "titles": true,
+        "quotations": true,
+        "verse_numbers": true,
+        "cues": [
+          {
+            "cue_id": "7339743928691821854-0",
+            "spans": [
+              {
+                "surah": 31,
+                "ayah": 9,
+                "word_start": 1,
+                "word_end": 5
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "31:9:1-5"
+          },
+          {
+            "cue_id": "7339743928691821854-1",
+            "spans": [
+              {
+                "surah": 31,
+                "ayah": 9,
+                "word_start": 6,
+                "word_end": 8
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "31:9:6-8"
+          },
+          {
+            "cue_id": "7339743928691821854-2",
+            "spans": [
+              {
+                "surah": 31,
+                "ayah": 10,
+                "word_start": 1,
+                "word_end": 27
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "31:10:1-27"
+          },
+          {
+            "cue_id": "7339743928691821854-3",
+            "spans": [
+              {
+                "surah": 31,
+                "ayah": 11,
+                "word_start": 1,
+                "word_end": 3
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "31:11:1-3"
+          },
+          {
+            "cue_id": "7339743928691821854-4",
+            "spans": [
+              {
+                "surah": 31,
+                "ayah": 11,
+                "word_start": 1,
+                "word_end": 3
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "31:11:1-3"
+          },
+          {
+            "cue_id": "7339743928691821854-5",
+            "spans": [
+              {
+                "surah": 31,
+                "ayah": 11,
+                "word_start": 1,
+                "word_end": 14
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "31:11:1-14"
+          }
+        ],
+        "output_directory": "rendered"
+      }
+    },
+    {
+      "clip_id": "7320492468246416670",
+      "source": "https://www.tiktok.com/@islamstruebeauty/video/7320492468246416670",
+      "media_sha256": "dbcb9cafd56a584ecd57b602fca737d9a936e7767fa74ee839b18be9b7a7b088",
+      "reference_seconds": 2,
+      "approval": "needs_review",
+      "expected": [
+        {
+          "arabic": "وَكُلَّ إِنسَٰنٍ أَلْزَمْنَٰهُ طَٰٓئِرَهُۥ فِى عُنُقِهِۦ",
+          "arabic_sha256": "a0fca8d33b8baaa63faf1e62a900cc60e3d304df224528930c8522cb536d4b5e",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "وَكُلَّ إِنسَٰنٍ أَلْزَمْنَٰهُ طَٰٓئِرَهُۥ فِى عُنُقِهِۦ وَنُخْرِجُ لَهُۥ يَوْمَ ٱلْقِيَٰمَةِ كِتَٰبًا",
+          "arabic_sha256": "0c2434905aa564ef68b61dced67a4cc84f8be2cbc32071c5b054614f1ad20acb",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "وَنُخْرِجُ لَهُۥ يَوْمَ ٱلْقِيَٰمَةِ كِتَٰبًا",
+          "arabic_sha256": "29f2dbda2f07852b4df6421841d43b310212681a2e7d3cd85a346633b58388a2",
+          "starts_ayah": false,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "وَنُخْرِجُ لَهُۥ يَوْمَ ٱلْقِيَٰمَةِ كِتَٰبًا",
+          "arabic_sha256": "29f2dbda2f07852b4df6421841d43b310212681a2e7d3cd85a346633b58388a2",
+          "starts_ayah": false,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "وَنُخْرِجُ لَهُۥ يَوْمَ ٱلْقِيَٰمَةِ كِتَٰبًا يَلْقَىٰهُ مَنشُورًا",
+          "arabic_sha256": "84b73452c421b14a8e459c7e5a2ae99d9f47fcdb8edadc5adefb5586489adb85",
+          "starts_ayah": false,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "ٱقْرَأْ كِتَٰبَكَ كَفَىٰ بِنَفْسِكَ ٱلْيَوْمَ عَلَيْكَ حَسِيبًا",
+          "arabic_sha256": "ac4ce5228939acbffa4e596654ea7e4b69840b0e1438fe94c9d8426ae8cfb7ce",
+          "starts_ayah": true,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "مَّنِ ٱهْتَدَىٰ فَإِنَّمَا يَهْتَدِى لِنَفْسِهِۦ وَمَن ضَلَّ فَإِنَّمَا يَضِلُّ عَلَيْهَا وَلَا تَزِرُ وَازِرَةٌ وِزْرَ أُخْرَىٰ وَمَا كُنَّا مُعَذِّبِينَ حَتَّىٰ نَبْعَثَ رَسُولًا",
+          "arabic_sha256": "f5c55173eae818d48300733a24fd783f1bced557c79930d641ed8cd227d5bf81",
+          "starts_ayah": true,
+          "ends_ayah": true
+        }
+      ],
+      "request": {
+        "schema_version": 1,
+        "request_id": "7320492468246416670",
+        "operation": "render_batch",
+        "source_corpus": {
+          "edition": "Tanzil Simple Hafs",
+          "version": "1.1",
+          "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+        },
+        "canvas": {
+          "width": 576,
+          "height": 1024
+        },
+        "profile": {
+          "id": "islamstruebeauty",
+          "revision": "1-preview",
+          "approval": "needs_review",
+          "styles": {
+            "arabic": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+              "fit": "shrink",
+              "min_font_size": 20,
+              "max_lines": 4
+            },
+            "translation": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            },
+            "arabic_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d"
+            },
+            "latin_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            }
+          },
+          "provenance": {
+            "assets": {
+              "arabic": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "translation": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "arabic_title": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "latin_title": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              }
+            },
+            "reference_geometry": "observed, not approved",
+            "word_highlighting": false
+          }
+        },
+        "titles": true,
+        "quotations": true,
+        "verse_numbers": true,
+        "cues": [
+          {
+            "cue_id": "7320492468246416670-0",
+            "spans": [
+              {
+                "surah": 17,
+                "ayah": 13,
+                "word_start": 1,
+                "word_end": 6
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "17:13:1-6"
+          },
+          {
+            "cue_id": "7320492468246416670-1",
+            "spans": [
+              {
+                "surah": 17,
+                "ayah": 13,
+                "word_start": 1,
+                "word_end": 11
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "17:13:1-11"
+          },
+          {
+            "cue_id": "7320492468246416670-2",
+            "spans": [
+              {
+                "surah": 17,
+                "ayah": 13,
+                "word_start": 7,
+                "word_end": 11
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "17:13:7-11"
+          },
+          {
+            "cue_id": "7320492468246416670-3",
+            "spans": [
+              {
+                "surah": 17,
+                "ayah": 13,
+                "word_start": 7,
+                "word_end": 11
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "17:13:7-11"
+          },
+          {
+            "cue_id": "7320492468246416670-4",
+            "spans": [
+              {
+                "surah": 17,
+                "ayah": 13,
+                "word_start": 7,
+                "word_end": 13
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "17:13:7-13"
+          },
+          {
+            "cue_id": "7320492468246416670-5",
+            "spans": [
+              {
+                "surah": 17,
+                "ayah": 14,
+                "word_start": 1,
+                "word_end": 7
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "17:14:1-7"
+          },
+          {
+            "cue_id": "7320492468246416670-6",
+            "spans": [
+              {
+                "surah": 17,
+                "ayah": 15,
+                "word_start": 1,
+                "word_end": 21
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "17:15:1-21"
+          }
+        ],
+        "output_directory": "rendered"
+      }
+    },
+    {
+      "clip_id": "7320203938483981599",
+      "source": "https://www.tiktok.com/@islamstruebeauty/video/7320203938483981599",
+      "media_sha256": "483c073bbc13d08d34935ea8aa71931a1c4d961cd2e4faf8fd1e438538c96487",
+      "reference_seconds": 2,
+      "approval": "needs_review",
+      "expected": [
+        {
+          "arabic": "وَٱرْكَعُوا۟ مَعَ ٱلرَّٰكِعِينَ",
+          "arabic_sha256": "d3d8bd2f84e6e03e195cdc73cd3aff56a46b2bcbd05b1d8e105c35c29f0abb6e",
+          "starts_ayah": false,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "أَتَأْمُرُونَ ٱلنَّاسَ بِٱلْبِرِّ وَتَنسَوْنَ أَنفُسَكُمْ",
+          "arabic_sha256": "9a1c23324885e9f968fa88656f6d4c241ad6a69b7d3ffca4f050e5867848c330",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "أَتَأْمُرُونَ ٱلنَّاسَ بِٱلْبِرِّ وَتَنسَوْنَ أَنفُسَكُمْ",
+          "arabic_sha256": "9a1c23324885e9f968fa88656f6d4c241ad6a69b7d3ffca4f050e5867848c330",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "أَتَأْمُرُونَ ٱلنَّاسَ بِٱلْبِرِّ وَتَنسَوْنَ أَنفُسَكُمْ وَأَنتُمْ تَتْلُونَ ٱلْكِتَٰبَ أَفَلَا تَعْقِلُونَ",
+          "arabic_sha256": "86eee0d13d19f16598240ab31e1a053acead66790871a7f43c0948f667822f28",
+          "starts_ayah": true,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "وَٱسْتَعِينُوا۟",
+          "arabic_sha256": "23aacd497d5304a9861965f85d15e1ef5ad7a207dcd08439fff05ae59609f8f2",
+          "starts_ayah": true,
+          "ends_ayah": false
+        }
+      ],
+      "request": {
+        "schema_version": 1,
+        "request_id": "7320203938483981599",
+        "operation": "render_batch",
+        "source_corpus": {
+          "edition": "Tanzil Simple Hafs",
+          "version": "1.1",
+          "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+        },
+        "canvas": {
+          "width": 576,
+          "height": 1024
+        },
+        "profile": {
+          "id": "islamstruebeauty",
+          "revision": "1-preview",
+          "approval": "needs_review",
+          "styles": {
+            "arabic": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+              "fit": "shrink",
+              "min_font_size": 20,
+              "max_lines": 4
+            },
+            "translation": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            },
+            "arabic_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d"
+            },
+            "latin_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            }
+          },
+          "provenance": {
+            "assets": {
+              "arabic": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "translation": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "arabic_title": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "latin_title": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              }
+            },
+            "reference_geometry": "observed, not approved",
+            "word_highlighting": false
+          }
+        },
+        "titles": true,
+        "quotations": true,
+        "verse_numbers": true,
+        "cues": [
+          {
+            "cue_id": "7320203938483981599-0",
+            "spans": [
+              {
+                "surah": 2,
+                "ayah": 43,
+                "word_start": 5,
+                "word_end": 7
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "2:43:5-7"
+          },
+          {
+            "cue_id": "7320203938483981599-1",
+            "spans": [
+              {
+                "surah": 2,
+                "ayah": 44,
+                "word_start": 1,
+                "word_end": 5
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "2:44:1-5"
+          },
+          {
+            "cue_id": "7320203938483981599-2",
+            "spans": [
+              {
+                "surah": 2,
+                "ayah": 44,
+                "word_start": 1,
+                "word_end": 5
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "2:44:1-5"
+          },
+          {
+            "cue_id": "7320203938483981599-3",
+            "spans": [
+              {
+                "surah": 2,
+                "ayah": 44,
+                "word_start": 1,
+                "word_end": 10
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "2:44:1-10"
+          },
+          {
+            "cue_id": "7320203938483981599-4",
+            "spans": [
+              {
+                "surah": 2,
+                "ayah": 45,
+                "word_start": 1,
+                "word_end": 1
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "2:45:1-1"
+          }
+        ],
+        "output_directory": "rendered"
+      }
+    },
+    {
+      "clip_id": "7320147035552779550",
+      "source": "https://www.tiktok.com/@islamstruebeauty/video/7320147035552779550",
+      "media_sha256": "bc2db28e1bba1ccab481d355112176da8967ef06b90b3831dd03f68c893cdce6",
+      "reference_seconds": 2,
+      "approval": "needs_review",
+      "expected": [
+        {
+          "arabic": "قَالَ رَجُلَانِ مِنَ ٱلَّذِينَ يَخَافُونَ",
+          "arabic_sha256": "86c7bb06db79b176ef3374cce7da3837eae2cf998e890f92c08c67855b1649c4",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "قَالَ رَجُلَانِ مِنَ ٱلَّذِينَ يَخَافُونَ أَنْعَمَ ٱللَّهُ عَلَيْهِمَا ٱدْخُلُوا۟ عَلَيْهِمُ",
+          "arabic_sha256": "5f0de856bb2c23a5fa11f47ad048b5cbd1218fe669632efa3c975d5d29b15826",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "ٱدْخُلُوا۟ عَلَيْهِمُ ٱلْبَابَ فَإِذَا دَخَلْتُمُوهُ فَإِنَّكُمْ غَٰلِبُونَ وَعَلَى ٱللَّهِ فَتَوَكَّلُوٓا۟",
+          "arabic_sha256": "46c4a5ecd6d26462d517f5bb9f602908f28893f86c10478cac33fa747e4d9eb1",
+          "starts_ayah": false,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "ٱدْخُلُوا۟ عَلَيْهِمُ ٱلْبَابَ فَإِذَا دَخَلْتُمُوهُ فَإِنَّكُمْ غَٰلِبُونَ وَعَلَى ٱللَّهِ فَتَوَكَّلُوٓا۟",
+          "arabic_sha256": "46c4a5ecd6d26462d517f5bb9f602908f28893f86c10478cac33fa747e4d9eb1",
+          "starts_ayah": false,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "وَعَلَى ٱللَّهِ فَتَوَكَّلُوٓا۟ إِن كُنتُم مُّؤْمِنِينَ",
+          "arabic_sha256": "88a9f09abe06a9e881c7e084c020f493fb7c23716aa7ff5a977cce356d15ffb7",
+          "starts_ayah": false,
+          "ends_ayah": true
+        }
+      ],
+      "request": {
+        "schema_version": 1,
+        "request_id": "7320147035552779550",
+        "operation": "render_batch",
+        "source_corpus": {
+          "edition": "Tanzil Simple Hafs",
+          "version": "1.1",
+          "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+        },
+        "canvas": {
+          "width": 576,
+          "height": 1024
+        },
+        "profile": {
+          "id": "islamstruebeauty",
+          "revision": "1-preview",
+          "approval": "needs_review",
+          "styles": {
+            "arabic": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+              "fit": "shrink",
+              "min_font_size": 20,
+              "max_lines": 4
+            },
+            "translation": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            },
+            "arabic_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d"
+            },
+            "latin_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            }
+          },
+          "provenance": {
+            "assets": {
+              "arabic": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "translation": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "arabic_title": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "latin_title": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              }
+            },
+            "reference_geometry": "observed, not approved",
+            "word_highlighting": false
+          }
+        },
+        "titles": true,
+        "quotations": true,
+        "verse_numbers": true,
+        "cues": [
+          {
+            "cue_id": "7320147035552779550-0",
+            "spans": [
+              {
+                "surah": 5,
+                "ayah": 23,
+                "word_start": 1,
+                "word_end": 5
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "5:23:1-5"
+          },
+          {
+            "cue_id": "7320147035552779550-1",
+            "spans": [
+              {
+                "surah": 5,
+                "ayah": 23,
+                "word_start": 1,
+                "word_end": 10
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "5:23:1-10"
+          },
+          {
+            "cue_id": "7320147035552779550-2",
+            "spans": [
+              {
+                "surah": 5,
+                "ayah": 23,
+                "word_start": 9,
+                "word_end": 18
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "5:23:9-18"
+          },
+          {
+            "cue_id": "7320147035552779550-3",
+            "spans": [
+              {
+                "surah": 5,
+                "ayah": 23,
+                "word_start": 9,
+                "word_end": 18
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "5:23:9-18"
+          },
+          {
+            "cue_id": "7320147035552779550-4",
+            "spans": [
+              {
+                "surah": 5,
+                "ayah": 23,
+                "word_start": 16,
+                "word_end": 21
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "5:23:16-21"
+          }
+        ],
+        "output_directory": "rendered"
+      }
+    },
+    {
+      "clip_id": "7320128271927020831",
+      "source": "https://www.tiktok.com/@islamstruebeauty/video/7320128271927020831",
+      "media_sha256": "4c7bc85f98567c1a9c78dbf4937b7b2296b2bbf303dcbb848f843947e11442d7",
+      "reference_seconds": 2,
+      "approval": "needs_review",
+      "expected": [
+        {
+          "arabic": "ضَرَبَ ٱللَّهُ مَثَلًا رَّجُلًا فِيهِ شُرَكَآءُ مُتَشَٰكِسُونَ",
+          "arabic_sha256": "19b8bc88ff091f0858a802d780bc4749964659493225c7be9ef34e6f68b8bb7c",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "ضَرَبَ ٱللَّهُ مَثَلًا رَّجُلًا فِيهِ شُرَكَآءُ مُتَشَٰكِسُونَ وَرَجُلًا سَلَمًا لِّرَجُلٍ هَلْ يَسْتَوِيَانِ مَثَلًا ٱلْحَمْدُ لِلَّهِ بَلْ أَكْثَرُهُمْ لَا يَعْلَمُونَ",
+          "arabic_sha256": "19231d02afc1aa39fe494b226f5eea85779b1975f74c70fbd1a91aa950f63d47",
+          "starts_ayah": true,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "إِنَّكَ مَيِّتٌ وَإِنَّهُم مَّيِّتُونَ",
+          "arabic_sha256": "b342576f5408e2cfcab09d534fc3720b23c1f834b0e0898ee2a81aa236b2e303",
+          "starts_ayah": true,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "مَّيِّتُونَ",
+          "arabic_sha256": "7919678655f0671d12f9245a0788e3c7a7a6e240a5725b979b57439c139bc07f",
+          "starts_ayah": false,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "ثُمَّ إِنَّكُمْ يَوْمَ ٱلْقِيَٰمَةِ عِندَ رَبِّكُمْ تَخْتَصِمُونَ",
+          "arabic_sha256": "33475a146a76b04cff2d06625caaaec2ef5d782fc607dcd3bd0565a1731cff64",
+          "starts_ayah": true,
+          "ends_ayah": true
+        }
+      ],
+      "request": {
+        "schema_version": 1,
+        "request_id": "7320128271927020831",
+        "operation": "render_batch",
+        "source_corpus": {
+          "edition": "Tanzil Simple Hafs",
+          "version": "1.1",
+          "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+        },
+        "canvas": {
+          "width": 576,
+          "height": 1024
+        },
+        "profile": {
+          "id": "islamstruebeauty",
+          "revision": "1-preview",
+          "approval": "needs_review",
+          "styles": {
+            "arabic": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+              "fit": "shrink",
+              "min_font_size": 20,
+              "max_lines": 4
+            },
+            "translation": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            },
+            "arabic_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d"
+            },
+            "latin_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            }
+          },
+          "provenance": {
+            "assets": {
+              "arabic": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "translation": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "arabic_title": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "latin_title": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              }
+            },
+            "reference_geometry": "observed, not approved",
+            "word_highlighting": false
+          }
+        },
+        "titles": true,
+        "quotations": true,
+        "verse_numbers": true,
+        "cues": [
+          {
+            "cue_id": "7320128271927020831-0",
+            "spans": [
+              {
+                "surah": 39,
+                "ayah": 29,
+                "word_start": 1,
+                "word_end": 7
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "39:29:1-7"
+          },
+          {
+            "cue_id": "7320128271927020831-1",
+            "spans": [
+              {
+                "surah": 39,
+                "ayah": 29,
+                "word_start": 1,
+                "word_end": 19
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "39:29:1-19"
+          },
+          {
+            "cue_id": "7320128271927020831-2",
+            "spans": [
+              {
+                "surah": 39,
+                "ayah": 30,
+                "word_start": 1,
+                "word_end": 4
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "39:30:1-4"
+          },
+          {
+            "cue_id": "7320128271927020831-3",
+            "spans": [
+              {
+                "surah": 39,
+                "ayah": 30,
+                "word_start": 4,
+                "word_end": 4
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "39:30:4-4"
+          },
+          {
+            "cue_id": "7320128271927020831-4",
+            "spans": [
+              {
+                "surah": 39,
+                "ayah": 31,
+                "word_start": 1,
+                "word_end": 7
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "39:31:1-7"
+          }
+        ],
+        "output_directory": "rendered"
+      }
+    },
+    {
+      "clip_id": "7295439449779965214",
+      "source": "https://www.tiktok.com/@islamstruebeauty/video/7295439449779965214",
+      "media_sha256": "7d0a20ec6e9c940f4512b0c6ed66ddf1359be9d5a0d5e46ce9b62497068dbbd6",
+      "reference_seconds": 2,
+      "approval": "needs_review",
+      "expected": [
+        {
+          "arabic": "لَقَدْ كَفَرَ ٱلَّذِينَ قَالُوٓا۟ إِنَّ ٱللَّهَ هُوَ ٱلْمَسِيحُ ٱبْنُ مَرْيَمَ",
+          "arabic_sha256": "8a881b818164d43d22ef97f6bcdcdf2e6e99b67068a575d9bab62cd95cdc8943",
+          "starts_ayah": true,
+          "ends_ayah": false
+        },
+        {
+          "arabic": "لَقَدْ كَفَرَ ٱلَّذِينَ قَالُوٓا۟ إِنَّ ٱللَّهَ هُوَ ٱلْمَسِيحُ ٱبْنُ مَرْيَمَ وَقَالَ ٱلْمَسِيحُ يَٰبَنِىٓ إِسْرَٰٓءِيلَ ٱعْبُدُوا۟ ٱللَّهَ رَبِّى وَرَبَّكُمْ إِنَّهُۥ مَن يُشْرِكْ بِٱللَّهِ فَقَدْ حَرَّمَ ٱللَّهُ عَلَيْهِ ٱلْجَنَّةَ وَمَأْوَىٰهُ ٱلنَّارُ وَمَا لِلظَّٰلِمِينَ مِنْ أَنصَارٍ",
+          "arabic_sha256": "64237e9f32fca5c2cdc070b4e0cfda03f0bd05569f9dc8ba69a8e31fbdb8a3a4",
+          "starts_ayah": true,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "لَّقَدْ كَفَرَ ٱلَّذِينَ قَالُوٓا۟ إِنَّ ٱللَّهَ ثَالِثُ ثَلَٰثَةٍ وَمَا مِنْ إِلَٰهٍ إِلَّآ إِلَٰهٌ وَٰحِدٌ وَإِن لَّمْ يَنتَهُوا۟ عَمَّا يَقُولُونَ لَيَمَسَّنَّ ٱلَّذِينَ كَفَرُوا۟ مِنْهُمْ عَذَابٌ أَلِيمٌ",
+          "arabic_sha256": "820a881ea24d432b721f5e00a5bbf17c7f8c9dfb13303dc4f5a20d71b0b995e0",
+          "starts_ayah": true,
+          "ends_ayah": true
+        },
+        {
+          "arabic": "أَلِيمٌ",
+          "arabic_sha256": "d621977e84fee10157bcef212d542c293db719e268f9bf39d61cfedc59842701",
+          "starts_ayah": false,
+          "ends_ayah": true
+        }
+      ],
+      "request": {
+        "schema_version": 1,
+        "request_id": "7295439449779965214",
+        "operation": "render_batch",
+        "source_corpus": {
+          "edition": "Tanzil Simple Hafs",
+          "version": "1.1",
+          "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+        },
+        "canvas": {
+          "width": 576,
+          "height": 1024
+        },
+        "profile": {
+          "id": "islamstruebeauty",
+          "revision": "1-preview",
+          "approval": "needs_review",
+          "styles": {
+            "arabic": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+              "fit": "shrink",
+              "min_font_size": 20,
+              "max_lines": 4
+            },
+            "translation": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            },
+            "arabic_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d"
+            },
+            "latin_title": {
+              "color": "#FFFFFF",
+              "outline_width": 1,
+              "shadow_offset": [
+                0,
+                1
+              ],
+              "shadow_blur": 1,
+              "shadow_opacity": 0.5,
+              "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f"
+            }
+          },
+          "provenance": {
+            "assets": {
+              "arabic": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "translation": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "arabic_title": {
+                "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              },
+              "latin_title": {
+                "sha256": "aec2877e12a903f06f37e21142441e129bbfe0b9ac4fa1900f05d8e8aff6592f",
+                "source": "bundled fallback",
+                "approval": "needs_review"
+              }
+            },
+            "reference_geometry": "observed, not approved",
+            "word_highlighting": false
+          }
+        },
+        "titles": true,
+        "quotations": true,
+        "verse_numbers": true,
+        "cues": [
+          {
+            "cue_id": "7295439449779965214-0",
+            "spans": [
+              {
+                "surah": 5,
+                "ayah": 72,
+                "word_start": 1,
+                "word_end": 10
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "5:72:1-10"
+          },
+          {
+            "cue_id": "7295439449779965214-1",
+            "spans": [
+              {
+                "surah": 5,
+                "ayah": 72,
+                "word_start": 1,
+                "word_end": 34
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "5:72:1-34"
+          },
+          {
+            "cue_id": "7295439449779965214-2",
+            "spans": [
+              {
+                "surah": 5,
+                "ayah": 73,
+                "word_start": 1,
+                "word_end": 25
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "5:73:1-25"
+          },
+          {
+            "cue_id": "7295439449779965214-3",
+            "spans": [
+              {
+                "surah": 5,
+                "ayah": 73,
+                "word_start": 25,
+                "word_end": 25
+              }
+            ],
+            "translation_policy": "required",
+            "translation_binding_id": "5:73:25-25"
+          }
+        ],
+        "output_directory": "rendered"
+      }
+    }
+  ]
+}

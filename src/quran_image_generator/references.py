@@ -10,9 +10,9 @@ from typing import Any
 from .content import TANZIL_TEXT_SHA256, _load_bundled_corpus, _package_bytes
 
 SIMPLE_SHA256 = "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
-MAPPING_REVISION = "simple-uthmani-1"
+MAPPING_REVISION = "simple-uthmani-2"
 # Replaced by the reproducible builder's payload digest.
-BRIDGE_SHA256 = "31e9fbd53ed49ac795e909091b62a731fe5c44edf101c24e82014e0e90a2cb89"
+BRIDGE_SHA256 = "4d27fe3073aa2a8331570c0d60c574323c40f25e5051a74d65d1d608f8766f47"
 
 
 class ReferenceError(ValueError):

@@ -2,10 +2,11 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
+import jsonschema
 import pytest
 from test_api import fixture_request
 
-from quran_image_generator.api import execute_request
+from quran_image_generator.api import RenderResponse, execute_request
 from quran_image_generator.excerpts import ExcerptRequest, select_excerpt
 from quran_image_generator.profiles import creator_profile
 from quran_image_generator.references import SourceSpan
@@ -59,3 +60,12 @@ def test_copyable_installed_contract_examples(name, tmp_path):
     expected = "needs_review" if name == "creator-preview" else "complete"
     assert result["status"] == expected, result
     assert result["assets"] == [] and not list(tmp_path.iterdir())
+
+
+def test_copyable_response_rejects_broken_nested_contract():
+    root = Path(__file__).resolve().parents[1] / "examples" / "captions"
+    data = json.loads((root / "render-response.json").read_text("utf-8"))
+    assert RenderResponse(data).to_dict()["status"] == "complete"
+    data["cues"][0]["source_spans"][0]["character_start"] = "not an offset"
+    with pytest.raises(jsonschema.ValidationError):
+        RenderResponse(data).to_dict()

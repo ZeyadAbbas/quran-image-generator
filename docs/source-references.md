@@ -1,4 +1,4 @@
-# Source references, mapping revision simple-uthmani-1
+# Source references, mapping revision simple-uthmani-2
 
 The public `CorpusIdentity`, `SourceSpan` and `resolve_span` surface uses the
 QuranScribe Tanzil Simple Hafs 1.1 hash, inclusive 1-based words after its
@@ -13,7 +13,11 @@ must be selected together; internal boundaries fail with `mapping_boundary`.
 Non-equal orthography groups are explicitly listed under `review` in the bridge
 and cannot be selected partially. A full ayah is identified by its authoritative
 surah/ayah identity even when internal spelling boundaries need review.
-This conservative first revision deliberately does not guess those boundaries.
+Revision 2 adds four explicit authored 17:13 token equivalences needed for the
+reference's repeated phrase. The builder verifies both exact source spellings
+and generated target offsets against `scripts/data/reviewed-word-boundaries.json`.
+Small connecting waw/ya and written alif differences do not become extra words.
+The remaining 4,194 spelling groups stay unavailable for partial selection.
 
 `bridge_data()['review']` is the exhaustive review backlog. A later reviewed
 revision may admit more boundaries, with a new pinned mapping checksum. Runtime

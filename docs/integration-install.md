@@ -1,9 +1,8 @@
 # Independent QuranScribe handoff
 
-Install renderer **0.2.x**, schema **1** in a separate environment. The intended
-release tag is `v0.2.0`; a pinned merged commit or wheel is also supported. Until
-that tag is available, pin the concrete merged API commit rather than floating
-`main`. There is no claim of PyPI publication. Pick the executable/environment
+Install renderer **0.2.x**, schema **1** in a separate environment. The integrated
+release tag is `v0.2.0`; a pinned merged commit or wheel is also supported.
+There is no claim of PyPI publication. Pick the executable/environment
 explicitly, check `--capabilities`, and reject incompatible schema/renderer versions.
 
 ```
