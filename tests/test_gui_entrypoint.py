@@ -267,4 +267,5 @@ def test_gui_entrypoint_is_separate_and_adds_no_dependency():
     assert gui_scripts == [
         'quran-image-generator-gui = "quran_image_generator.gui_cli:main"'
     ]
-    assert all(name not in project for name in ("pillow", "pyqt", "pyside", "electron"))
+    # Pillow is now a headless scene-rendering dependency; Tk still adds no GUI framework.
+    assert all(name not in project for name in ("pyqt", "pyside", "electron"))

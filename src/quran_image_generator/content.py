@@ -135,7 +135,7 @@ def _load_bundled_corpus() -> _BundledCorpus:
             raise QuranDataIntegrityError(
                 f"bundled Tanzil metadata has a discontinuity at chapter {number}"
             )
-        chapters.append(Chapter(number, name, count))
+        chapters.append(Chapter(number, name, count, element.get("name", ""), element.get("ename", "")))
         expected_start += count
 
     if len(chapters) != 114 or expected_start != 6236:

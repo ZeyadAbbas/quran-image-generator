@@ -22,6 +22,8 @@ def _apply_style(draw: Drawing, style: TextStyle) -> None:
     draw.text_kerning = style.letter_spacing
     draw.max_width = style.max_width
     draw.word_spacing = style.word_spacing
+    if style.direction != "undefined":
+        draw.text_direction = style.direction
 
 
 class WandTextMeasurer:

@@ -18,6 +18,7 @@ class TextStyle:
     letter_spacing: float
     max_width: int
     word_spacing: str
+    direction: str = "undefined"
 
 
 @dataclass(frozen=True, slots=True)
