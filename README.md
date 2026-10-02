@@ -5,9 +5,10 @@
 </p>
 
 Create customizable PNG images from Quran passages with a desktop app or a
-command-line workflow. The revived application uses Quran Foundation's current
-Content APIs, discovers translations from the live catalog, and keeps API and
-publishing credentials out of configuration files.
+command-line workflow. Arabic Quran text and chapter metadata are bundled from
+the Tanzil Project, so Arabic-only generation works offline and requires no
+account, API key, or secret. Optional translations are discovered and retrieved
+from QuranEnc.
 
 > **Release status:** the project is usable from a source checkout and is under
 > active development. There is no public PyPI package or published release yet.
@@ -18,14 +19,14 @@ publishing credentials out of configuration files.
   saving, and optional confirmed Instagram publishing.
 - Interactive and one-shot CLI modes, including random passage generation and
   headless operation.
-- Arabic text, up to three ordered live-catalog translations, bundled fonts,
-  verse-number artwork, backgrounds, colors, spacing, and positioning controls.
+- Bundled Arabic text, up to three ordered QuranEnc translations, bundled
+  fonts, verse-number artwork, backgrounds, colors, spacing, and positioning.
 - Validated YAML configuration, a non-root CLI Docker image, and offline tests
   and render smoke checks.
 
 ### Desktop app
 
-![Quran Image Generator desktop app showing an authenticated live passage and its rendered preview](readme_images/gui.webp)
+![Quran Image Generator desktop app showing a Quran passage and rendered preview](readme_images/gui.webp)
 
 ### Example outputs
 
@@ -45,13 +46,12 @@ canvas, typography, colors, spacing, verse markers, and translations.
 
 ## Requirements
 
-- Python 3.10 through 3.14. CI currently exercises the supported endpoints,
-  Python 3.10 and 3.14.
+- Python 3.10 through 3.14.
 - [ImageMagick](https://imagemagick.org/script/download.php) and its native
   libraries. See the [Wand installation guide](https://docs.wand-py.org/en/latest/guide/install.html).
 - [Tk](https://docs.python.org/3/library/tkinter.html) and a graphical display
   for the desktop app. The CLI itself does not require Tk.
-- Quran Foundation backend-app credentials for live catalog and passage data.
+- Network access only when listing or using optional translations.
 
 ## Quick start: desktop app
 
@@ -63,7 +63,7 @@ cd quran-image-generator
 ```
 
 Create an isolated [virtual environment](https://docs.python.org/3/library/venv.html)
-from the repository root:
+from the repository root.
 
 **Windows PowerShell**
 
@@ -72,6 +72,7 @@ py -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e .
+quran-image-generator-gui
 ```
 
 **Linux (POSIX shell)**
@@ -81,60 +82,41 @@ python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e .
-```
-
-Start the app:
-
-```powershell
-# PowerShell
 quran-image-generator-gui
 ```
 
-```sh
-# POSIX shell
-quran-image-generator-gui
-```
-
-When prompted, enter the Quran Foundation environment, client ID, and client
-secret. The secret field is hidden and the credentials stay only in memory for
-that app session; they are never added to YAML or saved by the application. Use
-**API credentials…** on the Passage & Output tab to replace them later.
-
-Use `quran-image-generator-gui --config path/to/config.yaml` to start with a
+No setup prompt or content credential is required. Use
+`quran-image-generator-gui --config path/to/config.yaml` to start with a
 different configuration file. Choose a chapter and verse range, adjust the
 layout, and select **Generate / Refresh**. **Save PNG…** always opens a save
-dialog; the configured output directory is only its suggested starting
-location. Any edit makes the current preview stale until it is regenerated.
-Publishing is never implicit and requires confirmation in the app.
+dialog; the configured output directory is its suggested starting location.
+Any edit makes the current preview stale until it is regenerated. Publishing
+is never implicit and requires confirmation in the app.
 
 The GUI exposes the normal generation settings documented in
 [`docs/configuration.md`](docs/configuration.md). It can load and save YAML,
-open the most recently saved PNG, and display concise setup help. To verify Tk
-and the current display independently, run `python -m tkinter`.
+open the most recently saved PNG, and includes its own Help / About tab. To
+verify Tk and the current display independently, run `python -m tkinter`.
 
-## Quran Foundation access
+## Content sources
 
-1. [Request access](https://api-docs.quran.foundation/request-access/) for a
-   backend application.
-2. Follow the official [quickstart](https://api-docs.quran.foundation/docs/quickstart/)
-   and [manual authentication guide](https://api-docs.quran.foundation/docs/quickstart/manual-authentication/).
-3. Enter the credentials in **API credentials…** in the GUI, use the CLI's
-   `--prompt-credentials` option, or export `QF_CLIENT_ID`, `QF_CLIENT_SECRET`,
-   and optionally `QF_ENV` for automation. Never put secrets in `config.yaml`,
-   screenshots, logs, issues, or commits.
+The package includes the verbatim Tanzil Uthmani Quran text, version 1.1, and
+Tanzil chapter metadata, version 1.0. The text is verified at runtime with this
+SHA-256 digest:
 
-`QF_ENV` accepts `prelive` (the default) or `production`. New applications begin
-in pre-live, whose content dataset currently includes only Al-Fatihah (1) and
-Al-Baqarah (2). Full-Quran access requires an approved production application.
-Tokens are environment-specific. Existing integrations should also review the
-[migration guide](https://api-docs.quran.foundation/docs/quickstart/migration/).
-Endpoint details and current response fields are in the official
-[Content API reference](https://api-docs.quran.foundation/docs/category/content-apis/).
+```text
+bf4f57b968d03f4131c070b1e285da9be0e0a108a21c910e872801ca273312c8
+```
 
-`.env.example` is a template, not an application configuration loader. Local
-source runs do **not** read `.env` automatically: export the variables or use
-your own environment manager when you need non-interactive credentials. Docker
-reads such a file only when you explicitly pass `--env-file`.
+The files are distributed under the Creative Commons Attribution 3.0 license.
+Their original notice is preserved, and attribution details are recorded in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
+Translations are not bundled. The app retrieves selected translations and
+their version metadata from [QuranEnc](https://quranenc.com/) at runtime. If
+that service or the network is unavailable, the GUI remains usable for
+Arabic-only images. Translation material remains subject to
+[QuranEnc's terms](https://quranenc.com/en/terms).
 
 ## Command line
 
@@ -151,22 +133,17 @@ quran-image-generator --chapter 1 --start 1 --end 7
 # One random passage, then open it
 quran-image-generator --random --open
 
-# Explicit headless output location; this relative path is resolved from the CWD
+# Explicit headless output location
 quran-image-generator --chapter 2 --start 255 --end 255 --no-open --output-dir outputs
 
 # Select a configuration file explicitly
 quran-image-generator --config config.yaml --chapter 1 --start 1 --end 1
-
-# Enter API credentials interactively for this run; the secret input is hidden
-quran-image-generator --prompt-credentials --chapter 1 --start 1 --end 1
 ```
 
 `--chapter`, `--start`, and `--end` must be supplied together. They cannot be
 combined with `--random`. With no selector, the CLI repeatedly prompts for a
-passage (or chooses random passages when `generate random verses` is enabled in
-the config) and asks whether to continue. One-shot modes generate once and exit.
-Use `--open` or `--no-open` to override each mode's default. On a server or in
-automation, use a one-shot selector and `--no-open`.
+passage and asks whether to continue. One-shot modes generate once and exit.
+Use `--open` or `--no-open` to override each mode's default.
 
 Generated names are `<Chapter> <first> - <last>.png` (or
 `<Chapter> <verse>.png`). Repeating the same passage in the same directory may
@@ -176,9 +153,7 @@ the current working directory.
 
 ### Translation catalog
 
-Translations are resolved from the live Quran Foundation catalog rather than a
-bundled ID table. Add `--prompt-credentials` to either command when the
-credentials are not already in the environment:
+List the current QuranEnc translation catalog:
 
 ```sh
 quran-image-generator --list-translations
@@ -186,14 +161,12 @@ quran-image-generator --list-translations --refresh-catalog
 ```
 
 List mode cannot be combined with passage selectors, `--random`, output/open
-overrides, or publishing. A refresh replaces the in-process catalog only after
-the new response succeeds.
-
-Choose at most three resources in `config.yaml`; their order is preserved.
-Prefer the catalog's exact `id` or `slug`. A `language` selector works only when
-that language has exactly one live resource, otherwise the application reports
-the exact choices. Use `translation languages: []` to disable translations.
-See [configuration](docs/configuration.md#translations) for examples.
+overrides, or publishing. Choose at most three resources in `config.yaml`; their
+order is preserved. Prefer an exact `key`, such as `english_saheeh`. A
+`language` selector works only when that language has exactly one resource;
+otherwise the application reports the exact choices. Use
+`translation languages: []` to create Arabic-only images. See
+[configuration](docs/configuration.md#translations) for examples.
 
 ## Docker (CLI only)
 
@@ -202,16 +175,9 @@ or display stack. Build it from the repository root:
 
 ```sh
 docker build --target runtime -t quran-image-generator .
-```
-
-On Linux, prepare the environment/output files and run:
-
-```sh
-cp .env.example .env                 # fill in credentials; do not commit it
 mkdir -p outputs
 docker run --rm \
   --user "$(id -u):$(id -g)" --env HOME=/tmp \
-  --env-file .env \
   --mount type=bind,src="$(pwd)/config.yaml",dst=/config/config.yaml,readonly \
   --mount type=bind,src="$(pwd)/outputs",dst=/output \
   quran-image-generator \
@@ -219,13 +185,11 @@ docker run --rm \
   --chapter 1 --start 1 --end 1
 ```
 
-The config mount is read-only and the output mount is writable. Mount any custom
-background or font separately as read-only and reference its container path in
-the YAML. Docker's `--env-file` behavior is separate from local source runs.
-CI exercises this workflow with a Linux Docker engine. Docker Desktop's
-Linux-container bind mounts on Windows are not covered by CI; use Docker's
+Mount any custom background or font separately as read-only and reference its
+container path in YAML. Docker Desktop's Linux-container bind mounts on Windows
+are not covered by CI; use Docker's
 [bind-mount guidance](https://docs.docker.com/engine/storage/bind-mounts/) with
-absolute host paths rather than copying the POSIX command unchanged.
+absolute host paths.
 
 ## Optional Instagram publishing
 
@@ -239,23 +203,21 @@ Set `QIG_INSTAGRAM_USERNAME` and `QIG_INSTAGRAM_PASSWORD`, then opt in per run
 with `--publish post` or `--publish story`. A CLI attached to a terminal may
 prompt for missing Instagram credentials (with a hidden password); the GUI
 never prompts for them. Publishing is attempted only after the PNG is saved,
-and a publishing failure does not remove the local file. Do not store
-credentials or publishing choices in YAML.
+and a publishing failure does not remove the local file.
 
 ## Configuration and help
 
-- [`config.yaml`](config.yaml) is a working, annotated example rather than a
-  statement of every default.
+- [`config.yaml`](config.yaml) is a working, annotated example.
 - [`docs/configuration.md`](docs/configuration.md) is the canonical setting
   reference, including defaults, ranges, paths, and translation selectors.
-- [`docs/troubleshooting.md`](docs/troubleshooting.md) covers credentials,
+- [`docs/troubleshooting.md`](docs/troubleshooting.md) covers content,
   ImageMagick, Tk, fonts, layout, Docker, and publishing failures.
 - [`docs/gui-smoke-test.md`](docs/gui-smoke-test.md) is the manual GUI release
   smoke checklist.
 
 ## Development
 
-Install from a checkout with the development extra, then run the offline checks:
+Install from a checkout with the development extra, then run the checks:
 
 ```sh
 python -m pip install -e ".[dev]"
@@ -267,17 +229,20 @@ python -m build
 python scripts/verify_artifacts.py
 ```
 
-CI runs the test and packaging matrix without live credentials. A real live-API
-smoke test is separate and requires authorized Quran Foundation credentials.
+Tests run without external network access. A separate manual smoke test covers
+the current QuranEnc catalog and translation responses.
 
 ## License and support
 
-Released under the [MIT License](LICENSE.txt). Please use
+The application code is released under the [MIT License](LICENSE.txt).
+Third-party data and assets retain their own licenses; see
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Please use
 [GitHub Issues](https://github.com/ZeyadAbbas/quran-image-generator/issues) for
-reproducible bugs and focused feature requests, but redact credentials, tokens,
-personal paths, and private generated content.
+reproducible bugs and focused feature requests, but redact personal paths and
+private generated content.
 
-Quran text and translations are obtained from
-[Quran Foundation](https://quran.foundation/). The bundled Arabic typeface comes
-from [me_quran](https://tanzil.net/docs/me_quran_font), and multilingual fonts
-come from [Google Noto Fonts](https://fonts.google.com/noto).
+Arabic Quran text and metadata come from the
+[Tanzil Project](https://tanzil.net/). Optional translations come from
+[QuranEnc](https://quranenc.com/). The bundled Arabic typeface comes from
+[me_quran](https://tanzil.net/docs/me_quran_font), and multilingual fonts come
+from [Google Noto Fonts](https://fonts.google.com/noto).

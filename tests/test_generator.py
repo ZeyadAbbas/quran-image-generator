@@ -85,16 +85,24 @@ def test_translation_selection_resolves_before_verses_and_flows_to_layout(
 ):
     events = []
     resource = TranslationResource(
-        "131",
-        "clearquran-with-tafsir",
+        "english_saheeh",
         "The Clear Quran",
-        "Dr. Mustafa Khattab",
+        "Noor International Center",
         "English",
         "en",
+        "1.1.2",
+        "ltr",
     )
     passage = Passage(
         Chapter(1, "Al-Fatihah", 7),
-        (Verse(1, "1:1", ("quran",), (VerseTranslation("131", "translation"),)),),
+        (
+            Verse(
+                1,
+                "1:1",
+                ("quran",),
+                (VerseTranslation("english_saheeh", "translation"),),
+            ),
+        ),
     )
 
     class FakeContentClient:
@@ -118,7 +126,7 @@ def test_translation_selection_resolves_before_verses_and_flows_to_layout(
         return object()
 
     configured = TranslationSettings(
-        TranslationSelector("slug", "clearquran-with-tafsir"),
+        TranslationSelector("key", "english_saheeh"),
         None,
         18,
     )
@@ -134,8 +142,8 @@ def test_translation_selection_resolves_before_verses_and_flows_to_layout(
 
     assert events == [
         ("resolve", (configured.selector,)),
-        ("fetch", ("131",)),
-        ("layout", "131", "Arial"),
+        ("fetch", ("english_saheeh",)),
+        ("layout", "english_saheeh", "Arial"),
         ("render", resource),
     ]
 

@@ -34,11 +34,7 @@ def _install_chapter_client(monkeypatch, chapters=None):
             return available
 
     client = FakeContentClient()
-    monkeypatch.setattr(
-        content.QuranContentClient,
-        "from_environment",
-        lambda *args, **kwargs: client,
-    )
+    monkeypatch.setattr(content, "QuranDataClient", lambda *args, **kwargs: client)
     return client
 
 
@@ -83,7 +79,7 @@ def test_help_has_no_runtime_imports_or_filesystem_side_effects(tmp_path):
     assert "quran-image-generator --chapter 2 --start 255 --end 257" in completed.stdout
     assert "--publish {post,story}" in completed.stdout
     assert "--list-translations" in completed.stdout
-    assert "--prompt-credentials" in completed.stdout
+    assert "--prompt" not in completed.stdout
     assert list(outside.iterdir()) == []
 
 
@@ -159,122 +155,59 @@ def test_list_translations_is_lazy_and_prints_exact_identity(monkeypatch, capsys
     from quran_image_generator import content
 
     resource = TranslationResource(
-        "131",
-        "clearquran-with-tafsir",
+        "english_saheeh",
         "The Clear Quran",
-        "Dr. Mustafa Khattab",
+        "Noor International Center",
         "English",
         "en",
+        "1.1.2",
+        "ltr",
     )
-    resource_without_slug = TranslationResource(
-        "136",
-        None,
+    second_resource = TranslationResource(
+        "uzbek_mansour",
         "Uzbek Translation",
         "Muhammad Sodik Muhammad Yusuf",
         "Uzbek",
         "uz",
+        "1.0.0",
+        "ltr",
     )
     calls = []
 
     class FakeClient:
         def translation_catalog(self, *, refresh):
             calls.append(refresh)
-            return SimpleNamespace(resources=(resource, resource_without_slug))
+            return SimpleNamespace(resources=(resource, second_resource))
 
         def list_chapters(self):
             pytest.fail("translation listing must not load the chapter catalog")
 
-    monkeypatch.setattr(
-        content.QuranContentClient,
-        "from_environment",
-        lambda *args, **kwargs: FakeClient(),
-    )
+    monkeypatch.setattr(content, "QuranDataClient", lambda: FakeClient())
     assert cli.main(["--list-translations", "--refresh-catalog"]) == 0
     output = capsys.readouterr().out
     assert calls == [True]
-    assert "131 | clearquran-with-tafsir | en" in output
-    assert "The Clear Quran | Dr. Mustafa Khattab" in output
-    assert "136 | - | uz | Uzbek Translation | Muhammad Sodik Muhammad Yusuf" in output
+    assert "english_saheeh | en | 1.1.2 | The Clear Quran" in output
+    assert "uzbek_mansour | uz | 1.0.0 | Uzbek Translation" in output
 
 
 def test_list_translations_reports_api_failure_without_traceback(monkeypatch, capsys):
     from quran_image_generator import content
-    from quran_image_generator.content import QuranApiPayloadError
+    from quran_image_generator.content import TranslationPayloadError
 
     class FailingClient:
         def translation_catalog(self, *, refresh):
-            raise QuranApiPayloadError(
-                "Quran Foundation Content API",
-                "/resources/translations",
-                1,
-                "invalid catalog",
-            )
+            raise TranslationPayloadError("invalid translation catalog")
 
-    monkeypatch.setattr(
-        content.QuranContentClient,
-        "from_environment",
-        lambda *args, **kwargs: FailingClient(),
-    )
+    monkeypatch.setattr(content, "QuranDataClient", lambda: FailingClient())
 
     with pytest.raises(SystemExit) as caught:
         cli.main(["--list-translations"])
 
     assert caught.value.code == 1
     error = capsys.readouterr().err
-    assert "Quran API error:" in error
-    assert "/resources/translations" in error
+    assert "Translation service error:" in error
+    assert "invalid translation catalog" in error
     assert "Traceback" not in error
-
-
-def test_prompt_credentials_builds_session_only_config(monkeypatch):
-    answers = iter(("production", "typed-client-id"))
-    monkeypatch.setattr(cli.sys, "stdin", SimpleNamespace(isatty=lambda: True))
-    monkeypatch.setattr(builtins, "input", lambda _prompt="": next(answers))
-    monkeypatch.setattr(cli.getpass, "getpass", lambda _prompt="": "typed-secret")
-
-    config = cli._prompt_for_quran_api_config(cli.build_parser())
-
-    assert config.environment == "production"
-    assert config.client_id == "typed-client-id"
-    assert config.client_secret == "typed-secret"
-    assert "typed-client-id" not in repr(config)
-    assert "typed-secret" not in repr(config)
-
-
-def test_prompt_credentials_can_use_existing_environment_values(monkeypatch):
-    answers = iter(("", ""))
-    monkeypatch.setattr(cli.sys, "stdin", SimpleNamespace(isatty=lambda: True))
-    monkeypatch.setenv("QF_ENV", "prelive")
-    monkeypatch.setenv("QF_CLIENT_ID", "environment-client")
-    monkeypatch.setenv("QF_CLIENT_SECRET", "environment-secret")
-    monkeypatch.setattr(builtins, "input", lambda _prompt="": next(answers))
-    monkeypatch.setattr(cli.getpass, "getpass", lambda _prompt="": "")
-
-    config = cli._prompt_for_quran_api_config(cli.build_parser())
-
-    assert config.environment == "prelive"
-    assert config.client_id == "environment-client"
-    assert config.client_secret == "environment-secret"
-
-
-def test_prompt_credentials_requires_an_interactive_terminal(monkeypatch, capsys):
-    monkeypatch.setattr(cli.sys, "stdin", SimpleNamespace(isatty=lambda: False))
-    monkeypatch.setattr(
-        builtins,
-        "input",
-        lambda _prompt="": pytest.fail("non-interactive input must not be read"),
-    )
-    monkeypatch.setattr(
-        cli.getpass,
-        "getpass",
-        lambda _prompt="": pytest.fail("non-interactive secret must not be read"),
-    )
-
-    with pytest.raises(SystemExit) as caught:
-        cli._prompt_for_quran_api_config(cli.build_parser())
-
-    assert caught.value.code == 2
-    assert "interactive terminal" in capsys.readouterr().err
 
 
 def test_out_of_bounds_range_fails_before_config_or_output_side_effects(
@@ -449,33 +382,8 @@ def test_interactive_prompt_uses_sparse_live_chapter_bounds(monkeypatch, capsys)
     assert "between 286 and 286" in output
 
 
-def test_missing_quran_api_credentials_fail_before_interactive_prompt(
-    monkeypatch, tmp_path, capsys
-):
-    config_path = _write_config(
-        tmp_path / "config.yaml",
-        **{"translation languages": ""},
-    )
-    monkeypatch.delenv("QF_CLIENT_ID", raising=False)
-    monkeypatch.delenv("QF_CLIENT_SECRET", raising=False)
-    monkeypatch.setattr(
-        builtins,
-        "input",
-        lambda prompt="": pytest.fail(f"credential failure prompted: {prompt}"),
-    )
-
-    with pytest.raises(SystemExit) as caught:
-        cli.main(["--config", str(config_path)])
-
-    assert caught.value.code == 2
-    error = capsys.readouterr().err
-    assert "QF_CLIENT_ID" in error
-    assert "QF_CLIENT_SECRET" in error
-    assert "https://api-docs.quran.foundation/request-access/" in error
-
-
-def test_quran_api_failure_exits_cleanly_before_publish(monkeypatch, tmp_path, capsys):
-    from quran_image_generator.content import QuranApiTransportError
+def test_content_failure_exits_cleanly_before_publish(monkeypatch, tmp_path, capsys):
+    from quran_image_generator.content import TranslationTransportError
 
     config_path = _write_config(
         tmp_path / "config.yaml", **{"translation languages": ""}
@@ -484,8 +392,8 @@ def test_quran_api_failure_exits_cleanly_before_publish(monkeypatch, tmp_path, c
 
     class FailingGenerator:
         def generate(self, request, *, open_output):
-            raise QuranApiTransportError(
-                "Quran Foundation Content API", "/verses/by_key/1:1", 3
+            raise TranslationTransportError(
+                "loading translation failed after 3 attempts"
             )
 
     monkeypatch.setattr(
@@ -517,8 +425,8 @@ def test_quran_api_failure_exits_cleanly_before_publish(monkeypatch, tmp_path, c
 
     assert caught.value.code == 1
     captured = capsys.readouterr()
-    assert "Quran API error:" in captured.err
-    assert "after 3 attempt(s)" in captured.err
+    assert "Quran data error:" in captured.err
+    assert "after 3 attempts" in captured.err
     assert "Traceback" not in captured.err
     assert "Image Created" not in captured.out
 
@@ -537,8 +445,7 @@ def test_translation_selection_failure_is_safe_and_actionable(
     class FailingGenerator:
         def generate(self, request, *, open_output):
             raise TranslationSelectionError(
-                "Translation language=en is ambiguous; choose id=131 or "
-                "slug=clearquran-with-tafsir."
+                "Translation language=en is ambiguous; choose key=english_saheeh."
             )
 
     monkeypatch.setattr(
@@ -564,7 +471,7 @@ def test_translation_selection_failure_is_safe_and_actionable(
     assert caught.value.code == 1
     error = capsys.readouterr().err
     assert "language=en is ambiguous" in error
-    assert "id=131" in error
+    assert "key=english_saheeh" in error
     assert "Traceback" not in error
 
 

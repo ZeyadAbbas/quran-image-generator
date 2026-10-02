@@ -143,16 +143,12 @@ def build_generator(
 ) -> QuranImageGenerator:
     """Construct the concrete command-line application without doing I/O."""
 
-    from .content import QuranContentClient
+    from .content import QuranDataClient
     from .rendering import WandImageRenderer, WandTextMeasurer
 
     return QuranImageGenerator(
         settings=settings,
-        content_client=(
-            QuranContentClient.from_environment()
-            if content_client is None
-            else content_client
-        ),
+        content_client=(QuranDataClient() if content_client is None else content_client),
         measurer=WandTextMeasurer(),
         renderer=WandImageRenderer(),
     )

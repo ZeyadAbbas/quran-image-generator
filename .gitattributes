@@ -1,0 +1,2 @@
+src/quran_image_generator/assets/data/quran-uthmani-1.1.txt -text whitespace=-trailing-space
+src/quran_image_generator/assets/data/quran-data-1.0.xml -text whitespace=-trailing-space

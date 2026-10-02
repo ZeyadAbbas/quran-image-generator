@@ -53,14 +53,15 @@ def passage_with(*verses):
 def resolved_translation(resource_id, language_code="en"):
     resource = TranslationResource(
         resource_id,
-        f"fixture-{resource_id}",
         f"Fixture {resource_id}",
         "Fixture Author",
         language_code,
         language_code,
+        "1.0.0",
+        "ltr",
     )
     return TranslationSettings(
-        TranslationSelector("id", resource_id),
+        TranslationSelector("key", resource_id),
         "Fixture Sans",
         18,
         resource,

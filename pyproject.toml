@@ -9,7 +9,7 @@ description = "Generate customizable images from Quran passages"
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
 license = "MIT"
-license-files = ["LICENSE.txt"]
+license-files = ["LICENSE.txt", "THIRD_PARTY_NOTICES.md"]
 authors = [
   { name = "Zeyad Abbas", email = "zeyadabbas238@gmail.com" },
 ]
@@ -62,6 +62,8 @@ quran_image_generator = [
   "assets/fonts/*.ttf",
   "assets/fonts/multilingual_fonts/*.ttf",
   "assets/verse_numbers/*.png",
+  "assets/data/*.txt",
+  "assets/data/*.xml",
 ]
 
 [tool.ruff]

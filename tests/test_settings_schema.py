@@ -41,7 +41,10 @@ def test_mapping_and_file_parsers_share_the_same_model(tmp_path):
         "resolution": "640 x 480",
         "background color": "#123456",
         "quran font size": 29,
-        "translation languages": [{"id": 20}, {"slug": "a-slug"}],
+        "translation languages": [
+            {"key": "english_saheeh"},
+            {"key": "french_montada"},
+        ],
     }
     path = tmp_path / "same.yaml"
     path.write_text(yaml.safe_dump(values), encoding="utf-8")
@@ -84,8 +87,8 @@ def test_config_round_trip_preserves_paths_selectors_order_and_font_sizes(tmp_pa
         "quran font": str(quran_font),
         "translation font size": 18,
         "translation languages": [
-            {"id": 10, "font": str(translation_font), "font size": 21},
-            {"slug": "translator-two", "font size": 22},
+            {"key": "english_saheeh", "font": str(translation_font), "font size": 21},
+            {"key": "french_montada", "font size": 22},
             {"language": "fr"},
         ],
     }
@@ -97,8 +100,8 @@ def test_config_round_trip_preserves_paths_selectors_order_and_font_sizes(tmp_pa
 
     assert settings_to_mapping(saved) == settings_to_mapping(reloaded)
     assert [item.selector.kind for item in reloaded.translations] == [
-        "id",
-        "slug",
+        "key",
+        "key",
         "language",
     ]
     assert [item.font_size for item in reloaded.translations] == [21, 22, 18]
@@ -113,17 +116,18 @@ def test_runtime_resources_and_auto_bundled_fonts_are_not_serialized(tmp_path):
     configured = settings_from_mapping(
         {
             "quran font": str(asset_path("fonts", "quran_font.ttf")),
-            "translation languages": [{"id": 42}],
+            "translation languages": [{"key": "chinese_example"}],
         },
         source_path=source,
     )
     resource = TranslationResource(
-        "42",
-        "example",
+        "chinese_example",
         "Example translation",
         "Example author",
         "Chinese",
         "zh",
+        "1.0.0",
+        "ltr",
     )
     runtime = replace(
         configured,
@@ -133,14 +137,13 @@ def test_runtime_resources_and_auto_bundled_fonts_are_not_serialized(tmp_path):
     mapping = settings_to_mapping(runtime, destination_path=source)
 
     assert mapping["quran font"] == "assets/fonts/quran_font.ttf"
-    assert mapping["translation languages"] == [{"id": 42}]
+    assert mapping["translation languages"] == [{"key": "chinese_example"}]
     serialized = yaml.safe_dump(mapping)
     assert str(asset_path("fonts", "multilingual_fonts", "zh.ttf")) not in serialized
     assert "Example author" not in serialized
 
 
-def test_config_save_never_includes_environment_secrets(monkeypatch, tmp_path):
-    monkeypatch.setenv("QF_CLIENT_SECRET", "qf-secret-sentinel")
+def test_config_save_never_includes_instagram_secret(monkeypatch, tmp_path):
     monkeypatch.setenv("QIG_INSTAGRAM_PASSWORD", "instagram-secret-sentinel")
     settings = settings_from_mapping({}, source_path=tmp_path / "source.yaml")
     destination = tmp_path / "saved.yaml"
@@ -148,9 +151,7 @@ def test_config_save_never_includes_environment_secrets(monkeypatch, tmp_path):
     save_settings(settings, destination)
 
     text = destination.read_text(encoding="utf-8")
-    assert "qf-secret-sentinel" not in text
     assert "instagram-secret-sentinel" not in text
-    assert "QF_CLIENT_SECRET" not in text
     assert "QIG_INSTAGRAM_PASSWORD" not in text
 
 

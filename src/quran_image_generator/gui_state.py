@@ -18,7 +18,12 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, TypeVar
 
-from .content import QuranApiConfigurationError, QuranApiError
+from .content import (
+    QuranDataError,
+    TranslationHttpError,
+    TranslationPayloadError,
+    TranslationTransportError,
+)
 from .generator import QuranImageGenerator, default_output_path
 from .layout import LayoutOverflowError
 from .models import (
@@ -36,7 +41,6 @@ from .publishing import Publisher, PublishingError, PublishTarget
 from .settings import Settings, SettingsValidationError
 
 README_URL = "https://github.com/ZeyadAbbas/quran-image-generator#readme"
-QURAN_FOUNDATION_ACCESS_URL = "https://api-docs.quran.foundation/request-access/"
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,7 +74,7 @@ def build_generation_request(
     chapters: Sequence[Chapter],
     rng: RandomSource,
 ) -> GenerationRequest:
-    """Validate passage controls and return a request against live bounds."""
+    """Validate passage controls against the bundled chapter bounds."""
 
     if random_selection:
         try:
@@ -104,7 +108,10 @@ def translation_label(resource: TranslationResource) -> str:
     """Return a compact catalog label that still exposes exact identity."""
 
     language = resource.language_code or resource.language_name
-    return f"ID {resource.resource_id} · {language} · {resource.display_name}"
+    return (
+        f"KEY {resource.resource_id} · {language} · "
+        f"{resource.display_name} · v{resource.version}"
+    )
 
 
 def matching_translation_resource(
@@ -115,12 +122,9 @@ def matching_translation_resource(
 
     matches: list[TranslationResource] = []
     for resource in resources:
-        if "id" in entry and str(entry["id"]) == resource.resource_id:
-            matches.append(resource)
-        elif (
-            "slug" in entry
-            and resource.slug is not None
-            and str(entry["slug"]).casefold() == resource.slug.casefold()
+        if (
+            "key" in entry
+            and str(entry["key"]).casefold() == resource.resource_id.casefold()
         ):
             matches.append(resource)
         elif "language" in entry and str(entry["language"]).casefold() in {
@@ -135,7 +139,7 @@ def normalize_translation_entries(
     entries: Sequence[object],
     resources: Sequence[TranslationResource],
 ) -> list[dict[str, Any]]:
-    """Preserve configured order while upgrading unique selectors to exact IDs."""
+    """Preserve configured order while upgrading selectors to exact keys."""
 
     normalized_entries: list[dict[str, Any]] = []
     for raw_entry in entries:
@@ -146,7 +150,7 @@ def normalize_translation_entries(
         if resource is None:
             normalized_entries.append(entry)
             continue
-        normalized: dict[str, Any] = {"id": int(resource.resource_id)}
+        normalized: dict[str, Any] = {"key": resource.resource_id}
         for option in ("font", "font size"):
             if option in entry:
                 normalized[option] = entry[option]
@@ -163,7 +167,7 @@ def translation_entry_label(
     resource = matching_translation_resource(entry, resources)
     if resource is not None:
         return translation_label(resource)
-    for selector in ("id", "slug", "language"):
+    for selector in ("key", "language"):
         if selector in entry:
             return f"Unavailable: {selector}={entry[selector]}"
     return "Unavailable translation selector"
@@ -215,6 +219,7 @@ class SavedArtifact:
 class CatalogSnapshot:
     chapters: tuple[Chapter, ...]
     translations: TranslationCatalog
+    warning: str | None = None
 
 
 class StalePreviewError(RuntimeError):
@@ -365,8 +370,7 @@ def safe_error_message(error: BaseException) -> str:
         FormValidationError,
         InvalidVerseRangeError,
         LayoutOverflowError,
-        QuranApiConfigurationError,
-        QuranApiError,
+        QuranDataError,
         SettingsValidationError,
         PublishingError,
         StalePreviewError,
@@ -520,11 +524,23 @@ class PreviewWorkflow:
         self._check_cancel(cancel_event)
         chapters = tuple(self._content_client.list_chapters(refresh=True))
         self._check_cancel(cancel_event)
-        translations = self._content_client.translation_catalog(refresh=True)
+        warning = None
+        try:
+            translations = self._content_client.translation_catalog(refresh=True)
+        except (
+            TranslationHttpError,
+            TranslationPayloadError,
+            TranslationTransportError,
+        ) as error:
+            translations = TranslationCatalog((), ())
+            warning = (
+                f"Translations are unavailable: {error}. "
+                "Arabic-only generation remains available."
+            )
         self._check_cancel(cancel_event)
         self._resources.clear()
         self._passages.clear()
-        return CatalogSnapshot(chapters, translations)
+        return CatalogSnapshot(chapters, translations, warning)
 
     def _resolve_settings(
         self, settings: Settings, cancel_event: threading.Event

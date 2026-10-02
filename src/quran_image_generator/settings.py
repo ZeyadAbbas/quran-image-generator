@@ -74,7 +74,7 @@ SETTING_SPECS: tuple[SettingSpec, ...] = (
     SettingSpec("quran word spacing", "quran_word_spacing", "Quran word spacing", "Quran", "integer", 6, "Extra spacing between Quran words.", "Changes horizontal word separation.", "Non-negative whole number", minimum=0),
     SettingSpec("quran letter spacing", "quran_letter_spacing", "Quran letter spacing", "Quran", "float", -0.1, "Extra spacing between Quran glyphs.", "Tightens or loosens Arabic letter placement.", "Finite decimal number"),
     SettingSpec("quran and translation spacing", "quran_translation_spacing", "Quran-to-translation spacing", "Quran", "integer", 30, "Gap below Quran text before translations.", "Separates the Arabic and translation blocks.", "Non-negative whole number", minimum=0),
-    SettingSpec("translation languages", "translations", "Translations", "Translations", "translations", "", "Up to three exact Quran Foundation translation resources.", "Selects which translations are fetched and their order.", "List of exact IDs/slugs/languages; exact resource IDs are recommended", maximum=3),
+    SettingSpec("translation languages", "translations", "Translations", "Translations", "translations", "", "Up to three exact QuranEnc translations.", "Selects which translations are fetched and their order.", "List of exact keys or languages; exact translation keys are recommended", maximum=3),
     SettingSpec("translation color", "translation_color", "Translation color", "Translations", "color", "FFFFFF", "Color of translation text.", "Changes all translation text colors.", "Six-digit hex color, for example #FFFFFF"),
     SettingSpec("translation font size", "translation_font_size", "Translation font size", "Translations", "integer", 16, "Default translation text size in pixels.", "Changes translation wrapping and height unless an entry overrides it.", "Positive whole number", minimum=1),
     SettingSpec("translation x position", "translation_x_position", "Translation horizontal position", "Translations", "position", 40, "Translation position measured from the left, or centered.", "Moves each translation line horizontally.", "center or a non-negative whole number", minimum=0),
@@ -171,7 +171,7 @@ class TranslationSettings:
         if self.resource is None:
             raise RuntimeError(
                 f"translation {self.selector.label} has not been resolved "
-                "against the Quran Foundation catalog"
+                "against the QuranEnc catalog"
             )
         return self.resource.resource_id
 
@@ -541,8 +541,7 @@ def _translation_entries(
         selector_kind: TranslationSelectorKind
         if isinstance(entry, Mapping):
             allowed_fields = {
-                "id",
-                "slug",
+                "key",
                 "language",
                 "code",
                 "font",
@@ -563,7 +562,7 @@ def _translation_entries(
                 )
 
             selectors: list[tuple[TranslationSelectorKind, Any]] = []
-            for kind in ("id", "slug", "language"):
+            for kind in ("key", "language"):
                 if kind in entry and not _is_blank(entry[kind]):
                     selectors.append((kind, entry[kind]))
             if "code" in entry and not _is_blank(entry["code"]):
@@ -572,7 +571,7 @@ def _translation_entries(
                 _add_issue(
                     issues,
                     entry_field,
-                    "must contain exactly one selector: id, slug, or language",
+                    "must contain exactly one selector: key or language",
                 )
                 continue
             selector_kind, selector_value = selectors[0]
@@ -603,21 +602,13 @@ def _translation_entries(
             _add_issue(issues, entry_field, "must be text or a mapping")
             continue
 
-        if (
-            selector_kind == "id"
-            and isinstance(selector_value, int)
-            and not isinstance(selector_value, bool)
-        ):
-            selector_text = str(selector_value)
-        elif isinstance(selector_value, str):
+        if isinstance(selector_value, str):
             selector_text = selector_value
         else:
             _add_issue(
                 issues,
                 entry_field,
-                f"{selector_kind} selector must be text"
-                if selector_kind != "id"
-                else "id selector must be a positive whole number",
+                f"{selector_kind} selector must be text",
             )
             continue
         try:
@@ -937,10 +928,9 @@ def _translation_mapping(
 ) -> list[dict[str, Any]]:
     entries: list[dict[str, Any]] = []
     for translation in settings.translations:
-        selector_value: str | int = translation.selector.value
-        if translation.selector.kind == "id":
-            selector_value = int(selector_value)
-        entry: dict[str, Any] = {translation.selector.kind: selector_value}
+        entry: dict[str, Any] = {
+            translation.selector.kind: translation.selector.value
+        }
         configured_font = (
             translation.configured_font
             if translation.resource is not None

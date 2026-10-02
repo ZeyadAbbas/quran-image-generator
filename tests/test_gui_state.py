@@ -69,11 +69,12 @@ class FakeGenerator:
         resources = tuple(
             TranslationResource(
                 item.selector.value,
-                None,
                 f"Translation {item.selector.value}",
                 "Author",
                 "English",
                 "en",
+                "1.0.0",
+                "ltr",
             )
             for item in settings.translations
         )
@@ -101,7 +102,7 @@ class FakeGenerator:
 
 def _translation(resource_id: int) -> TranslationSettings:
     return TranslationSettings(
-        TranslationSelector("id", str(resource_id)),
+        TranslationSelector("key", str(resource_id)),
         None,
         18,
         configured_font=None,
@@ -135,25 +136,27 @@ def test_passage_form_reports_relevant_fields_and_uses_live_bounds():
 
 def test_translation_catalog_normalization_preserves_explicit_order_and_options():
     english = TranslationResource(
-        "10", "english", "English", "Author E", "English", "en"
+        "english", "English", "Author E", "English", "en", "1.0", "ltr"
     )
-    french = TranslationResource("20", "french", "French", "Author F", "French", "fr")
+    french = TranslationResource(
+        "french", "French", "Author F", "French", "fr", "1.0", "ltr"
+    )
     entries = [
-        {"id": 20, "font": "French.ttf", "font size": 17},
-        {"slug": "english"},
-        {"id": 999},
+        {"key": "french", "font": "French.ttf", "font size": 17},
+        {"key": "english"},
+        {"key": "missing"},
     ]
 
     normalized = normalize_translation_entries(entries, (english, french))
 
     assert normalized == [
-        {"id": 20, "font": "French.ttf", "font size": 17},
-        {"id": 10},
-        {"id": 999},
+        {"key": "french", "font": "French.ttf", "font size": 17},
+        {"key": "english"},
+        {"key": "missing"},
     ]
     assert "French" in translation_entry_label(normalized[0], (english, french))
     assert translation_entry_label(normalized[2], (english, french)) == (
-        "Unavailable: id=999"
+        "Unavailable: key=missing"
     )
 
 

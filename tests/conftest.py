@@ -1,22 +1,8 @@
-import json
-from pathlib import Path
-
 import pytest
 import requests
 
 from quran_image_generator.layout import TextMetrics
 from quran_image_generator.settings import Dimensions, Settings
-
-FIXTURES_DIR = Path(__file__).parent / "fixtures"
-
-
-@pytest.fixture
-def load_json_fixture():
-    def load(name):
-        with (FIXTURES_DIR / name).open(encoding="utf-8") as fixture_file:
-            return json.load(fixture_file)
-
-    return load
 
 
 @pytest.fixture(autouse=True)
@@ -29,13 +15,13 @@ def block_external_http(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def isolate_content_catalog_caches():
-    from quran_image_generator.content import QuranContentClient
+    from quran_image_generator.content import QuranDataClient
 
-    QuranContentClient.clear_translation_catalog_cache()
-    QuranContentClient.clear_chapter_catalog_cache()
+    QuranDataClient.clear_translation_catalog_cache()
+    QuranDataClient.clear_chapter_catalog_cache()
     yield
-    QuranContentClient.clear_translation_catalog_cache()
-    QuranContentClient.clear_chapter_catalog_cache()
+    QuranDataClient.clear_translation_catalog_cache()
+    QuranDataClient.clear_chapter_catalog_cache()
 
 
 class FakeMeasurer:
