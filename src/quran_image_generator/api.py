@@ -42,7 +42,7 @@ from .scenes import (
 from .snapshots import SnapshotStore, canonical_bytes
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.3.2"
+RENDERER_VERSION = "0.3.3"
 MAX_REQUEST_BYTES = 8_000_000
 
 

@@ -1,4 +1,4 @@
-# Static caption API v1 (renderer 0.3.2)
+# Static caption API v1 (renderer 0.3.3)
 
 Public imports: `quran_image_generator.api` (`RenderRequest`, `RenderResponse`,
 `execute_request`, `capabilities`), `quran_image_generator.requests` (`Canvas`,

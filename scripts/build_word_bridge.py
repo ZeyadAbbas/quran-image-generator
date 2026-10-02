@@ -15,7 +15,41 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 SOURCE_HASH = "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
-REVISION = "simple-uthmani-2"
+REVISION = "simple-uthmani-3"
+
+
+def reviewed_groups(approval: dict, group: list, words: list[str], text: str) -> list:
+    """Accept only authored, contiguous partitions of an exact generated group."""
+    if (
+        " ".join(words[group[0] - 1 : group[1]]) != approval["source_text"]
+        or text[group[2] : group[3]].rstrip() != approval["target_text"]
+        or ("target_range" in approval and approval["target_range"] != group[2:4])
+    ):
+        raise ValueError("Reviewed boundary spellings no longer match pinned corpora")
+    partitions = approval.get("partitions")
+    if not partitions:
+        return [[*group[:4], True]]
+    result = []
+    source_start, target_start = group[0], group[2]
+    for part in partitions:
+        start, end = part["source_words"]
+        a, b = part["target_range"]
+        if (
+            start != source_start
+            or a != target_start
+            or not start <= end <= group[1]
+            or not a < b <= group[3]
+            or (a > group[2] and not text[a - 1].isspace())
+            or (b < group[3] and not text[b - 1].isspace())
+            or " ".join(words[start - 1 : end]) != part["source_text"]
+            or text[a:b].rstrip() != part["target_text"]
+        ):
+            raise ValueError("Reviewed partitions must exactly cover corpus boundaries")
+        result.append([start, end, a, b, True])
+        source_start, target_start = end + 1, b
+    if source_start != group[1] + 1 or target_start != group[3]:
+        raise ValueError("Reviewed partitions must cover the entire generated group")
+    return result
 
 
 def skeleton(text: str) -> str:
@@ -53,7 +87,7 @@ def build(source: Path, target: Path, output: Path) -> None:
     source_verses, target_verses = records(raw), records(target.read_bytes())
     source_basmala, target_basmala = source_verses["1:1"], target_verses["1:1"]
     source_verses["0:0"], target_verses["0:0"] = source_basmala, target_basmala
-    result, review = {}, []
+    result, review, verse_words = {}, [], {}
     for key, text in source_verses.items():
         target_text = target_verses[key]
         surah, ayah = map(int, key.split(":"))
@@ -70,6 +104,7 @@ def build(source: Path, target: Path, output: Path) -> None:
             text = text[source_tokens[4].start() :]
             offset = target_tokens[4].start()
         words = [m.group() for m in re.finditer(r"\S+", text) if skeleton(m.group())]
+        verse_words[key] = words
         tokens = [
             m for m in re.finditer(r"\S+", target_text[offset:]) if skeleton(m.group())
         ]
@@ -130,16 +165,11 @@ def build(source: Path, target: Path, output: Path) -> None:
         group = next(
             g for g in result[key]["groups"] if g[:2] == approval["source_words"]
         )
-        source_text = source_verses[key].split()[group[0] - 1 : group[1]]
-        target_text = target_verses[key][group[2] : group[3]].rstrip()
-        if (
-            " ".join(source_text) != approval["source_text"]
-            or target_text != approval["target_text"]
-        ):
-            raise ValueError(
-                "Reviewed boundary spellings no longer match pinned corpora"
-            )
-        group[4] = True
+        replacements = reviewed_groups(
+            approval, group, verse_words[key], target_verses[key]
+        )
+        index = result[key]["groups"].index(group)
+        result[key]["groups"][index : index + 1] = replacements
         review = [
             item
             for item in review

@@ -71,8 +71,8 @@
   ],
   "corpus": {
     "attribution": "Tanzil Project, CC BY 3.0; original bundled notices preserved",
-    "mapping_revision": "simple-uthmani-2",
-    "mapping_sha256": "4d27fe3073aa2a8331570c0d60c574323c40f25e5051a74d65d1d608f8766f47",
+    "mapping_revision": "simple-uthmani-3",
+    "mapping_sha256": "62e4fb3dc0dc019ecc1b2cf2e7e0354c235ea6be299c0cdcd6f4b9cd0c6ab31e",
     "source": {
       "edition": "Tanzil Simple Hafs",
       "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b",
@@ -223,7 +223,7 @@
           "character_end": 39,
           "character_start": 0,
           "ends_ayah": false,
-          "mapping_revision": "simple-uthmani-2",
+          "mapping_revision": "simple-uthmani-3",
           "source": {
             "ayah": 9,
             "surah": 31,
@@ -242,7 +242,7 @@
           "arabic_sha256": "ac13ac552e5307c4b4a955b1ac8cfdc9d866570044b5dd84a38e480275c68cac",
           "binding_id": "phrase",
           "edited": false,
-          "mapping_revision": "simple-uthmani-2",
+          "mapping_revision": "simple-uthmani-3",
           "review_status": "approved",
           "reviewer": "Authored example fixture",
           "revision": "1",
@@ -415,7 +415,7 @@
           "character_end": 39,
           "character_start": 0,
           "ends_ayah": false,
-          "mapping_revision": "simple-uthmani-2",
+          "mapping_revision": "simple-uthmani-3",
           "source": {
             "ayah": 9,
             "surah": 31,
@@ -434,7 +434,7 @@
           "arabic_sha256": "ac13ac552e5307c4b4a955b1ac8cfdc9d866570044b5dd84a38e480275c68cac",
           "binding_id": "phrase",
           "edited": false,
-          "mapping_revision": "simple-uthmani-2",
+          "mapping_revision": "simple-uthmani-3",
           "review_status": "approved",
           "reviewer": "Authored example fixture",
           "revision": "1",
