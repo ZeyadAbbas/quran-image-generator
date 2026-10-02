@@ -1,0 +1,394 @@
+{
+  "status": "passed",
+  "approval": "needs_review",
+  "runtime": {
+    "imagemagick": "ImageMagick 7.1.2-0 Q16-HDRI x64 3fcd081:20250713 https://imagemagick.org",
+    "native_raqm": true,
+    "pillow": "11.3.0",
+    "pillow_raqm": false
+  },
+  "schema_version": 1,
+  "description": "Measured technical baseline; no final visual, timing or translation-edition approval",
+  "python_json_parity": true,
+  "caption_layouts": 64,
+  "cases": [
+    {
+      "clip_id": "7339743928691821854",
+      "request_sha256": "cfa70448b94e34a0968a7b4e8a5a923c8030e4b743ade1d79378cf180b970388",
+      "source_media_sha256": "1ef61916208cae13eb036d1761372774cb3b904d671ef86c51f9d19c51505656",
+      "arabic": "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا",
+      "layers": [
+        {
+          "role": "arabic",
+          "path": "7339743928691821854-arabic.png",
+          "bounds": [
+            150,
+            484,
+            426,
+            525
+          ],
+          "sha256": "288397e00ce34c74c3aed03a8c987d581ebdb4f82834e9e1de24fa92fbecaf47"
+        },
+        {
+          "role": "translation",
+          "path": "7339743928691821854-translation.png",
+          "bounds": [
+            146,
+            544,
+            429,
+            558
+          ],
+          "sha256": "94cd9b30ae5eb920140ca8ab5878396963ad3ae5434735e307a25aa3d2b16d7e"
+        },
+        {
+          "role": "arabic_title",
+          "path": "7339743928691821854-arabic_title.png",
+          "bounds": [
+            236,
+            147,
+            340,
+            171
+          ],
+          "sha256": "8d75e41eaa8be8e92c258f1577fc22d35963cf33054b76f068bb669c33a14af4"
+        },
+        {
+          "role": "latin_title",
+          "path": "7339743928691821854-latin_title.png",
+          "bounds": [
+            240,
+            180,
+            335,
+            194
+          ],
+          "sha256": "ee08644e10c6297533fb77eda0c0252ce3658903f1d501a3503532359f5f505c"
+        },
+        {
+          "role": "logo",
+          "path": "7339743928691821854-logo.png",
+          "bounds": [
+            259,
+            897,
+            317,
+            955
+          ],
+          "sha256": "7eeb6292033bfeca538ce9593ef6146c50bdea8c10f4c1dea105f3fdf71ae43c"
+        }
+      ]
+    },
+    {
+      "clip_id": "7320492468246416670",
+      "request_sha256": "b3decba817c70350e5c8c5c69d41bbfb3ebc87c07c63c33be6c2005cf7ace3ca",
+      "source_media_sha256": "dbcb9cafd56a584ecd57b602fca737d9a936e7767fa74ee839b18be9b7a7b088",
+      "arabic": "وَكُلَّ إِنسَٰنٍ أَلْزَمْنَٰهُ طَٰٓئِرَهُۥ فِى عُنُقِهِۦ",
+      "layers": [
+        {
+          "role": "arabic",
+          "path": "7320492468246416670-arabic.png",
+          "bounds": [
+            105,
+            482,
+            471,
+            532
+          ],
+          "sha256": "00259f07b40d28c47e3d78a549a98879688ae52cac7025b677dbb982000d121b"
+        },
+        {
+          "role": "translation",
+          "path": "7320492468246416670-translation.png",
+          "bounds": [
+            120,
+            544,
+            455,
+            558
+          ],
+          "sha256": "1eb4e33f4ba8b06ddb9967c4960379a9b21f5168c595ea492e97ae3eb9aee457"
+        },
+        {
+          "role": "arabic_title",
+          "path": "7320492468246416670-arabic_title.png",
+          "bounds": [
+            228,
+            146,
+            348,
+            172
+          ],
+          "sha256": "184d7b6feb39c80e8f3fd2f3c1a8c78e97d590e261e0bde6d87778c4a3da64d0"
+        },
+        {
+          "role": "latin_title",
+          "path": "7320492468246416670-latin_title.png",
+          "bounds": [
+            246,
+            180,
+            330,
+            191
+          ],
+          "sha256": "de71a1e533bfd139464a45a232f4d5cc4c985e741c42c3d01e9014168470ea42"
+        },
+        {
+          "role": "logo",
+          "path": "7320492468246416670-logo.png",
+          "bounds": [
+            259,
+            897,
+            317,
+            955
+          ],
+          "sha256": "7eeb6292033bfeca538ce9593ef6146c50bdea8c10f4c1dea105f3fdf71ae43c"
+        }
+      ]
+    },
+    {
+      "clip_id": "7320203938483981599",
+      "request_sha256": "9cdb1fa0f39fc185381a8546ac522890faea778690f5e43796007f75c106c392",
+      "source_media_sha256": "483c073bbc13d08d34935ea8aa71931a1c4d961cd2e4faf8fd1e438538c96487",
+      "arabic": "وَٱرْكَعُوا۟ مَعَ ٱلرَّٰكِعِينَ",
+      "layers": [
+        {
+          "role": "arabic",
+          "path": "7320203938483981599-arabic.png",
+          "bounds": [
+            145,
+            489,
+            409,
+            528
+          ],
+          "sha256": "81a498d903723611d961a795a8a5edd25ae48d3d2be89f5e95cf364ba4e977e2"
+        },
+        {
+          "role": "translation",
+          "path": "7320203938483981599-translation.png",
+          "bounds": [
+            155,
+            544,
+            421,
+            555
+          ],
+          "sha256": "b7f94490e49b48fcddda85f0733c4349d4c1483d91909fdb20a50bd9f2580b96"
+        },
+        {
+          "role": "arabic_title",
+          "path": "7320203938483981599-arabic_title.png",
+          "bounds": [
+            235,
+            147,
+            342,
+            172
+          ],
+          "sha256": "db28618e02e968042a4c0ca122ba1c04d89fd2aab195f5cb9628c12a459daa10"
+        },
+        {
+          "role": "latin_title",
+          "path": "7320203938483981599-latin_title.png",
+          "bounds": [
+            231,
+            180,
+            345,
+            194
+          ],
+          "sha256": "6266a34b6a50417b416d1e57616add78fe9a43460131e8e014774ba26a5b198d"
+        },
+        {
+          "role": "logo",
+          "path": "7320203938483981599-logo.png",
+          "bounds": [
+            259,
+            897,
+            317,
+            955
+          ],
+          "sha256": "7eeb6292033bfeca538ce9593ef6146c50bdea8c10f4c1dea105f3fdf71ae43c"
+        }
+      ]
+    },
+    {
+      "clip_id": "7320147035552779550",
+      "request_sha256": "ef182793a35f09194b78c552f53bd114d188e65576b37782a79fa354a98a5b98",
+      "source_media_sha256": "bc2db28e1bba1ccab481d355112176da8967ef06b90b3831dd03f68c893cdce6",
+      "arabic": "قَالَ رَجُلَانِ مِنَ ٱلَّذِينَ يَخَافُونَ",
+      "layers": [
+        {
+          "role": "arabic",
+          "path": "7320147035552779550-arabic.png",
+          "bounds": [
+            133,
+            481,
+            443,
+            528
+          ],
+          "sha256": "d5f8bb8594426e66b9a558355647583c656c988d4262488d54af39bcde893c9d"
+        },
+        {
+          "role": "translation",
+          "path": "7320147035552779550-translation.png",
+          "bounds": [
+            218,
+            544,
+            357,
+            558
+          ],
+          "sha256": "ac1fd7521f31fb674f921212b36cc8d4f2bdb52d35092a20ece3411ce08104da"
+        },
+        {
+          "role": "arabic_title",
+          "path": "7320147035552779550-arabic_title.png",
+          "bounds": [
+            230,
+            147,
+            347,
+            171
+          ],
+          "sha256": "5a9e6e3d72bccfb027f89c6c4758759b7ac34ef79fe7cfb94ecc13d979cfa4d8"
+        },
+        {
+          "role": "latin_title",
+          "path": "7320147035552779550-latin_title.png",
+          "bounds": [
+            234,
+            180,
+            343,
+            191
+          ],
+          "sha256": "c5c4f6d3ff62c7ad4c808048bb4b3f03ef0375b6f7b9e7a6a39c08e9c2c42b8f"
+        },
+        {
+          "role": "logo",
+          "path": "7320147035552779550-logo.png",
+          "bounds": [
+            259,
+            897,
+            317,
+            955
+          ],
+          "sha256": "7eeb6292033bfeca538ce9593ef6146c50bdea8c10f4c1dea105f3fdf71ae43c"
+        }
+      ]
+    },
+    {
+      "clip_id": "7320128271927020831",
+      "request_sha256": "d2379d205f0f3abd9587a3ee38e7c5f5df90c65f7391f22dd4a26278707efb4d",
+      "source_media_sha256": "4c7bc85f98567c1a9c78dbf4937b7b2296b2bbf303dcbb848f843947e11442d7",
+      "arabic": "ضَرَبَ ٱللَّهُ مَثَلًا رَّجُلًا فِيهِ شُرَكَآءُ مُتَشَٰكِسُونَ",
+      "layers": [
+        {
+          "role": "arabic",
+          "path": "7320128271927020831-arabic.png",
+          "bounds": [
+            58,
+            486,
+            518,
+            525
+          ],
+          "sha256": "b93f629fe5f67708b17fc7502a747d94b20580286478d2980a39233dfa503d40"
+        },
+        {
+          "role": "translation",
+          "path": "7320128271927020831-translation.png",
+          "bounds": [
+            136,
+            544,
+            441,
+            574
+          ],
+          "sha256": "e4992294c8b79c4a41958dcacfd6b84ffe6daa605624a2f2793338185921bc43"
+        },
+        {
+          "role": "arabic_title",
+          "path": "7320128271927020831-arabic_title.png",
+          "bounds": [
+            236,
+            147,
+            340,
+            172
+          ],
+          "sha256": "0edb11f8272c837ac2b42efc9c5cdd1e35ffa05eae3129bc108c172335d4acc0"
+        },
+        {
+          "role": "latin_title",
+          "path": "7320128271927020831-latin_title.png",
+          "bounds": [
+            235,
+            180,
+            341,
+            191
+          ],
+          "sha256": "cb94d569b6fb2e336fb2eef46f6a636ebbef682e2d72db5a7e5c479ce64cb9d3"
+        },
+        {
+          "role": "logo",
+          "path": "7320128271927020831-logo.png",
+          "bounds": [
+            259,
+            897,
+            317,
+            955
+          ],
+          "sha256": "7eeb6292033bfeca538ce9593ef6146c50bdea8c10f4c1dea105f3fdf71ae43c"
+        }
+      ]
+    },
+    {
+      "clip_id": "7295439449779965214",
+      "request_sha256": "8ff524cf2a1596cc716a4857f2ce1fddb2916a26a8b6be61019cb1e2a06a2964",
+      "source_media_sha256": "7d0a20ec6e9c940f4512b0c6ed66ddf1359be9d5a0d5e46ce9b62497068dbbd6",
+      "arabic": "لَقَدْ كَفَرَ ٱلَّذِينَ قَالُوٓا۟ إِنَّ ٱللَّهَ هُوَ ٱلْمَسِيحُ ٱبْنُ مَرْيَمَ",
+      "layers": [
+        {
+          "role": "arabic",
+          "path": "7295439449779965214-arabic.png",
+          "bounds": [
+            43,
+            481,
+            533,
+            531
+          ],
+          "sha256": "7c5d0df10b59b7d16185b9cf0e4cbd499d0728577c50cacfef376ae0710a9708"
+        },
+        {
+          "role": "translation",
+          "path": "7295439449779965214-translation.png",
+          "bounds": [
+            123,
+            544,
+            453,
+            574
+          ],
+          "sha256": "8806afecd6dc10c86496d40b24ddf641dfaf8f3ca61066cb0a23ee6c7217bcee"
+        },
+        {
+          "role": "arabic_title",
+          "path": "7295439449779965214-arabic_title.png",
+          "bounds": [
+            230,
+            147,
+            347,
+            171
+          ],
+          "sha256": "5a9e6e3d72bccfb027f89c6c4758759b7ac34ef79fe7cfb94ecc13d979cfa4d8"
+        },
+        {
+          "role": "latin_title",
+          "path": "7295439449779965214-latin_title.png",
+          "bounds": [
+            234,
+            180,
+            343,
+            191
+          ],
+          "sha256": "c5c4f6d3ff62c7ad4c808048bb4b3f03ef0375b6f7b9e7a6a39c08e9c2c42b8f"
+        },
+        {
+          "role": "logo",
+          "path": "7295439449779965214-logo.png",
+          "bounds": [
+            259,
+            897,
+            317,
+            955
+          ],
+          "sha256": "7eeb6292033bfeca538ce9593ef6146c50bdea8c10f4c1dea105f3fdf71ae43c"
+        }
+      ]
+    }
+  ]
+}

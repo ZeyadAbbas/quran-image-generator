@@ -58,7 +58,8 @@ Set `assets.logo.glyph="y"`; this creates a reusable shaped symbol-font layer.
 
 Styles are scaled from **576-pixel reference width**. Coordinates are normalized
 0..1 with the origin at the top left. Anchors locate a text baseline, rather than
-its bounding-box center. The saved JSON includes all fit/effect/decorative fields.
+its bounding-box center. Use the complete saved request; it pins the measured
+overrides to this release.
 
 | Layer | Size at 576 wide | Anchor | Region | Additional settings |
 | --- | --- | --- | --- | --- |
