@@ -1,4 +1,4 @@
-# Source references, mapping revision simple-uthmani-2
+# Source references, mapping revision simple-uthmani-3
 
 The public `CorpusIdentity`, `SourceSpan` and `resolve_span` surface uses the
 QuranScribe Tanzil Simple Hafs 1.1 hash, inclusive 1-based words after its
@@ -17,7 +17,12 @@ Revision 2 adds four explicit authored 17:13 token equivalences needed for the
 reference's repeated phrase. The builder verifies both exact source spellings
 and generated target offsets against `scripts/data/reviewed-word-boundaries.json`.
 Small connecting waw/ya and written alif differences do not become extra words.
-The remaining 4,194 spelling groups stay unavailable for partial selection.
+Revision 3 adds exact 17:15 and 5:72 orthography associations and partitions
+the 5:72 vocative/Israel group at a verified whitespace boundary. The joined
+Simple words 13–14 remain indivisible; word 15 can now be selected independently.
+Authored partitions must cover the original group contiguously in both editions,
+with exact spellings and character offsets. No display text is changed.
+The remaining 4,190 spelling groups stay unavailable for partial selection.
 
 `bridge_data()['review']` is the exhaustive review backlog. A later reviewed
 revision may admit more boundaries, with a new pinned mapping checksum. Runtime

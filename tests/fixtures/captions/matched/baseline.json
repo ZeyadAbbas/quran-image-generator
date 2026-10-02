@@ -14,7 +14,7 @@
   "cases": [
     {
       "clip_id": "7339743928691821854",
-      "request_sha256": "cfa70448b94e34a0968a7b4e8a5a923c8030e4b743ade1d79378cf180b970388",
+      "request_sha256": "7b997243df94b7ab15a0f17ff7f7807fad2b927bc0649b581a2dfa51abd98279",
       "source_media_sha256": "1ef61916208cae13eb036d1761372774cb3b904d671ef86c51f9d19c51505656",
       "arabic": "خَٰلِدِينَ فِيهَا وَعْدَ ٱللَّهِ حَقًّا",
       "layers": [
@@ -77,7 +77,7 @@
     },
     {
       "clip_id": "7320492468246416670",
-      "request_sha256": "b3decba817c70350e5c8c5c69d41bbfb3ebc87c07c63c33be6c2005cf7ace3ca",
+      "request_sha256": "96277fe4874c1fd20c110ef99d5948a92748a7877719af99364845d19310890c",
       "source_media_sha256": "dbcb9cafd56a584ecd57b602fca737d9a936e7767fa74ee839b18be9b7a7b088",
       "arabic": "وَكُلَّ إِنسَٰنٍ أَلْزَمْنَٰهُ طَٰٓئِرَهُۥ فِى عُنُقِهِۦ",
       "layers": [
@@ -140,7 +140,7 @@
     },
     {
       "clip_id": "7320203938483981599",
-      "request_sha256": "9cdb1fa0f39fc185381a8546ac522890faea778690f5e43796007f75c106c392",
+      "request_sha256": "a8a446d3edb73f769a22343bd4eb14ff5fac637e5ec9654bb3c9e1d8e53f2b1e",
       "source_media_sha256": "483c073bbc13d08d34935ea8aa71931a1c4d961cd2e4faf8fd1e438538c96487",
       "arabic": "وَٱرْكَعُوا۟ مَعَ ٱلرَّٰكِعِينَ",
       "layers": [
@@ -203,7 +203,7 @@
     },
     {
       "clip_id": "7320147035552779550",
-      "request_sha256": "ef182793a35f09194b78c552f53bd114d188e65576b37782a79fa354a98a5b98",
+      "request_sha256": "3c696b04cf91e760ded1fb8a72471c9c9c8333d4f3a7978ade6fd37ab6d10b32",
       "source_media_sha256": "bc2db28e1bba1ccab481d355112176da8967ef06b90b3831dd03f68c893cdce6",
       "arabic": "قَالَ رَجُلَانِ مِنَ ٱلَّذِينَ يَخَافُونَ",
       "layers": [
@@ -266,7 +266,7 @@
     },
     {
       "clip_id": "7320128271927020831",
-      "request_sha256": "d2379d205f0f3abd9587a3ee38e7c5f5df90c65f7391f22dd4a26278707efb4d",
+      "request_sha256": "507b5050a2043fad19356465c05db186e2cddf7f400251f7e3e71fccae29be86",
       "source_media_sha256": "4c7bc85f98567c1a9c78dbf4937b7b2296b2bbf303dcbb848f843947e11442d7",
       "arabic": "ضَرَبَ ٱللَّهُ مَثَلًا رَّجُلًا فِيهِ شُرَكَآءُ مُتَشَٰكِسُونَ",
       "layers": [
@@ -329,7 +329,7 @@
     },
     {
       "clip_id": "7295439449779965214",
-      "request_sha256": "8ff524cf2a1596cc716a4857f2ce1fddb2916a26a8b6be61019cb1e2a06a2964",
+      "request_sha256": "1fe4638afee8a1f3960e652b930cc1d1e263809cd14d7c2d18e26eb4f569cba4",
       "source_media_sha256": "7d0a20ec6e9c940f4512b0c6ed66ddf1359be9d5a0d5e46ce9b62497068dbbd6",
       "arabic": "لَقَدْ كَفَرَ ٱلَّذِينَ قَالُوٓا۟ إِنَّ ٱللَّهَ هُوَ ٱلْمَسِيحُ ٱبْنُ مَرْيَمَ",
       "layers": [

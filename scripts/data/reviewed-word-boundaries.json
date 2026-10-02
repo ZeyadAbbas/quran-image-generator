@@ -2,5 +2,12 @@
   {"verse":"17:13","source_words":[4,4],"source_text":"طَائِرَهُ","target_text":"طَٰٓئِرَهُۥ","method":"Explicit authored equivalence: dagger alif and small connecting waw; same word and surrounding anchors"},
   {"verse":"17:13","source_words":[6,6],"source_text":"عُنُقِهِ","target_text":"عُنُقِهِۦ","method":"Explicit authored equivalence: small connecting ya; same word and surrounding anchors"},
   {"verse":"17:13","source_words":[8,8],"source_text":"لَهُ","target_text":"لَهُۥ","method":"Explicit authored equivalence: small connecting waw; same word and surrounding anchors"},
-  {"verse":"17:13","source_words":[12,12],"source_text":"يَلْقَاهُ","target_text":"يَلْقَىٰهُ","method":"Explicit authored equivalence: written alif versus alif maqsura with dagger alif; same word and surrounding anchors"}
+  {"verse":"17:13","source_words":[12,12],"source_text":"يَلْقَاهُ","target_text":"يَلْقَىٰهُ","method":"Explicit authored equivalence: written alif versus alif maqsura with dagger alif; same word and surrounding anchors"},
+  {"verse":"17:15","source_words":[5,5],"source_text":"لِنَفْسِهِ","target_text":"لِنَفْسِهِۦ","target_range":[37,49],"method":"Explicit authored equivalence: small connecting ya; exact pinned spellings and surrounding anchors"},
+  {"verse":"5:72","source_words":[13,15],"source_text":"يَا بَنِي إِسْرَائِيلَ","target_text":"يَٰبَنِىٓ إِسْرَٰٓءِيلَ","target_range":[98,122],"method":"Explicit authored equivalence: joined vocative remains indivisible; Israel starts at the verified whitespace boundary; dagger alif and ya spellings do not add words","partitions":[
+    {"source_words":[13,14],"source_text":"يَا بَنِي","target_text":"يَٰبَنِىٓ","target_range":[98,108]},
+    {"source_words":[15,15],"source_text":"إِسْرَائِيلَ","target_text":"إِسْرَٰٓءِيلَ","target_range":[108,122]}
+  ]},
+  {"verse":"5:72","source_words":[20,20],"source_text":"إِنَّهُ","target_text":"إِنَّهُۥ","target_range":[160,169],"method":"Explicit authored equivalence: small connecting waw; exact pinned spellings and surrounding anchors"},
+  {"verse":"5:72","source_words":[29,29],"source_text":"وَمَأْوَاهُ","target_text":"وَمَأْوَىٰهُ","target_range":[235,248],"method":"Explicit authored equivalence: written alif versus alif maqsura with dagger alif; exact pinned spellings and surrounding anchors"}
 ]
