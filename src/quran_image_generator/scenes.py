@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import math
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from fontTools.ttLib import TTFont
@@ -16,7 +16,7 @@ from .content import QuranDataClient
 from .excerpts import Excerpt
 from .references import ReferenceError
 from .resources import asset_path
-from .shaping import ShapedFont
+from .shaping import MixedMarkerFont, ShapedFont
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,7 +25,7 @@ class Layer:
     text: str = ""
     font: str = ""
     image: str = ""
-    font_size: int = 30
+    font_size: int | float = 30
     anchor: tuple[float, float] = (0.5, 0.5)
     region: tuple[float, float, float, float] = (0.05, 0.05, 0.95, 0.95)
     direction: str = "rtl"
@@ -51,6 +51,20 @@ class Layer:
     fit: str = "wrap"
     alignment: str = "center"
     safe_margin: float = 0
+    quote_open: str = "﴿"
+    quote_close: str = "﴾"
+    numeral_system: str = "arabic_indic"
+    marker_prefix: str = ""
+    marker_suffix: str = ""
+    suffix_spacing: float = 3
+    suffix_offset: float = 0
+    decoration_font: str = ""
+    decoration_sha256: str = ""
+    ornaments: bool = False
+    quote_spacing: float = 3
+    inline_markers: tuple[str, ...] = ()
+    horizontal_scale: float = 1
+    decoration_scale: float = 1
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,6 +92,26 @@ class Scene:
                 "invalid_request", "Layer roles must be unique, at most 16"
             )
         for layer in self.layers:
+            if (
+                layer.numeral_system not in ("latin", "arabic_indic")
+                or not 0 <= layer.suffix_spacing <= 32
+                or not -32 <= layer.suffix_offset <= 32
+                or not 0 <= layer.quote_spacing <= 32
+                or not 0.5 <= layer.horizontal_scale <= 2
+                or not 0.5 <= layer.decoration_scale <= 2
+                or any(
+                    len(value) > 8 or any(c.isspace() for c in value)
+                    for value in (
+                        layer.quote_open,
+                        layer.quote_close,
+                        layer.marker_prefix,
+                        layer.marker_suffix,
+                    )
+                )
+            ):
+                raise ReferenceError(
+                    "invalid_request", "Invalid quotation or numeral decoration"
+                )
             if (
                 layer.fit not in ("wrap", "shrink")
                 or layer.baseline_anchor not in ("first", "last")
@@ -144,10 +178,12 @@ class LayerPlan:
     layer: Layer
     lines: tuple[tuple[str, float, float], ...]
     bounds: tuple[int, int, int, int] | None
-    font_size: int
+    font_size: int | float
     asset_sha256: str
     status: str = "ready"
     suffix_position: tuple[float, float, int] | None = None
+    ornament_positions: tuple[tuple[str, float, float], ...] = ()
+    decoration_asset_sha256: str = ""
 
 
 def checked_asset(path: str, expected_hash: str = "") -> str:
@@ -164,9 +200,21 @@ def checked_asset(path: str, expected_hash: str = "") -> str:
     return digest
 
 
-def layer_font(layer: Layer, size: int) -> ShapedFont:
+def layer_font(layer: Layer, size: int | float) -> ShapedFont | MixedMarkerFont:
     try:
-        return ShapedFont(layer.font, size, layer.direction)
+        primary = ShapedFont(layer.font, size, layer.direction, layer.horizontal_scale)
+        if layer.inline_markers and layer.decoration_font:
+            return MixedMarkerFont(
+                primary,
+                ShapedFont(
+                    layer.decoration_font,
+                    max(1, round(size * layer.suffix_scale)),
+                    "rtl",
+                ),
+                layer.inline_markers,
+                layer.suffix_offset * size / layer.font_size,
+            )
+        return primary
     except OSError as error:
         raise ReferenceError(
             "missing_font", "Required font could not be loaded"
@@ -177,10 +225,14 @@ def check_glyphs(layer: Layer) -> None:
     try:
         with TTFont(layer.font) as font:
             cmap = font.getBestCmap() or {}
+            text = layer.text
+            if layer.decoration_font:
+                for marker in layer.inline_markers:
+                    text = text.replace(marker, "")
             missing = sorted(
                 {
                     ord(c)
-                    for c in layer.text + layer.suffix
+                    for c in text + ("" if layer.decoration_font else layer.suffix)
                     if not c.isspace()
                     and unicodedata.category(c) != "Cf"
                     and (ord(c) not in cmap or cmap[ord(c)] == ".notdef")
@@ -249,6 +301,8 @@ def render_layer(
         layer = plan.layer
         if plan.status == "ready":
             checked_asset(layer.image or layer.font, plan.asset_sha256)
+            if layer.decoration_font:
+                checked_asset(layer.decoration_font, plan.decoration_asset_sha256)
             if layer.image and plan.bounds:
                 left, top, right, bottom = plan.bounds
                 with Image.open(layer.image) as original:
@@ -264,9 +318,27 @@ def render_layer(
                         font.paint(glyphs, text, x, y, "#FFFFFF")
                     if plan.suffix_position:
                         sx, sy, ss = plan.suffix_position
-                        layer_font(layer, ss).paint(
-                            glyphs, layer.suffix, sx, sy, "#FFFFFF"
-                        )
+                        layer_font(
+                            replace(
+                                layer,
+                                font=layer.decoration_font,
+                                inline_markers=(),
+                                horizontal_scale=1,
+                            )
+                            if layer.decoration_font
+                            else layer,
+                            ss,
+                        ).paint(glyphs, layer.suffix, sx, sy, "#FFFFFF")
+                    for text, x, y in plan.ornament_positions:
+                        layer_font(
+                            replace(
+                                layer,
+                                font=layer.decoration_font,
+                                inline_markers=(),
+                                horizontal_scale=1,
+                            ),
+                            plan.font_size * layer.decoration_scale,
+                        ).paint(glyphs, text, x, y, "#FFFFFF")
                     with glyphs.getchannel("A") as mask:
                         scale = scene.width / 576
                         if layer.shadow_opacity:
@@ -338,6 +410,7 @@ def caption_scene(
     arabic_title: str = "",
     latin_title: str = "",
     title_surah: int | None = None,
+    logo_glyph: str = "",
 ) -> Scene:
     arabic_font = str(asset_path("fonts", "quran_font.ttf"))
     latin_font = str(asset_path("fonts", "multilingual_fonts", "am.ttf"))
@@ -410,7 +483,11 @@ def caption_scene(
         layers.append(
             Layer(
                 "logo",
-                image=logo,
+                image="" if logo_glyph else logo,
+                text=logo_glyph,
+                font=logo if logo_glyph else "",
+                font_size=64,
+                direction="ltr",
                 anchor=(0.5, 0.9),
                 region=(0.35, 0.84, 0.65, 0.96),
                 persistent=True,

@@ -42,7 +42,7 @@ from .scenes import (
 from .snapshots import SnapshotStore, canonical_bytes
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.2.0"
+RENDERER_VERSION = "0.2.1"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -79,6 +79,13 @@ class RenderRequest:
         if "translation_dataset" in value and "translation_snapshot" in value:
             raise ReferenceError(
                 "invalid_request", "Choose one translation dataset or pinned snapshot"
+            )
+        if any(
+            "glyph" in asset and role != "logo"
+            for role, asset in value.get("assets", {}).items()
+        ):
+            raise ReferenceError(
+                "invalid_request", "Only branding assets accept explicit symbol glyphs"
             )
         return cls(json.loads(canonical_bytes(value)))
 
@@ -118,7 +125,13 @@ def runtime_identity() -> dict[str, Any]:
 def capabilities() -> dict[str, Any]:
     return {
         "schema_versions": [1],
-        "operations": ["capabilities", "preflight", "validate", "layout", "render_batch"],
+        "operations": [
+            "capabilities",
+            "preflight",
+            "validate",
+            "layout",
+            "render_batch",
+        ],
         "renderer_version": RENDERER_VERSION,
         "mapping_revision": MAPPING_REVISION,
         "mapping_sha256": BRIDGE_SHA256,
@@ -134,6 +147,12 @@ def capabilities() -> dict[str, Any]:
                 "id": "islamstruebeauty",
                 "revision": "1-preview",
                 "approval": "needs_review",
+            },
+            {
+                "id": "islamstruebeauty",
+                "revision": "2-matched",
+                "approval": "needs_review",
+                "requires_local_creator_fonts": True,
             },
         ],
         "limits": {
@@ -233,6 +252,7 @@ def _prepare_cue(
         arabic_title=cue.get("arabic_title", ""),
         latin_title=cue.get("latin_title", ""),
         title_surah=cue.get("title_surah"),
+        logo_glyph=assets.get("logo", {}).get("glyph", ""),
     )
     profile_data = data.get(
         "profile",
@@ -257,6 +277,21 @@ def _prepare_cue(
             )
         warnings.append("profile_review_required")
     scene = profile.apply(scene)
+    if "decorations" in assets:
+        decoration = assets["decorations"]
+        path = str(_local_path(decoration["path"], root))
+        checked_asset(path, decoration["sha256"])
+        scene = replace(
+            scene,
+            layers=tuple(
+                replace(
+                    layer, decoration_font=path, decoration_sha256=decoration["sha256"]
+                )
+                if layer.role == "arabic"
+                else layer
+                for layer in scene.layers
+            ),
+        )
     scene = decorate_excerpt(
         excerpt,
         scene,
@@ -271,7 +306,7 @@ def _prepare_cue(
             checked_asset(path, selector["sha256"])
             layer = (
                 replace(layer, image=path, sha256=selector["sha256"])
-                if layer.role == "logo"
+                if layer.role == "logo" and not selector.get("glyph")
                 else replace(layer, font=path, sha256=selector["sha256"])
             )
         if layer.role == "translation" and dataset is not None:
@@ -452,6 +487,7 @@ def execute_request(
                         visual_plan = asdict(plan)
                         visual_plan["layer"]["font"] = ""
                         visual_plan["layer"]["image"] = ""
+                        visual_plan["layer"]["decoration_font"] = ""
                         identity = {
                             "scene_size": [scene.width, scene.height],
                             "plan": visual_plan,
@@ -554,6 +590,12 @@ def execute_request(
                 for plan in plans
                 if plan.status == "ready"
             }
+            inputs.update(
+                (plan.layer.decoration_font, plan.decoration_asset_sha256)
+                for _, _, plans in prepared
+                for plan in plans
+                if plan.status == "ready" and plan.layer.decoration_font
+            )
             for path, digest in inputs:
                 checked_asset(path, digest)
             control.checkpoint("publish", len(prepared), len(prepared))

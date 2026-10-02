@@ -56,3 +56,24 @@ phrase translations, reference measurements and creator signoff remain the
 gates for closing issues #39, #40, #42 and #46. The four explicit 17:13 spelling
 equivalences are recorded separately; the other 4,194 boundary groups remain
 on the exhaustive mapping review list, with typed errors for partial selection.
+
+## Creator-font comparison
+
+The later font discovery is implemented by `creator_assets` and reviewed with
+`scripts/creator_font_review.py`. It uses the identical me_quran body/title font,
+AL-QURAN-ALI ornaments/numerals, Arial English, and Quran Surah 01's `y` emblem.
+This is a separate revision from the bundled preview; existing golden masks are
+not replaced or treated as creator-approved pixels.
+
+```
+python scripts/creator_font_review.py --creator-font-directory "/local/fonts" --latin-font "/local/Arial.ttf" --media-directory "/local/reference/videos" --output-dir "outputs/creator-font-review" --ffmpeg ffmpeg
+```
+
+The script checks all six video hashes, exports transparent overlays and local
+request options with pinned font paths, and saves enlarged source/preview regions
+for titles, verse/caption, and logo. It records runtime, layer plans, both font
+checksums, and exact Arabic. The two multi-line English examples retain explicit
+reference line breaks. English remains an authored review fixture with its
+existing provenance, not an approved production translation dataset.
+No source media or proprietary font binaries are committed. Review the generated
+`creator-font-comparison.jpg` and `review.json` before approving a final match.

@@ -86,13 +86,21 @@ def decorate_excerpt(
     quotations: bool = True,
     verse_numbers: bool = True,
 ) -> Scene:
+    arabic = next(layer for layer in scene.layers if layer.role == "arabic")
     digits = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")
+
+    def marker(ayah: int) -> str:
+        number = str(ayah)
+        if arabic.numeral_system == "arabic_indic":
+            number = number.translate(digits)
+        return arabic.marker_prefix + number + arabic.marker_suffix
+
     # Multiple ayah endings stay with their individual source spans.
     if len(excerpt.spans) > 1 and verse_numbers:
         text = " ".join(
             span.text
             + (
-                f" {str(span.source.ayah).translate(digits)}"
+                f" {marker(span.source.ayah)}"
                 if span.ends_ayah and span.source.surah
                 else ""
             )
@@ -102,15 +110,32 @@ def decorate_excerpt(
     else:
         text = excerpt.text
         suffix = (
-            str(excerpt.spans[-1].source.ayah).translate(digits)
+            marker(excerpt.spans[-1].source.ayah)
             if verse_numbers and excerpt.verse_markers
             else ""
         )
-    display = f"﴿ {text} ﴾" if quotations else text
+    separate = bool(arabic.decoration_font)
+    display = (
+        f"{arabic.quote_open} {text} {arabic.quote_close}"
+        if quotations and not separate
+        else text
+    )
     return replace(
         scene,
         layers=tuple(
-            replace(layer, text=display, suffix=suffix)
+            replace(
+                layer,
+                text=display,
+                suffix=suffix,
+                ornaments=quotations and separate,
+                inline_markers=tuple(
+                    marker(s.source.ayah)
+                    for s in excerpt.spans
+                    if s.ends_ayah and s.source.surah
+                )
+                if separate and len(excerpt.spans) > 1 and verse_numbers
+                else (),
+            )
             if layer.role == "arabic"
             else layer
             for layer in scene.layers

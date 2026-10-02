@@ -90,7 +90,7 @@
             "type": "object",
             "properties": {
               "font_size": {
-                "type": "integer"
+                "type": "number"
               },
               "anchor": {
                 "type": "array",
@@ -183,6 +183,41 @@
               },
               "safe_margin": {
                 "type": "number"
+              },
+              "quote_open": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "quote_close": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "numeral_system": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "marker_prefix": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "marker_suffix": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "suffix_spacing": {
+                "type": "number"
+              },
+              "suffix_offset": {
+                "type": "number"
+              },
+              "quote_spacing": {
+                "type": "number"
+              },
+              "horizontal_scale": {
+                "type": "number"
+              },
+              "decoration_scale": {
+                "type": "number"
               }
             },
             "required": [],
@@ -225,6 +260,11 @@
             "attribution": {
               "type": "string",
               "maxLength": 4096
+            },
+            "glyph": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8
             }
           },
           "required": [
@@ -254,6 +294,11 @@
             "attribution": {
               "type": "string",
               "maxLength": 4096
+            },
+            "glyph": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8
             }
           },
           "required": [
@@ -283,6 +328,11 @@
             "attribution": {
               "type": "string",
               "maxLength": 4096
+            },
+            "glyph": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8
             }
           },
           "required": [
@@ -312,6 +362,11 @@
             "attribution": {
               "type": "string",
               "maxLength": 4096
+            },
+            "glyph": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8
             }
           },
           "required": [
@@ -341,6 +396,45 @@
             "attribution": {
               "type": "string",
               "maxLength": 4096
+            },
+            "glyph": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "license",
+            "attribution"
+          ],
+          "additionalProperties": false
+        },
+        "decorations": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "license": {
+              "type": "string",
+              "maxLength": 4096
+            },
+            "attribution": {
+              "type": "string",
+              "maxLength": 4096
+            },
+            "glyph": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8
             }
           },
           "required": [
