@@ -3,6 +3,7 @@
 Only exact normalized token groups become selectable. All unmatched spelling
 groups remain in the checked-in review list. No approximate match is approved.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -14,20 +15,35 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 SOURCE_HASH = "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+REVISION = "simple-uthmani-2"
 
 
 def skeleton(text: str) -> str:
-    text = unicodedata.normalize("NFKC", text).translate(str.maketrans({
-        "ٱ": "ا", "أ": "ا", "إ": "ا", "آ": "ا", "ى": "ي",
-        "ٰ": "ا", "ۥ": "و", "ۦ": "ي",
-    }))
-    return "".join(c for c in text if unicodedata.category(c).startswith("L") and c != "ـ")
+    text = unicodedata.normalize("NFKC", text).translate(
+        str.maketrans(
+            {
+                "ٱ": "ا",
+                "أ": "ا",
+                "إ": "ا",
+                "آ": "ا",
+                "ى": "ي",
+                "ٰ": "ا",
+                "ۥ": "و",
+                "ۦ": "ي",
+            }
+        )
+    )
+    return "".join(
+        c for c in text if unicodedata.category(c).startswith("L") and c != "ـ"
+    )
 
 
 def records(raw: bytes) -> dict[str, str]:
-    return {":".join(line.split("|", 2)[:2]): line.split("|", 2)[2]
-            for line in raw.decode("utf-8-sig").splitlines()
-            if line and line[0].isdigit()}
+    return {
+        ":".join(line.split("|", 2)[:2]): line.split("|", 2)[2]
+        for line in raw.decode("utf-8-sig").splitlines()
+        if line and line[0].isdigit()
+    }
 
 
 def build(source: Path, target: Path, output: Path) -> None:
@@ -45,37 +61,101 @@ def build(source: Path, target: Path, output: Path) -> None:
         if ayah == 1 and surah not in (1, 9):
             source_tokens = list(re.finditer(r"\S+", text))
             target_tokens = list(re.finditer(r"\S+", target_text))
-            assert [skeleton(m.group()) for m in source_tokens[:4]] == [skeleton(w) for w in source_basmala.split()]
-            assert [skeleton(m.group()) for m in target_tokens[:4]] == [skeleton(w) for w in target_basmala.split()]
-            text = text[source_tokens[4].start():]
+            assert [skeleton(m.group()) for m in source_tokens[:4]] == [
+                skeleton(w) for w in source_basmala.split()
+            ]
+            assert [skeleton(m.group()) for m in target_tokens[:4]] == [
+                skeleton(w) for w in target_basmala.split()
+            ]
+            text = text[source_tokens[4].start() :]
             offset = target_tokens[4].start()
         words = [m.group() for m in re.finditer(r"\S+", text) if skeleton(m.group())]
-        tokens = [m for m in re.finditer(r"\S+", target_text[offset:]) if skeleton(m.group())]
+        tokens = [
+            m for m in re.finditer(r"\S+", target_text[offset:]) if skeleton(m.group())
+        ]
         groups = []
         # Exact sequence anchors, with non-equal regions retained for review.
         for tag, i, j, a, b in SequenceMatcher(
-            None, [skeleton(w) for w in words],
-            [skeleton(m.group()) for m in tokens], autojunk=False
+            None,
+            [skeleton(w) for w in words],
+            [skeleton(m.group()) for m in tokens],
+            autojunk=False,
         ).get_opcodes():
             if tag == "equal":
                 for si, ti in zip(range(i, j), range(a, b), strict=True):
-                    groups.append([si + 1, si + 1, tokens[ti].start() + offset,
-                                   tokens[ti + 1].start() + offset if ti + 1 < len(tokens) else len(target_text), True])
+                    groups.append(
+                        [
+                            si + 1,
+                            si + 1,
+                            tokens[ti].start() + offset,
+                            tokens[ti + 1].start() + offset
+                            if ti + 1 < len(tokens)
+                            else len(target_text),
+                            True,
+                        ]
+                    )
             else:
-                approved = (j > i and b > a and
-                            "".join(skeleton(w) for w in words[i:j]) ==
-                            "".join(skeleton(m.group()) for m in tokens[a:b]))
-                start = tokens[a].start() + offset if a < len(tokens) else len(target_text)
-                end = tokens[b].start() + offset if b < len(tokens) else len(target_text)
+                approved = (
+                    j > i
+                    and b > a
+                    and "".join(skeleton(w) for w in words[i:j])
+                    == "".join(skeleton(m.group()) for m in tokens[a:b])
+                )
+                start = (
+                    tokens[a].start() + offset if a < len(tokens) else len(target_text)
+                )
+                end = (
+                    tokens[b].start() + offset if b < len(tokens) else len(target_text)
+                )
                 groups.append([i + 1, j, start, end, approved])
                 if not approved:
-                    review.append({"verse": key, "source_words": [i + 1, j],
-                                   "target_range": [start, end], "reason": "orthography_review_required"})
+                    review.append(
+                        {
+                            "verse": key,
+                            "source_words": [i + 1, j],
+                            "target_range": [start, end],
+                            "reason": "orthography_review_required",
+                        }
+                    )
         result[key] = {"word_count": len(words), "offset": offset, "groups": groups}
-    document = {"revision": "simple-uthmani-1", "source_sha256": SOURCE_HASH,
-                "target_sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
-                "verses": result, "review": review}
-    output.write_text(json.dumps(document, ensure_ascii=False, separators=(",", ":")), "utf-8")
+    # Explicit authored token equivalences, never approximate matching. Verify
+    # both spellings and the original generated offsets before accepting one.
+    approvals = json.loads(
+        (Path(__file__).parent / "data" / "reviewed-word-boundaries.json").read_text(
+            "utf-8"
+        )
+    )
+    for approval in approvals:
+        key = approval["verse"]
+        group = next(
+            g for g in result[key]["groups"] if g[:2] == approval["source_words"]
+        )
+        source_text = source_verses[key].split()[group[0] - 1 : group[1]]
+        target_text = target_verses[key][group[2] : group[3]].rstrip()
+        if (
+            " ".join(source_text) != approval["source_text"]
+            or target_text != approval["target_text"]
+        ):
+            raise ValueError(
+                "Reviewed boundary spellings no longer match pinned corpora"
+            )
+        group[4] = True
+        review = [
+            item
+            for item in review
+            if not (item["verse"] == key and item["source_words"] == group[:2])
+        ]
+    document = {
+        "revision": REVISION,
+        "source_sha256": SOURCE_HASH,
+        "target_sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+        "verses": result,
+        "review": review,
+        "authored_equivalences": approvals,
+    }
+    output.write_text(
+        json.dumps(document, ensure_ascii=False, separators=(",", ":")), "utf-8"
+    )
     print(f"{len(result)} records; {len(review)} unresolved spelling groups")
 
 

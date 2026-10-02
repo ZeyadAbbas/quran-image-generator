@@ -21,6 +21,9 @@ def test_exhaustive_coverage_and_exact_reconstruction():
         assert result.starts_ayah and result.ends_ayah
         assert all(g[2] <= g[3] for g in record["groups"])
         assert [g[2] for g in record["groups"]] == sorted(g[2] for g in record["groups"])
+        verse = corpus.verses[(1, 1) if s == 0 else (s, a)]
+        assert "".join(verse[g[2]:g[3]] for g in record["groups"]) == verse[record["offset"]:]
+        assert [word for g in record["groups"] for word in range(g[0], g[1]+1)] == list(range(1, record["word_count"]+1))
     assert data["review"]  # Unapproved orthography never disappears silently.
 
 
