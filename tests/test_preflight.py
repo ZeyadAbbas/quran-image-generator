@@ -8,9 +8,9 @@ from test_api import fixture_request
 
 from quran_image_generator.api import RenderResponse, execute_request
 from quran_image_generator.excerpts import ExcerptRequest, select_excerpt
-from quran_image_generator.profiles import creator_profile
 from quran_image_generator.references import SourceSpan
 from quran_image_generator.scenes import caption_scene
+from scripts.reference_caption_options import creator_profile
 
 
 def test_preflight_actual_inputs_and_bundled_fonts(tmp_path):

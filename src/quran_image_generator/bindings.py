@@ -8,6 +8,9 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+import jsonschema
+
+from .contract_schema import BINDING_DATASET
 from .excerpts import ExcerptRequest, select_excerpt
 from .references import MAPPING_REVISION, CorpusIdentity, ReferenceError, SourceSpan
 
@@ -89,6 +92,18 @@ class PhraseBinding:
                 "invalid_translation",
                 "Use explicit plain caption segments; HTML/commentary is not automatically merged",
             )
+        if not self.edited:
+            source = " ".join(self.source_text.split())
+            offset = 0
+            for segment in self.segments:
+                text = " ".join(segment.split())
+                position = source.find(text, offset)
+                if position < 0:
+                    raise ReferenceError(
+                        "invalid_translation",
+                        "Changed or reordered source wording must set edited=true",
+                    )
+                offset = position + len(text)
         if self.mapping_revision != MAPPING_REVISION:
             raise ReferenceError(
                 "stale_translation", "Binding mapping revision changed"
@@ -154,6 +169,7 @@ class BindingDataset:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> BindingDataset:
         try:
+            jsonschema.Draft202012Validator(BINDING_DATASET).validate(data)
             bindings = tuple(
                 PhraseBinding(
                     **{
@@ -172,7 +188,12 @@ class BindingDataset:
             )
             result.validate()
             return result
-        except (KeyError, TypeError, AttributeError) as error:
+        except (
+            jsonschema.ValidationError,
+            KeyError,
+            TypeError,
+            AttributeError,
+        ) as error:
             raise ReferenceError(
                 "invalid_translation", "Malformed binding dataset"
             ) from error

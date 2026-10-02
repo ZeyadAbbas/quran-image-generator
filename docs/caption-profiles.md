@@ -2,10 +2,10 @@
 
 `CaptionProfile` round-trips structured JSON through `export_profile` and
 `import_profile`, with ID/revision, approval state, per-role styles and asset
-provenance. `creator_profile(scene)` is `islamstruebeauty` revision `1-preview`,
-explicitly **needs_review**: bundled me_quran/Noto Latin fallback fonts are not
-identified creator fonts. The creator's original logo, fonts and translation
-source must be imported and licensed/approved before claiming a reference match.
+provenance. The renderer installs only the plain style. Custom names identify
+caller-supplied values; no QuranScribe or creator-specific name selects behavior.
+The caller supplies every font, decoration, size, color, anchor and effect through
+ordinary request fields. Invalid fields and unknown layer roles fail explicitly.
 All asset hashes and profile bytes belong in export reproducibility metadata.
 
 Fields control white fill, opacity, outline width/color, shadow offset/blur/color
@@ -27,12 +27,12 @@ Profiles are integration JSON, editable in the public Python/machine API. The
 existing Tk GUI's YAML controls remain for still images; loading/saving those
 settings does not alter a separately saved caption profile.
 
-## Discovered creator fonts (0.2.1)
+## Measured sample-video request example
 
-`matched_creator_configuration(font_directory, latin_font)` returns request
-options for `islamstruebeauty/2-matched`. It discovers exact file bytes recursively
+The development helper in `scripts/reference_caption_options.py` produces an
+example request, separate from the installed package. It discovers exact file bytes recursively
 by SHA-256, requires explicit Arial Regular, and never copies or substitutes a
-local font. `matched_creator_titles(surah)` supplies cue title overrides for the
+local font. The helper's title function supplies cue title overrides for the
 spellings visible in the six references. Merge these options into a normal v1
 request; source references and approved phrase bindings keep their existing form.
 
@@ -59,7 +59,17 @@ captured in every layer plan and verified again at rendering and publication.
 Horizontal adjustment resizes a complete shaped line, preserving connected Arabic
 and all source text. Default profiles retain their existing geometry and fonts.
 
-The profile is **needs_review**. Font identity and visual matching do not approve
+The example is **needs_review**. Font identity and visual matching do not approve
 translation editions, cue timing, or a final video. Creator-supplied font terms
 remain attached to the local asset records; Arial and the discovered fonts are
 not newly distributed in the package. See [the reference workflow](caption-regressions.md).
+
+### Migration from 0.2.x
+
+Renderer 0.3.x retains JSON schema 1 and accepts existing complete style payloads,
+including their old IDs. The earlier `profiles.creator_profile` and
+`creator_assets` sample factories moved to the development script; they are not
+installed APIs. Use `CaptionProfile`, `AssetSelector` and the full `BatchRequest`
+or supply the same ordinary JSON fields. Capability discovery lists general
+features and editable fields, rather than client-specific recipes. Legacy Tk
+still-image defaults are unaffected.

@@ -11,13 +11,13 @@ from pathlib import Path
 
 from caption_review import composite_cue
 from PIL import Image, ImageDraw
-
-from quran_image_generator.api import execute_request
-from quran_image_generator.bindings import BindingDataset
-from quran_image_generator.creator_assets import (
+from reference_caption_options import (
     matched_creator_configuration,
     matched_creator_titles,
 )
+
+from quran_image_generator.api import execute_request
+from quran_image_generator.bindings import BindingDataset
 
 
 def build_review(

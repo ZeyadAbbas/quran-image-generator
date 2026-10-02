@@ -1,14 +1,14 @@
 # Independent QuranScribe handoff
 
-Install renderer **0.2.x**, schema **1** in a separate environment. The integrated
-release tag is `v0.2.1`; a pinned merged commit or wheel is also supported.
+Install renderer **0.3.x**, schema **1** in a separate environment. The integrated
+release tag is `v0.3.0`; a pinned merged commit or wheel is also supported.
 There is no claim of PyPI publication. Pick the executable/environment
 explicitly, check `--capabilities`, and reject incompatible schema/renderer versions.
 
 ```
 python -m venv renderer-env
 # Activate renderer-env using the platform's normal venv activation.
-python -m pip install "git+https://github.com/ZeyadAbbas/quran-image-generator.git@v0.2.1"
+python -m pip install "git+https://github.com/ZeyadAbbas/quran-image-generator.git@v0.3.0"
 quran-caption-render --capabilities
 quran-caption-render --preflight
 quran-caption-render --request "/absolute/inputs/arabic-batch.json"
@@ -35,7 +35,7 @@ reviewed dataset and source notice for production. Original fonts/logo paths and
 licenses must be supplied; no substitute logo is claimed as approved.
 
 `examples/caption_client.py` uses only installed public imports and negotiates
-0.2.x/schema 1. It returns static assets; QuranScribe owns every occurrence's
+0.3.x/schema 1. It returns static assets; QuranScribe owns every occurrence's
 timing/fades, chapter transitions, existing video frames/audio and final encoding.
 No ASR, GUI or publisher is called. Independent CI invokes
 `scripts/offline_caption_smoke.py` outside the checkout to compare public Python
@@ -54,5 +54,6 @@ with its request rooted at `/inputs`. Request paths refer to container locations
 Translate returned `/output/job-*` paths to the mounted host output directory.
 Use the existing non-root UID mapping and native runtime image; no display stack
 is needed. Preserve bundled Tanzil CC BY 3.0 and caller translation/font/logo
-attribution with outputs. Creator visual approval and unresolved spelling-boundary
-reviews remain explicit external data gates.
+attribution with outputs. Content review and unresolved spelling-boundary
+reviews remain explicit caller responsibilities. See the complete
+[sample-video handoff](quranscribe-handoff.md) for request options and composition.

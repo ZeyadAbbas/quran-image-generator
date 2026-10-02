@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "request_id": "reference-request-example",
+  "operation": "render_batch",
+  "source_corpus": {
+    "edition": "Tanzil Simple Hafs",
+    "version": "1.1",
+    "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+  },
+  "canvas": {
+    "width": 576,
+    "height": 1024
+  },
+  "profile": {
+    "id": "reference-example",
+    "revision": "2-matched",
+    "approval": "needs_review",
+    "styles": {
+      "arabic": {
+        "color": "#FFFFFF",
+        "outline_width": 0,
+        "shadow_offset": [
+          0,
+          0
+        ],
+        "shadow_blur": 0,
+        "shadow_opacity": 0,
+        "font_size": 25.25,
+        "horizontal_scale": 1.14,
+        "decoration_scale": 1.14,
+        "min_font_size": 24,
+        "anchor": [
+          0.5,
+          0.503
+        ],
+        "region": [
+          0.025,
+          0.28,
+          0.975,
+          0.53
+        ],
+        "quote_open": "{",
+        "quote_close": "}",
+        "numeral_system": "latin",
+        "marker_prefix": "(",
+        "marker_suffix": ")",
+        "suffix_scale": 0.435,
+        "suffix_offset": -4,
+        "suffix_spacing": 5,
+        "fit": "shrink",
+        "max_lines": 4,
+        "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d"
+      },
+      "arabic_title": {
+        "color": "#FFFFFF",
+        "outline_width": 0,
+        "shadow_offset": [
+          0,
+          0
+        ],
+        "shadow_blur": 0,
+        "shadow_opacity": 0,
+        "font_size": 23.5,
+        "horizontal_scale": 1.08,
+        "min_font_size": 20,
+        "anchor": [
+          0.5,
+          0.161
+        ],
+        "region": [
+          0.05,
+          0.12,
+          0.95,
+          0.173
+        ],
+        "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d"
+      },
+      "latin_title": {
+        "color": "#FFFFFF",
+        "outline_width": 0,
+        "shadow_offset": [
+          0,
+          0
+        ],
+        "shadow_blur": 0,
+        "shadow_opacity": 0,
+        "font_size": 14.5,
+        "min_font_size": 12,
+        "anchor": [
+          0.5,
+          0.1865
+        ],
+        "region": [
+          0.05,
+          0.17,
+          0.95,
+          0.205
+        ],
+        "sha256": "5f9f2d8104ad5e69e1be8107224063dc8c36f9e24680b2f9be324244c0b424a1"
+      },
+      "translation": {
+        "color": "#FFFFFF",
+        "outline_width": 0,
+        "shadow_offset": [
+          0,
+          0
+        ],
+        "shadow_blur": 0,
+        "shadow_opacity": 0,
+        "font_size": 14.5,
+        "min_font_size": 12,
+        "anchor": [
+          0.5,
+          0.542
+        ],
+        "region": [
+          0.12,
+          0.525,
+          0.88,
+          0.68
+        ],
+        "line_spacing": 2,
+        "max_lines": 3,
+        "sha256": "5f9f2d8104ad5e69e1be8107224063dc8c36f9e24680b2f9be324244c0b424a1"
+      },
+      "logo": {
+        "color": "#FFFFFF",
+        "outline_width": 0,
+        "shadow_offset": [
+          0,
+          0
+        ],
+        "shadow_blur": 0,
+        "shadow_opacity": 0,
+        "font_size": 59.25,
+        "anchor": [
+          0.5,
+          0.9253
+        ],
+        "region": [
+          0.4,
+          0.86,
+          0.6,
+          0.97
+        ],
+        "sha256": "8c989d70fcd8b94829f3fe3338d88f71e764840499494b4d41aa2ebd78fbc027"
+      }
+    },
+    "provenance": {
+      "assets": {
+        "arabic": {
+          "path": "fonts/me_quran.ttf",
+          "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+          "license": "Creator-supplied me_quran file; not redistributed by this helper",
+          "attribution": "me_quran; identical to the bundled Quran font"
+        },
+        "decorations": {
+          "path": "fonts/AlQuranAli-L3A83.ttf",
+          "sha256": "57c70bf2efe34444a54ab065173c3d0152e7dd4dc320926fc34e24c85e82d3cd",
+          "license": "Freeware, per supplied info.txt; retain original terms",
+          "attribution": "AL-QURAN-ALI / Ali Laith Kaser Ali; creator-supplied file"
+        },
+        "logo": {
+          "path": "fonts/QuranSurah01-w1yO6.ttf",
+          "sha256": "8c989d70fcd8b94829f3fe3338d88f71e764840499494b4d41aa2ebd78fbc027",
+          "glyph": "y",
+          "license": "Public Domain, per supplied info.txt",
+          "attribution": "Quran Surah 01 / elharrak fonts; creator-supplied file"
+        },
+        "arabic_title": {
+          "path": "fonts/me_quran.ttf",
+          "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+          "license": "Creator-supplied me_quran file; not redistributed by this helper",
+          "attribution": "me_quran; identical to the bundled Quran font"
+        },
+        "latin_title": {
+          "path": "fonts/arial.ttf",
+          "sha256": "5f9f2d8104ad5e69e1be8107224063dc8c36f9e24680b2f9be324244c0b424a1",
+          "license": "Caller-owned system font; not redistributed",
+          "attribution": "Explicit caller-selected Arial Regular"
+        },
+        "translation": {
+          "path": "fonts/arial.ttf",
+          "sha256": "5f9f2d8104ad5e69e1be8107224063dc8c36f9e24680b2f9be324244c0b424a1",
+          "license": "Caller-owned system font; not redistributed",
+          "attribution": "Explicit caller-selected Arial Regular"
+        }
+      },
+      "reference_sources": [
+        "7339743928691821854",
+        "7320492468246416670",
+        "7320203938483981599",
+        "7320147035552779550",
+        "7320128271927020831",
+        "7295439449779965214"
+      ],
+      "logo_glyph": {
+        "character": "y",
+        "codepoint": "U+0079",
+        "font_sha256": "8c989d70fcd8b94829f3fe3338d88f71e764840499494b4d41aa2ebd78fbc027"
+      },
+      "arabic_font": "me_quran",
+      "decoration_font": "AL-QURAN-ALI",
+      "latin_font": "Arial Regular candidate",
+      "word_highlighting": false,
+      "reference_geometry": "measured local source frames; visual review pending"
+    }
+  },
+  "titles": true,
+  "quotations": true,
+  "verse_numbers": true,
+  "cues": [
+    {
+      "cue_id": "7339743928691821854-0",
+      "spans": [
+        {
+          "surah": 31,
+          "ayah": 9,
+          "word_start": 1,
+          "word_end": 5
+        }
+      ],
+      "translation_policy": "required",
+      "translation_binding_id": "31:9:1-5",
+      "arabic_title": "سورة لقمان",
+      "latin_title": "Surah Luqman"
+    },
+    {
+      "cue_id": "repeated-occurrence",
+      "spans": [
+        {
+          "surah": 31,
+          "ayah": 9,
+          "word_start": 1,
+          "word_end": 5
+        }
+      ],
+      "translation_policy": "required",
+      "translation_binding_id": "31:9:1-5",
+      "arabic_title": "سورة لقمان",
+      "latin_title": "Surah Luqman"
+    }
+  ],
+  "output_directory": "rendered reference jobs",
+  "assets": {
+    "arabic": {
+      "path": "fonts/me_quran.ttf",
+      "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+      "license": "Creator-supplied me_quran file; not redistributed by this helper",
+      "attribution": "me_quran; identical to the bundled Quran font"
+    },
+    "decorations": {
+      "path": "fonts/AlQuranAli-L3A83.ttf",
+      "sha256": "57c70bf2efe34444a54ab065173c3d0152e7dd4dc320926fc34e24c85e82d3cd",
+      "license": "Freeware, per supplied info.txt; retain original terms",
+      "attribution": "AL-QURAN-ALI / Ali Laith Kaser Ali; creator-supplied file"
+    },
+    "logo": {
+      "path": "fonts/QuranSurah01-w1yO6.ttf",
+      "sha256": "8c989d70fcd8b94829f3fe3338d88f71e764840499494b4d41aa2ebd78fbc027",
+      "glyph": "y",
+      "license": "Public Domain, per supplied info.txt",
+      "attribution": "Quran Surah 01 / elharrak fonts; creator-supplied file"
+    },
+    "arabic_title": {
+      "path": "fonts/me_quran.ttf",
+      "sha256": "65464072d7c754baa642a4f5031d6cb3b6311cf06ad1826f8fd317f98283096d",
+      "license": "Creator-supplied me_quran file; not redistributed by this helper",
+      "attribution": "me_quran; identical to the bundled Quran font"
+    },
+    "latin_title": {
+      "path": "fonts/arial.ttf",
+      "sha256": "5f9f2d8104ad5e69e1be8107224063dc8c36f9e24680b2f9be324244c0b424a1",
+      "license": "Caller-owned system font; not redistributed",
+      "attribution": "Explicit caller-selected Arial Regular"
+    },
+    "translation": {
+      "path": "fonts/arial.ttf",
+      "sha256": "5f9f2d8104ad5e69e1be8107224063dc8c36f9e24680b2f9be324244c0b424a1",
+      "license": "Caller-owned system font; not redistributed",
+      "attribution": "Explicit caller-selected Arial Regular"
+    }
+  },
+  "translation_dataset": {
+    "source": {
+      "provider": "local",
+      "resource": "authored-six-reference-fixtures",
+      "version": "1",
+      "translator": "Fixture author",
+      "license": "CC0-1.0",
+      "attribution": "Authored test segments, NOT approved creator translations",
+      "direction": "ltr"
+    },
+    "corpus": {
+      "edition": "Tanzil Simple Hafs",
+      "version": "1.1",
+      "sha256": "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
+    },
+    "bindings": [
+      {
+        "binding_id": "31:9:1-5",
+        "revision": "1",
+        "spans": [
+          {
+            "surah": 31,
+            "ayah": 9,
+            "word_start": 1,
+            "word_end": 5
+          }
+        ],
+        "arabic_sha256": "ac13ac552e5307c4b4a955b1ac8cfdc9d866570044b5dd84a38e480275c68cac",
+        "source_text": "staying there forever. Allah's promise is true.",
+        "source_text_sha256": "5d068b352e1d6b337aa5f7785b6e14205ea0e97bbfc9c640da04c69af8328ad0",
+        "segments": [
+          "staying there forever. Allah's promise is true."
+        ],
+        "review_status": "approved",
+        "reviewer": "Authored regression fixture only",
+        "edited": false,
+        "mapping_revision": "simple-uthmani-2",
+        "source_identity_sha256": "d38a01230abcaad0aefa23e99a20723a199bb7bc27378e7a934c0a2a6116d8f2"
+      }
+    ],
+    "schema_version": 1
+  },
+  "cropped": true,
+  "metadata": {
+    "purpose": "Style/request demonstration only; no approved video timing or translation edition"
+  }
+}

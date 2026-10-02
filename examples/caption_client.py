@@ -7,8 +7,8 @@ from quran_image_generator.references import SourceSpan
 from quran_image_generator.requests import BatchRequest, CueRequest
 
 info = capabilities()
-if 1 not in info["schema_versions"] or not info["renderer_version"].startswith("0.2."):
-    raise RuntimeError("Install compatible quran-image-generator 0.2.x")
+if 1 not in info["schema_versions"] or not info["renderer_version"].startswith("0.3."):
+    raise RuntimeError("Install compatible quran-image-generator 0.3.x")
 batch = BatchRequest(
     "external-clip",
     (

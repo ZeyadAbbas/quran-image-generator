@@ -1,4 +1,4 @@
-"""Bind discovered creator typography without redistributing local font files."""
+"""Development examples for measured reference requests; no app preset is installed."""
 
 from __future__ import annotations
 
@@ -7,10 +7,44 @@ from typing import Any
 
 from fontTools.ttLib import TTFont
 
-from .content import QuranDataClient
-from .profiles import CaptionProfile
-from .references import ReferenceError
-from .scenes import checked_asset
+from quran_image_generator.content import QuranDataClient
+from quran_image_generator.profiles import CaptionProfile
+from quran_image_generator.references import ReferenceError
+from quran_image_generator.scenes import Scene, checked_asset
+
+
+def creator_profile(scene: Scene) -> CaptionProfile:
+    """Historical bundled-font test recipe, separate from renderer defaults."""
+    styles = {}
+    assets = {}
+    for layer in scene.layers:
+        styles[layer.role] = {
+            "color": "#FFFFFF",
+            "outline_width": 1,
+            "shadow_offset": (0, 1),
+            "shadow_blur": 1,
+            "shadow_opacity": 0.5,
+        }
+        if layer.font or layer.image:
+            digest = checked_asset(layer.image or layer.font, layer.sha256)
+            styles[layer.role]["sha256"] = digest
+            assets[layer.role] = {
+                "sha256": digest,
+                "source": "caller-supplied" if layer.image else "bundled fallback",
+                "approval": "needs_review",
+            }
+    return CaptionProfile(
+        "reference-example",
+        "1-preview",
+        "needs_review",
+        styles,
+        {
+            "assets": assets,
+            "reference_geometry": "observed, not approved",
+            "word_highlighting": False,
+        },
+    )
+
 
 ALI_SHA256 = "57c70bf2efe34444a54ab065173c3d0152e7dd4dc320926fc34e24c85e82d3cd"
 SURAH_SHA256 = "8c989d70fcd8b94829f3fe3338d88f71e764840499494b4d41aa2ebd78fbc027"
@@ -150,7 +184,7 @@ def matched_creator_configuration(directory: Path, latin_font: Path) -> dict[str
         if role != "decorations":
             styles[role]["sha256"] = asset["sha256"]
     profile = CaptionProfile(
-        "islamstruebeauty",
+        "reference-example",
         "2-matched",
         "needs_review",
         styles,

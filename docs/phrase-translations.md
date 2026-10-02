@@ -13,14 +13,22 @@ Caption segments are plain UTF-8 text with explicit line breaks. HTML and null
 characters fail; footnotes/commentary must be deliberately excluded or authored
 as separately reviewed content. Source text is preserved for provenance. An
 edited phrase must set `edited=true`; never label creator edits as verbatim.
+Validation checks that unedited segments occur in source order in `source_text`,
+ignoring whitespace reflow only. Changed wording, punctuation or reordering
+requires the explicit edit flag; this is provenance validation, not semantic
+approval. Imports enforce the same strict schema as machine requests.
 Changed Arabic/source hashes or mapping revisions invalidate a binding. A changed
 provider version must be imported as a new dataset; never mutate an export's
 pinned dataset. Required English fails on missing, mismatched or unapproved
 bindings; explicitly choose Arabic-only or review-required behavior otherwise.
 
-The exact creator translation edition remains unconfirmed. Test fixtures are
-authored test material, not claims of approved reference provenance. Import the
-creator's reviewed wording and license before asserting a reference match.
+The renderer capability is complete without selecting a default English resource
+or inventing a creator translation edition. Test fixtures are authored test
+material. Import reviewed wording, source notices and exact spans in the caller's
+dataset before production use. A binding ID is selected per cue, so callers may
+choose an explicitly authored override while retaining the source text and edit
+metadata. Alternative wording uses a new binding ID/revision, not a silent change
+to a saved immutable snapshot.
 
 ## Immutable offline snapshots
 

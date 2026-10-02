@@ -1,4 +1,4 @@
-"""Versioned scene profiles; creator asset approval is explicit provenance."""
+"""Caller-defined layer styles with explicit revision and review provenance."""
 
 from __future__ import annotations
 
@@ -7,9 +7,12 @@ from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
+import jsonschema
+
+from .contract_schema import PROFILE
 from .excerpts import Excerpt
 from .references import ReferenceError
-from .scenes import Scene, checked_asset
+from .scenes import Scene
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,15 +23,27 @@ class CaptionProfile:
     styles: dict[str, dict[str, Any]]
     provenance: dict[str, Any]
 
-    def apply(self, scene: Scene) -> Scene:
-        if (
-            self.approval not in ("approved", "needs_review")
-            or not self.id
-            or not self.revision
-        ):
-            raise ReferenceError(
-                "invalid_profile", "Profile identity and approval state are required"
+    def validate(self) -> None:
+        try:
+            jsonschema.Draft202012Validator(PROFILE).validate(
+                json.loads(json.dumps(asdict(self), allow_nan=False))
             )
+        except (jsonschema.ValidationError, TypeError, ValueError) as error:
+            raise ReferenceError(
+                "invalid_profile",
+                "Profile does not conform to the layer style contract",
+            ) from error
+        if set(self.styles) - {
+            "arabic",
+            "translation",
+            "arabic_title",
+            "latin_title",
+            "logo",
+        }:
+            raise ReferenceError("invalid_profile", "Unknown profile layer role")
+
+    def apply(self, scene: Scene) -> Scene:
+        self.validate()
         try:
             return replace(
                 scene,
@@ -43,40 +58,19 @@ class CaptionProfile:
             ) from error
 
     def to_dict(self) -> dict[str, Any]:
+        self.validate()
         return asdict(self)
 
-
-def creator_profile(scene: Scene) -> CaptionProfile:
-    """Observed starting geometry with bundled assets, explicitly unapproved."""
-    styles = {}
-    assets = {}
-    for layer in scene.layers:
-        styles[layer.role] = {
-            "color": "#FFFFFF",
-            "outline_width": 1,
-            "shadow_offset": (0, 1),
-            "shadow_blur": 1,
-            "shadow_opacity": 0.5,
-        }
-        if layer.font or layer.image:
-            digest = checked_asset(layer.image or layer.font, layer.sha256)
-            styles[layer.role]["sha256"] = digest
-            assets[layer.role] = {
-                "sha256": digest,
-                "source": "caller-supplied" if layer.image else "bundled fallback",
-                "approval": "needs_review",
-            }
-    return CaptionProfile(
-        "islamstruebeauty",
-        "1-preview",
-        "needs_review",
-        styles,
-        {
-            "assets": assets,
-            "reference_geometry": "observed, not approved",
-            "word_highlighting": False,
-        },
-    )
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> CaptionProfile:
+        try:
+            result = cls(**data)
+            result.validate()
+            return result
+        except TypeError as error:
+            raise ReferenceError(
+                "invalid_profile", "Malformed profile object"
+            ) from error
 
 
 def decorate_excerpt(
@@ -154,10 +148,11 @@ def import_profile(path: Path) -> CaptionProfile:
         raise ReferenceError("invalid_profile", "Profile exceeds 1 MB")
     try:
         data = json.loads(path.read_text("utf-8-sig"))
-        for style in data["styles"].values():
+        profile = CaptionProfile.from_dict(data)
+        for style in profile.styles.values():
             for name in ("anchor", "region", "shadow_offset"):
                 if name in style:
                     style[name] = tuple(style[name])
-        return CaptionProfile(**data)
+        return profile
     except (KeyError, TypeError, ValueError) as error:
         raise ReferenceError("invalid_profile", "Malformed profile JSON") from error

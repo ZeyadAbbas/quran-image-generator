@@ -5,13 +5,13 @@ from PIL import Image
 
 from quran_image_generator.excerpts import ExcerptRequest, select_excerpt
 from quran_image_generator.profiles import (
-    creator_profile,
     decorate_excerpt,
     export_profile,
     import_profile,
 )
 from quran_image_generator.references import ReferenceError, SourceSpan
 from quran_image_generator.scenes import caption_scene, plan_scene, render_layer
+from scripts.reference_caption_options import creator_profile
 
 
 def test_effects_and_profile_roundtrip_preserve_source(tmp_path):
