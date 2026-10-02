@@ -103,7 +103,7 @@ def matched_creator_configuration(directory: Path, latin_font: Path) -> dict[str
             "decoration_scale": 1.14,
             "min_font_size": 24,
             "anchor": (0.5, 0.503),
-            "region": (0.025, 0.34, 0.975, 0.53),
+            "region": (0.025, 0.28, 0.975, 0.53),
             "quote_open": "{",
             "quote_close": "}",
             "numeral_system": "latin",

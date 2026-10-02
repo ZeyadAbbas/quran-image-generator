@@ -66,6 +66,25 @@ def build_review(
         video = media / f"{clip}.mp4"
         if hashlib.sha256(video.read_bytes()).hexdigest() != case["media_sha256"]:
             raise ValueError(f"Source media checksum changed: {clip}")
+        full_layouts = []
+        for width, height in ((576, 1024), (1080, 1920)):
+            full_request = {
+                **case["request"],
+                **config,
+                "operation": "layout",
+                "canvas": {"width": width, "height": height},
+                "translation_dataset": dataset.to_dict(),
+            }
+            for item in full_request["cues"]:
+                item.update(matched_creator_titles(item["spans"][0]["surah"]))
+            full_result = execute_request(full_request).to_dict()
+            if any(item["status"] == "failed" for item in full_result["cues"]):
+                raise ValueError(
+                    f"Creator profile failed full reference layout: {full_result}"
+                )
+            full_layouts.append(
+                {"canvas": full_request["canvas"], "cues": full_result["cues"]}
+            )
         cue = dict(case["request"]["cues"][0])
         cue.update(matched_creator_titles(cue["spans"][0]["surah"]))
         request = {
@@ -121,6 +140,7 @@ def build_review(
                 "arabic": result["cues"][0]["arabic"],
                 "layers": result["cues"][0]["layers"],
                 "asset_sha256": [a["sha256"] for a in result["assets"]],
+                "full_caption_layouts": full_layouts,
             }
         )
     sheet.save(output / "creator-font-comparison.jpg", quality=95)
