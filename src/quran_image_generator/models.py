@@ -59,6 +59,8 @@ class Chapter:
     number: int
     name_simple: str
     verses_count: int
+    name_arabic: str = ""
+    name_english: str = ""
 
 
 def validate_generation_request(
