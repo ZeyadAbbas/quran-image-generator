@@ -27,3 +27,13 @@ python scripts/build_word_bridge.py quran-simple.txt src/quran_image_generator/a
 
 Update `BRIDGE_SHA256` to the generated payload digest after review. The table
 contains derived offsets, not modified Quran text. Existing Tanzil notices apply.
+
+## Phrase selection
+
+`ExcerptRequest` and `select_excerpt(s)` preserve ordered spans and occurrence
+IDs. No ASR text is accepted. Each resolved span reports `starts_ayah` and
+`ends_ayah`. `verse_markers` identifies only true numbered endings, including
+verse-tail selections; separate basmala has no numeric marker. Quotations are
+visual decorations and are never added to `Excerpt.text`. Translation policy is
+explicit (`none`, `review`, `required`); a required policy needs a phrase binding,
+never a complete-ayah translation silently attached to partial Arabic.
