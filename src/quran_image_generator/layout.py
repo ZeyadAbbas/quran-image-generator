@@ -13,7 +13,7 @@ from .settings import Settings, TranslationSettings
 @dataclass(frozen=True, slots=True)
 class TextStyle:
     font: Path | str
-    font_size: int
+    font_size: int | float
     color: str
     letter_spacing: float
     max_width: int

@@ -53,7 +53,7 @@ def preflight(data: dict[str, Any], root: Path) -> dict[str, Any]:
     for role, asset in selected_assets.items():
         path = str(_local_path(asset["path"], root))
         digest = checked_asset(path, asset["sha256"])
-        if role == "logo":
+        if role == "logo" and not asset.get("glyph"):
             with Image.open(path) as image:
                 if image.width * image.height > 16_000_000:
                     raise ReferenceError(
@@ -61,13 +61,11 @@ def preflight(data: dict[str, Any], root: Path) -> dict[str, Any]:
                     )
                 image.verify()
         else:
-            sample = (
-                "سورة لقمان"
-                if role == "arabic_title"
-                else "خَٰلِدِينَ فِيهَا"
-                if role == "arabic"
-                else "Surah caption 0123456789"
-            )
+            sample = asset.get("glyph") or {
+                "decorations": "{ } (0123456789)",
+                "arabic_title": "سورة لقمان",
+                "arabic": "خَٰلِدِينَ فِيهَا",
+            }.get(role, "Surah caption 0123456789")
             layer = Layer(
                 role,
                 sample,
@@ -75,7 +73,12 @@ def preflight(data: dict[str, Any], root: Path) -> dict[str, Any]:
                 direction="rtl" if role in ("arabic", "arabic_title") else "ltr",
             )
             check_glyphs(layer)
-            layer_font(layer, 30).getbbox(sample)
+            left, top, right, bottom = layer_font(layer, 30).getbbox(sample)
+            if right <= left or bottom <= top:
+                raise ReferenceError(
+                    "missing_glyph",
+                    f"{role} font maps the selected symbol to empty ink",
+                )
         checks["assets"][role] = {"sha256": digest, "status": "ready"}
     if "translation_dataset" in data:
         BindingDataset.from_dict(data["translation_dataset"])

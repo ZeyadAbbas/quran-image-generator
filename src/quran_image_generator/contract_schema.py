@@ -37,6 +37,7 @@ ASSET = obj(
         "sha256": HASH,
         "license": {"type": "string", "maxLength": 4096},
         "attribution": {"type": "string", "maxLength": 4096},
+        "glyph": {"type": "string", "minLength": 1, "maxLength": 8},
     },
     ("path", "sha256", "license", "attribution"),
 )
@@ -54,12 +55,16 @@ def style_schema() -> dict[str, Any]:
             "image",
             "persistent",
             "suffix",
+            "decoration_font",
+            "decoration_sha256",
+            "ornaments",
+            "inline_markers",
         ):
             continue
         default = field.default
         if isinstance(default, bool):
             properties[field.name] = {"type": "boolean"}
-        elif types[field.name] is float:
+        elif types[field.name] in (float, int | float):
             properties[field.name] = {"type": "number"}
         elif isinstance(default, int):
             properties[field.name] = {"type": "integer"}
@@ -208,6 +213,7 @@ REQUEST_SCHEMA = {
                         "arabic_title",
                         "latin_title",
                         "logo",
+                        "decorations",
                     )
                 },
                 "additionalProperties": False,
@@ -300,10 +306,37 @@ LAYER_PROPERTIES = {
     "role": TEXT,
     **{name: {"type": "string"} for name in ("text", "font", "image", "suffix")},
     "persistent": {"type": "boolean"},
+    "decoration_font": {"type": "string"},
+    "decoration_sha256": {"anyOf": [HASH, {"const": ""}]},
+    "ornaments": {"type": "boolean"},
+    "inline_markers": {"type": "array", "items": {"type": "string"}, "maxItems": 32},
 }
 LAYER_PLAN = obj(
     {
-        "layer": obj(LAYER_PROPERTIES, tuple(LAYER_PROPERTIES)),
+        "layer": obj(
+            LAYER_PROPERTIES,
+            tuple(
+                name
+                for name in LAYER_PROPERTIES
+                if name
+                not in (
+                    "quote_open",
+                    "quote_close",
+                    "numeral_system",
+                    "marker_prefix",
+                    "marker_suffix",
+                    "suffix_spacing",
+                    "suffix_offset",
+                    "quote_spacing",
+                    "decoration_font",
+                    "decoration_sha256",
+                    "ornaments",
+                    "inline_markers",
+                    "horizontal_scale",
+                    "decoration_scale",
+                )
+            ),
+        ),
         "lines": {
             "type": "array",
             "items": {
@@ -318,14 +351,29 @@ LAYER_PLAN = obj(
             },
         },
         "bounds": PIXEL_BOX,
-        "font_size": {"type": "integer", "minimum": 0},
+        "font_size": {"type": "number", "minimum": 0},
         "asset_sha256": {"anyOf": [HASH, {"const": ""}]},
+        "decoration_asset_sha256": {"anyOf": [HASH, {"const": ""}]},
         "status": {"enum": ["ready", "disabled", "omitted_optional"]},
         "suffix_position": {
             "type": ["array", "null"],
             "items": {"type": "number"},
             "minItems": 3,
             "maxItems": 3,
+        },
+        "ornament_positions": {
+            "type": "array",
+            "maxItems": 2,
+            "items": {
+                "type": "array",
+                "prefixItems": [
+                    {"type": "string"},
+                    {"type": "number"},
+                    {"type": "number"},
+                ],
+                "minItems": 3,
+                "maxItems": 3,
+            },
         },
     },
     (

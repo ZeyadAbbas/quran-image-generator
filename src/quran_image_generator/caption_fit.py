@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from .layout import MeasuredLine, TextMetrics, TextStyle, _wrap_words
@@ -10,7 +11,7 @@ from .references import ReferenceError
 
 if TYPE_CHECKING:
     from .scenes import Layer, LayerPlan, Scene
-    from .shaping import ShapedFont
+    from .shaping import MixedMarkerFont, ShapedFont
 
 
 class FitError(ReferenceError):
@@ -19,7 +20,7 @@ class FitError(ReferenceError):
         role: str,
         bounds: tuple[int, int, int, int],
         allowed: tuple[int, ...],
-        size: int,
+        size: int | float,
         line_count: int,
     ) -> None:
         self.details = {
@@ -41,7 +42,7 @@ class FitError(ReferenceError):
 
 
 class _Measurer:
-    def __init__(self, font: ShapedFont) -> None:
+    def __init__(self, font: ShapedFont | MixedMarkerFont) -> None:
         self.font = font
 
     def measure(self, text: str, style: TextStyle) -> TextMetrics:
@@ -78,8 +79,36 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
     from .scenes import LayerPlan, check_glyphs, layer_font
 
     check_glyphs(layer)
+    decoration = (
+        replace(
+            layer,
+            font=layer.decoration_font,
+            text=layer.suffix
+            + "".join(layer.inline_markers)
+            + (layer.quote_open + layer.quote_close if layer.ornaments else ""),
+            suffix="",
+            decoration_font="",
+            inline_markers=(),
+            horizontal_scale=1,
+        )
+        if layer.decoration_font
+        else layer
+    )
+    decoration_digest = ""
+    if layer.decoration_font:
+        from .scenes import checked_asset
+
+        decoration_digest = checked_asset(
+            layer.decoration_font, layer.decoration_sha256
+        )
+        check_glyphs(decoration)
     scale = scene.width / 576
-    preferred = max(1, round(layer.font_size * scale))
+    preferred = max(
+        1,
+        round(layer.font_size * scale, 2)
+        if isinstance(layer.font_size, float)
+        else round(layer.font_size * scale),
+    )
     minimum = max(1, round(layer.min_font_size * scale))
     allowed = pixel_region(scene, layer)
     padding = math.ceil(
@@ -88,32 +117,61 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
     dx, dy = (v * scale for v in layer.shadow_offset)
     last_bounds = (0, 0, 0, 0)
     last_count = 0
-    sizes = range(preferred, minimum - 1, -1) if layer.fit == "shrink" else (preferred,)
+    sizes = (
+        tuple(
+            max(minimum, preferred - n)
+            for n in range(math.ceil(preferred - minimum) + 1)
+        )
+        if layer.fit == "shrink"
+        else (preferred,)
+    )
     for size in sizes:
         font = layer_font(layer, size)
+        decoration_font = layer_font(decoration, size * layer.decoration_scale)
+        quote_boxes = (
+            tuple(
+                decoration_font.getbbox(text)
+                for text in (layer.quote_open, layer.quote_close)
+            )
+            if layer.ornaments
+            else ((0, 0, 0, 0), (0, 0, 0, 0))
+        )
+        quote_widths = tuple(
+            box[2] - box[0] + layer.quote_spacing * scale if layer.ornaments else 0
+            for box in quote_boxes
+        )
         marker_size = max(1, round(size * layer.suffix_scale))
         marker_box = (
-            layer_font(layer, marker_size).getbbox(layer.suffix)
+            layer_font(decoration, marker_size).getbbox(layer.suffix)
             if layer.suffix
             else (0, 0, 0, 0)
         )
         reserve = (
-            math.ceil(marker_box[2] - marker_box[0] + 3 * scale) if layer.suffix else 0
+            math.ceil(marker_box[2] - marker_box[0] + layer.suffix_spacing * scale)
+            if layer.suffix
+            else 0
         )
         style = TextStyle(
             layer.font,
             size,
             layer.color,
             0,
-            max(1, allowed[2] - allowed[0] - padding * 2 - math.ceil(abs(dx))),
+            max(
+                1,
+                allowed[2]
+                - allowed[0]
+                - padding * 2
+                - math.ceil(abs(dx))
+                - math.ceil(sum(quote_widths)),
+            ),
             " ",
         )
         lines: list[MeasuredLine] = []
         for paragraph in layer.text.splitlines():
             words = paragraph.split()
-            if words and words[0] == "﴿" and len(words) > 1:
+            if words and words[0] == layer.quote_open and len(words) > 1:
                 words[:2] = [" ".join(words[:2])]
-            if words and words[-1] == "﴾" and len(words) > 1:
+            if words and words[-1] == layer.quote_close and len(words) > 1:
                 words[-2:] = [" ".join(words[-2:])]
             lines.extend(
                 _wrap_words(
@@ -136,6 +194,10 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
                     layer.anchor[0] * scene.width
                     - (line.left_offset + line.right_offset) / 2
                 )
+                x += (
+                    (quote_widths[1] if index == len(lines) - 1 else 0)
+                    - (quote_widths[0] if index == 0 else 0)
+                ) / 2
             elif layer.alignment == "right":
                 x = allowed[2] - padding - line.right_offset
             else:
@@ -150,10 +212,37 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
                 )
             )
         suffix_position = None
+        ornament_positions = []
+        if layer.ornaments:
+            for index, (text, box, qwidth) in enumerate(
+                zip(
+                    (layer.quote_open, layer.quote_close),
+                    quote_boxes,
+                    quote_widths,
+                    strict=True,
+                )
+            ):
+                line_index = 0 if index == 0 else len(lines) - 1
+                ink = boxes[line_index]
+                qx = (
+                    (ink[2] + layer.quote_spacing * scale - box[0])
+                    if index == 0
+                    else (ink[0] - qwidth - box[0])
+                )
+                qy = positioned[line_index][2]
+                ornament_positions.append((text, qx, qy))
+                boxes.append(
+                    (
+                        math.floor(qx + box[0]),
+                        math.floor(qy + box[1]),
+                        math.ceil(qx + box[2]),
+                        math.ceil(qy + box[3]),
+                    )
+                )
         if layer.suffix:
-            last = boxes[-1]
+            last = boxes[-1] if layer.ornaments else boxes[len(lines) - 1]
             sx = last[0] - reserve - marker_box[0]
-            sy = positioned[-1][2]
+            sy = positioned[-1][2] + layer.suffix_offset * scale
             suffix_position = (sx, sy, marker_size)
             boxes.append(
                 (
@@ -178,6 +267,8 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
                 size,
                 digest,
                 suffix_position=suffix_position,
+                ornament_positions=tuple(ornament_positions),
+                decoration_asset_sha256=decoration_digest,
             )
     raise FitError(
         layer.role,

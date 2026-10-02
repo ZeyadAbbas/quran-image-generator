@@ -330,7 +330,7 @@
                   "type": "object",
                   "properties": {
                     "font_size": {
-                      "type": "integer"
+                      "type": "number"
                     },
                     "anchor": {
                       "type": "array",
@@ -424,6 +424,41 @@
                     "safe_margin": {
                       "type": "number"
                     },
+                    "quote_open": {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    "quote_close": {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    "numeral_system": {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    "marker_prefix": {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    "marker_suffix": {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    "suffix_spacing": {
+                      "type": "number"
+                    },
+                    "suffix_offset": {
+                      "type": "number"
+                    },
+                    "quote_spacing": {
+                      "type": "number"
+                    },
+                    "horizontal_scale": {
+                      "type": "number"
+                    },
+                    "decoration_scale": {
+                      "type": "number"
+                    },
                     "role": {
                       "type": "string",
                       "minLength": 1,
@@ -443,6 +478,30 @@
                     },
                     "persistent": {
                       "type": "boolean"
+                    },
+                    "decoration_font": {
+                      "type": "string"
+                    },
+                    "decoration_sha256": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        {
+                          "const": ""
+                        }
+                      ]
+                    },
+                    "ornaments": {
+                      "type": "boolean"
+                    },
+                    "inline_markers": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "maxItems": 32
                     }
                   },
                   "required": [
@@ -510,10 +569,21 @@
                   "maxItems": 4
                 },
                 "font_size": {
-                  "type": "integer",
+                  "type": "number",
                   "minimum": 0
                 },
                 "asset_sha256": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    {
+                      "const": ""
+                    }
+                  ]
+                },
+                "decoration_asset_sha256": {
                   "anyOf": [
                     {
                       "type": "string",
@@ -541,6 +611,26 @@
                   },
                   "minItems": 3,
                   "maxItems": 3
+                },
+                "ornament_positions": {
+                  "type": "array",
+                  "maxItems": 2,
+                  "items": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
                 }
               },
               "required": [
