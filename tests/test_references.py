@@ -24,7 +24,22 @@ def test_exhaustive_coverage_and_exact_reconstruction():
         verse = corpus.verses[(1, 1) if s == 0 else (s, a)]
         assert "".join(verse[g[2]:g[3]] for g in record["groups"]) == verse[record["offset"]:]
         assert [word for g in record["groups"] for word in range(g[0], g[1]+1)] == list(range(1, record["word_count"]+1))
-    assert data["review"]  # Unapproved orthography never disappears silently.
+    # Canonical word positions do not require a second spelling approval.
+    assert not data["review"]
+    for key, record in data["verses"].items():
+        s, a = map(int, key.split(":"))
+        verse = corpus.verses[(1, 1) if s == 0 else (s, a)]
+        for first, last, start, end, _ in record["groups"]:
+            assert resolve_span(SourceSpan(s, a, first, last)).text == verse[start:end].rstrip()
+
+
+def test_mulk_captions_use_canonical_words_without_spelling_approval():
+    spans = [SourceSpan(67, 27, 1, 7), SourceSpan(67, 27, 8, 11),
+             SourceSpan(67, 27, 12, 13)]
+    phrases = [resolve_span(span) for span in spans]
+    assert " ".join(p.text for p in phrases) == resolve_span(SourceSpan(67, 27, 1, 13)).text
+    assert resolve_span(SourceSpan(67, 27, 4, 4)).text == "سِيٓـَٔتْ"
+    assert resolve_span(SourceSpan(67, 27, 12, 12)).text == "بِهِۦ"
 
 
 @pytest.mark.parametrize("s,a", [(2,1),(2,33),(9,1),(27,30),(2,255),(17,13),(31,11),(39,30),(5,73)])
@@ -63,10 +78,8 @@ def test_reviewed_yunus_88_spellings_are_selectable_individually(word, text):
                    for r in bridge_data()["review"])
 
 
-def test_unreviewed_spellings_and_joined_boundaries_still_fail():
-    with pytest.raises(ReferenceError) as error:
-        resolve_span(SourceSpan(2, 3, 5, 5))
-    assert error.value.code == "mapping_boundary"
+def test_canonical_spellings_are_selectable_and_joined_boundaries_still_fail():
+    assert resolve_span(SourceSpan(2, 3, 5, 5)).text == "ٱلصَّلَوٰةَ"
     with pytest.raises(ReferenceError) as error:
         resolve_span(SourceSpan(2, 21, 1, 1))
     assert error.value.code == "mapping_boundary"
