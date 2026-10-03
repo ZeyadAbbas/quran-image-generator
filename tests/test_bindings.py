@@ -125,9 +125,10 @@ def test_changed_translation_version_invalidates_previously_reviewed_bindings():
     assert error.value.code == "stale_translation"
 
 
-def test_revision_three_bindings_remain_exact_and_stale_content_is_rejected():
+@pytest.mark.parametrize("revision", ["simple-uthmani-3", "simple-uthmani-4"])
+def test_saved_bindings_remain_exact_and_stale_content_is_rejected(revision):
     dataset = fixture_dataset()
-    binding = replace(dataset.bindings[0], mapping_revision="simple-uthmani-3")
+    binding = replace(dataset.bindings[0], mapping_revision=revision)
     replace(dataset, bindings=(binding,)).validate()
     for change in ({"arabic_sha256": "0" * 64}, {"mapping_revision": "unknown"},
                    {"spans": (SourceSpan(31, 9, 2, 5),)}):

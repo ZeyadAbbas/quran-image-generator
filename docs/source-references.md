@@ -1,4 +1,4 @@
-# Source references, mapping revision simple-uthmani-4
+# Source references, canonical word index simple-uthmani-5
 
 The public `CorpusIdentity`, `SourceSpan` and `resolve_span` surface uses the
 QuranScribe Tanzil Simple Hafs 1.1 hash, inclusive 1-based words after its
@@ -7,31 +7,22 @@ Chapter 9 never receives an opening basmala. Output always slices the verified
 Uthmani file verbatim, with Python Unicode character offsets, half-open ranges.
 Combining marks and following pause signs attach to the preceding word.
 
-The checked-in bridge is built offline with exact normalized token anchors.
-Normalization is solely evidence for mapping, never output text. Joined groups
-must be selected together; internal boundaries fail with `mapping_boundary`.
-Non-equal orthography groups are explicitly listed under `review` in the bridge
-and cannot be selected partially. A full ayah is identified by its authoritative
-surah/ayah identity even when internal spelling boundaries need review.
-Revision 2 adds four explicit authored 17:13 token equivalences needed for the
-reference's repeated phrase. The builder verifies both exact source spellings
-and generated target offsets against `scripts/data/reviewed-word-boundaries.json`.
-Small connecting waw/ya and written alif differences do not become extra words.
-Revision 3 adds exact 17:15 and 5:72 orthography associations and partitions
-the 5:72 vocative/Israel group at a verified whitespace boundary. The joined
-Simple words 13–14 remain indivisible; word 15 can now be selected independently.
-Authored partitions must cover the original group contiguously in both editions,
-with exact spellings and character offsets. No display text is changed.
-Revision 4 adds three exact 10:88 associations for the legacy recitation
-segments: madda alif versus hamza/alif, small connecting waw, and the Uthmani
-waw/dagger-alif spelling of life. All previously selectable groups and target
-slices are unchanged. Revision 3 English bindings remain valid only with their
-exact spans, source provenance and Arabic hash still checked.
-The remaining 4,187 spelling groups stay unavailable for partial selection.
+The checked-in index resolves canonical verse/word references to character
+positions in the display corpus. Rendering never compares ASR spelling or
+requires a second spelling approval. Revision 5 removes the orthography gate:
+equal-sized word runs are indexed by position, including formerly grouped runs
+whose spellings differed. Small connecting letters, dagger alif and hamza forms
+remain verbatim display text and do not invalidate Quran word identities.
 
-`bridge_data()['review']` is the exhaustive review backlog. A later reviewed
-revision may admit more boundaries, with a new pinned mapping checksum. Runtime
-rendering does not normalize, fuzzily align, or transfer whitespace ordinals.
+Joined groups must still be selected together; an internal boundary fails with
+`mapping_boundary` because it splits one display word. The error refers only to
+word boundaries. Existing authored structural partitions are preserved, including
+5:72's joined vocative and separate Israel word. Every previously selectable
+slice stays unchanged. Revision 3 and 4 English bindings retain their exact span,
+source provenance and Arabic hash checks.
+
+`bridge_data()['review']` is empty; canonical words are not spelling-review work.
+Runtime rendering only looks up positions and slices the checked Quran text.
 The builder accepts only the recorded Simple hash; it needs the unchanged
 creator-owned/source Tanzil Simple file as input. Rebuild with:
 
@@ -39,7 +30,7 @@ creator-owned/source Tanzil Simple file as input. Rebuild with:
 python scripts/build_word_bridge.py quran-simple.txt src/quran_image_generator/assets/data/quran-uthmani-1.1.txt src/quran_image_generator/assets/data/simple-uthmani-bridge.json
 ```
 
-Update `BRIDGE_SHA256` to the generated payload digest after review. The table
+Update `BRIDGE_SHA256` to the generated payload digest. The table
 contains derived offsets, not modified Quran text. Existing Tanzil notices apply.
 
 ## Phrase selection
