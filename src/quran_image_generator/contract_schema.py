@@ -171,6 +171,7 @@ CUE = obj(
         "spans": {"type": "array", "items": SPAN, "minItems": 1, "maxItems": 32},
         "translation_policy": {"enum": ["none", "review", "required"]},
         "translation_binding_id": TEXT,
+        "preview_unreviewed_translation": {"type": "boolean"},
         "metadata": {"type": "object"},
         "title_surah": {"type": "integer", "minimum": 1, "maximum": 114},
         "arabic_title": {"type": "string", "maxLength": 256},
@@ -192,6 +193,8 @@ REQUEST_SCHEMA = {
                     "validate",
                     "layout",
                     "render_batch",
+                    "translation_catalog",
+                    "prepare_translations",
                 ]
             },
             "source_corpus": CORPUS,
@@ -219,6 +222,12 @@ REQUEST_SCHEMA = {
                 "additionalProperties": False,
             },
             "translation_dataset": BINDING_DATASET,
+            "translation_resource": TEXT,
+            "translation_language": TEXT,
+            "snapshot_directory": {"type": "string", "minLength": 1, "maxLength": 4096},
+            "source_snapshot_sha256": HASH,
+            "source_license": {"type": "string", "minLength": 1, "maxLength": 4096},
+            "source_attribution": {"type": "string", "minLength": 1, "maxLength": 4096},
             "translation_snapshot": obj(
                 {"directory": {"type": "string", "maxLength": 4096}, "sha256": HASH},
                 ("directory", "sha256"),
@@ -257,6 +266,11 @@ REQUEST_SCHEMA = {
         {
             "if": {"properties": {"operation": {"const": "render_batch"}}},
             "then": {"required": ["output_directory"]},
+        },
+        {
+            "if": {"properties": {"operation": {"const": "prepare_translations"}}},
+            "then": {"required": ["source_corpus", "cues", "translation_resource",
+                                   "snapshot_directory", "source_license", "source_attribution"]},
         },
     ],
 }
@@ -399,6 +413,17 @@ RESPONSE_SCHEMA = {
             "runtime": {"type": "object"},
             "capabilities": {"type": "object"},
             "preflight": {"type": "object"},
+            "translation_catalog": {"type": "array", "items": {"type": "object"}},
+            "translation_preparation": obj(
+                {"dataset": BINDING_DATASET,
+                 "source_snapshot": obj({"directory": {"type": "string"}, "sha256": HASH},
+                                        ("directory", "sha256")),
+                 "cues": {"type": "array", "items": obj(
+                     {"cue_id": TEXT, "spans": {"type": "array", "items": SPAN},
+                      "binding_id": {"type": ["string", "null"]},
+                      "status": {"enum": ["bound", "needs_phrase_review"]}},
+                     ("cue_id", "spans", "binding_id", "status"))}},
+                ("dataset", "source_snapshot", "cues")),
             "cues": {
                 "type": "array",
                 "items": obj(

@@ -30,7 +30,7 @@ def smoke(output: Path) -> None:
     output = output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     assert 1 in capabilities()["schema_versions"]
-    assert capabilities()["renderer_version"] == "0.3.3"
+    assert capabilities()["renderer_version"] == "0.3.4"
     spans = (SourceSpan(31, 9, 1, 5),)
     excerpt = select_excerpt(ExcerptRequest("phrase", spans))
     source = TranslationSource(
@@ -157,7 +157,7 @@ def smoke(output: Path) -> None:
                 "status": "complete",
                 "assets": len(machine["assets"]),
                 "schema_version": 1,
-                "renderer_version": "0.3.3",
+                "renderer_version": "0.3.4",
             }
         ),
         "utf-8",

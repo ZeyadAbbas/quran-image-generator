@@ -1,4 +1,4 @@
-# Static caption API v1 (renderer 0.3.3)
+# Static caption API v1 (renderer 0.3.4)
 
 Public imports: `quran_image_generator.api` (`RenderRequest`, `RenderResponse`,
 `execute_request`, `capabilities`), `quran_image_generator.requests` (`Canvas`,
@@ -28,6 +28,14 @@ Layer anchors/regions are normalized 0..1; styles use 576-pixel reference units.
 - `render_batch` produces a unique child job directory beneath `output_directory`.
   Every occurrence remains in the ordered cue list. Identical static states share
   assets. Caller metadata, including seconds, is echoed without interpretation.
+- `translation_catalog` explicitly retrieves provider editions. Optional
+  `translation_language="en"` filters English. It returns `translation_catalog`
+  records with `resource_id`, name, description, version and language metadata.
+- `prepare_translations` explicitly downloads a selected edition before rendering,
+  or reads a checksum-pinned source offline. See the request below. Complete ayah
+  spans receive verbatim **unreviewed** bindings; partial spans remain unbound
+  (`needs_phrase_review`). Repeated occurrences retain their IDs and share exact
+  bindings. No words, timing, typography or consumer settings are inferred.
 
 `cues[].spans` is mandatory; `translation_policy` defaults to `none`. `required`
 needs an approved exact binding in `translation_dataset` or an immutable
@@ -35,6 +43,33 @@ needs an approved exact binding in `translation_dataset` or an immutable
 Arabic-only preview if English is missing/unapproved. Underlying source/version,
 Arabic hashes and binding revision are pinned; translation is never downloaded
 during export. Use explicit prepare/import APIs first.
+
+For an explicit draft, `review` plus `preview_unreviewed_translation=true` shows
+an existing unapproved exact binding with review warnings. Without that flag,
+the previous Arabic-only behavior remains. This never approves the wording;
+`required` still rejects unapproved bindings.
+
+```json
+{
+  "schema_version": 1,
+  "request_id": "english-source",
+  "operation": "prepare_translations",
+  "source_corpus": {"name": "tanzil", "version": "1.1", "script": "simple", "sha256": "<capabilities hash>"},
+  "translation_resource": "<resource_id from translation_catalog>",
+  "snapshot_directory": "/absolute/source-cache",
+  "source_license": "<source terms supplied by caller>",
+  "source_attribution": "<edition and provider attribution>",
+  "cues": [{"cue_id": "first-pass", "spans": [{"surah": 112, "ayah": 1, "word_start": 1, "word_end": 4}]}]
+}
+```
+
+Use the full corpus identity returned by capabilities. The response contains
+`translation_preparation.dataset`, ordered `.cues`, and `.source_snapshot`
+(absolute directory + SHA-256). Save the dataset for rendering. A later request
+with `source_snapshot_sha256` reuses those exact bytes without contacting the
+provider, checking the selected resource, corpus and source notices first.
+`translation_unavailable` is retryable; invalid editions and corrupt/stale pins
+fail explicitly. Network access is confined to these two preparation operations.
 
 `profile` is complete structured configuration (ID/revision/approval/styles/
 provenance); `plain/1` defaults to undecorated white text. Profile names are caller
