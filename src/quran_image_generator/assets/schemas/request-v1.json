@@ -17,7 +17,9 @@
         "preflight",
         "validate",
         "layout",
-        "render_batch"
+        "render_batch",
+        "translation_catalog",
+        "prepare_translations"
       ]
     },
     "source_corpus": {
@@ -653,6 +655,35 @@
       ],
       "additionalProperties": false
     },
+    "translation_resource": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "translation_language": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "snapshot_directory": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "source_snapshot_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "source_license": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "source_attribution": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
     "translation_snapshot": {
       "type": "object",
       "properties": {
@@ -727,6 +758,9 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 128
+          },
+          "preview_unreviewed_translation": {
+            "type": "boolean"
           },
           "metadata": {
             "type": "object"
@@ -832,6 +866,25 @@
       "then": {
         "required": [
           "output_directory"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "prepare_translations"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "source_corpus",
+          "cues",
+          "translation_resource",
+          "snapshot_directory",
+          "source_license",
+          "source_attribution"
         ]
       }
     }

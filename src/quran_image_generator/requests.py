@@ -42,6 +42,7 @@ class CueRequest:
     title_surah: int | None = None
     arabic_title: str | None = None
     latin_title: str | None = None
+    preview_unreviewed_translation: bool = False
 
 
 @dataclass(frozen=True, slots=True)

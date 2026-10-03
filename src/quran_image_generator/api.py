@@ -42,7 +42,7 @@ from .scenes import (
 from .snapshots import SnapshotStore, canonical_bytes
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.3.3"
+RENDERER_VERSION = "0.3.4"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -131,6 +131,8 @@ def capabilities() -> dict[str, Any]:
             "validate",
             "layout",
             "render_batch",
+            "translation_catalog",
+            "prepare_translations",
         ],
         "renderer_version": RENDERER_VERSION,
         "mapping_revision": MAPPING_REVISION,
@@ -155,6 +157,8 @@ def capabilities() -> dict[str, Any]:
             "outline_and_shadow": True,
             "reviewed_phrase_bindings": True,
             "offline_translation_snapshots": True,
+            "translation_source_preparation": True,
+            "unreviewed_translation_preview": True,
         },
         "limits": {
             "request_bytes": MAX_REQUEST_BYTES,
@@ -174,7 +178,7 @@ def error_record(error: ReferenceError) -> dict[str, Any]:
     result: dict[str, Any] = {
         "code": error.code,
         "message": str(error),
-        "retryable": error.code in ("output_io", "translation_deadline"),
+        "retryable": error.code in ("output_io", "translation_deadline", "translation_unavailable"),
     }
     if hasattr(error, "details"):
         result["details"] = error.details
@@ -239,6 +243,9 @@ def _prepare_cue(
             translation = {"source": asdict(dataset.source), "binding": asdict(binding)}
             if binding.review_status == "approved":
                 english = binding.text
+            elif policy == "review" and cue.get("preview_unreviewed_translation"):
+                english = binding.text
+                warnings.append("translation_review_required; unapproved English shown in draft")
             else:
                 warnings.append(
                     "translation_review_required; unapproved English omitted from preview"
@@ -365,6 +372,16 @@ def execute_request(
             result["capabilities"] = capabilities()
             return RenderResponse(result)
         root = (asset_root or Path.cwd()).resolve()
+        if data["operation"] in ("translation_catalog", "prepare_translations"):
+            from .translation_api import prepare_translation_source, translation_catalog
+
+            if data["operation"] == "translation_catalog":
+                result["translation_catalog"] = translation_catalog(
+                    data.get("translation_language"))
+            else:
+                result["translation_preparation"] = prepare_translation_source(
+                    data, root, deadline_seconds=deadline_seconds, cancelled=cancelled)
+            return RenderResponse(result)
         if data["operation"] == "preflight":
             from .preflight import preflight
 

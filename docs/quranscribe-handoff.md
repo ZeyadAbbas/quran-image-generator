@@ -1,6 +1,6 @@
 # QuranScribe handoff: request the sample-video composition
 
-Use **quran-image-generator v0.3.3**, **JSON schema 1**. Install the renderer in
+Use **quran-image-generator v0.3.4**, **JSON schema 1**. Install the renderer in
 its own environment as described in [integration-install.md](integration-install.md).
 QuranScribe requests static transparent layers, then controls every occurrence's
 timing, fades and video composition. Preserve the input frames and audio.
@@ -92,7 +92,15 @@ and returns exact text/character ranges. A `mapping_boundary` failure requires a
 reviewed mapping or selection boundary; never round it or substitute raw text.
 Separate unnumbered basmala is `[surah=0, ayah=0, word_start=1, word_end=4]`.
 
-English must be a reviewed exact binding to those ordered spans. Use
+English comes from an explicit source-preparation stage. The machine interface
+now exposes `translation_catalog` and `prepare_translations`; see
+[the operation contract](render-api-v1.md). The caller selects an edition, supplies
+source notices, saves the returned checksum-pinned snapshot and exact dataset,
+then renders offline. Whole ayahs receive verbatim unreviewed English; partial
+phrases still require reviewed exact wording. For a visible draft, use `review`
+with `preview_unreviewed_translation=true`. Warnings/review state stay explicit.
+
+Production English must be a reviewed exact binding to those ordered spans. Use
 `translation_policy="required"`, an explicit `translation_binding_id` and either
 `translation_dataset` or a pinned `translation_snapshot` (not both). Import/export
 with the public [bindings API](phrase-translations.md); snapshots never fetch or
