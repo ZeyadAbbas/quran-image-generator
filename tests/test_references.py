@@ -42,3 +42,31 @@ def test_joined_boundary_is_explicit_and_basmala_is_separate():
     with pytest.raises(ReferenceError) as error:
         resolve_span(SourceSpan(31,9,1,5), CorpusIdentity(sha256="wrong"))
     assert error.value.code == "unsupported_corpus"
+
+
+@pytest.mark.parametrize("first,last", [(1, 5), (6, 11), (12, 16), (17, 23), (24, 29)])
+def test_legacy_recording_yunus_88_segments_are_exact_verbatim_slices(first, last):
+    record = bridge_data()["verses"]["10:88"]
+    selected = [g for g in record["groups"] if first <= g[0] <= last]
+    result = resolve_span(SourceSpan(10, 88, first, last))
+    verse = _load_bundled_corpus().verses[(10, 88)]
+    assert result.text == verse[selected[0][2]:selected[-1][3]].rstrip()
+    assert result.starts_ayah is (first == 1)
+    assert result.ends_ayah is (last == 29)
+
+
+@pytest.mark.parametrize("word,text", [(5, "ءَاتَيْتَ"), (7, "وَمَلَأَهُۥ"),
+                                      (11, "ٱلْحَيَوٰةِ")])
+def test_reviewed_yunus_88_spellings_are_selectable_individually(word, text):
+    assert resolve_span(SourceSpan(10, 88, word, word)).text == text
+    assert not any(r["verse"] == "10:88" and r["source_words"] == [word, word]
+                   for r in bridge_data()["review"])
+
+
+def test_unreviewed_spellings_and_joined_boundaries_still_fail():
+    with pytest.raises(ReferenceError) as error:
+        resolve_span(SourceSpan(2, 3, 5, 5))
+    assert error.value.code == "mapping_boundary"
+    with pytest.raises(ReferenceError) as error:
+        resolve_span(SourceSpan(2, 21, 1, 1))
+    assert error.value.code == "mapping_boundary"

@@ -104,7 +104,10 @@ class PhraseBinding:
                         "Changed or reordered source wording must set edited=true",
                     )
                 offset = position + len(text)
-        if self.mapping_revision != MAPPING_REVISION:
+        # Revision 4 only admits three formerly unresolved 10:88 spellings;
+        # every previously selectable slice is unchanged. Keep revision 3
+        # bindings usable, still verifying their exact spans and Arabic hash.
+        if self.mapping_revision not in (MAPPING_REVISION, "simple-uthmani-3"):
             raise ReferenceError(
                 "stale_translation", "Binding mapping revision changed"
             )

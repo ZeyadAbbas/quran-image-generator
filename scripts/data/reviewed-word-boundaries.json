@@ -9,5 +9,8 @@
     {"source_words":[15,15],"source_text":"إِسْرَائِيلَ","target_text":"إِسْرَٰٓءِيلَ","target_range":[108,122]}
   ]},
   {"verse":"5:72","source_words":[20,20],"source_text":"إِنَّهُ","target_text":"إِنَّهُۥ","target_range":[160,169],"method":"Explicit authored equivalence: small connecting waw; exact pinned spellings and surrounding anchors"},
-  {"verse":"5:72","source_words":[29,29],"source_text":"وَمَأْوَاهُ","target_text":"وَمَأْوَىٰهُ","target_range":[235,248],"method":"Explicit authored equivalence: written alif versus alif maqsura with dagger alif; exact pinned spellings and surrounding anchors"}
+  {"verse":"5:72","source_words":[29,29],"source_text":"وَمَأْوَاهُ","target_text":"وَمَأْوَىٰهُ","target_range":[235,248],"method":"Explicit authored equivalence: written alif versus alif maqsura with dagger alif; exact pinned spellings and surrounding anchors"},
+  {"verse":"10:88","source_words":[5,5],"source_text":"آتَيْتَ","target_text":"ءَاتَيْتَ","target_range":[34,44],"method":"Explicit authored equivalence: madda alif versus hamza followed by alif; exact pinned spellings, Unicode offsets and surrounding anchors"},
+  {"verse":"10:88","source_words":[7,7],"source_text":"وَمَلَأَهُ","target_text":"وَمَلَأَهُۥ","target_range":[55,67],"method":"Explicit authored equivalence: small connecting waw; exact pinned spellings, Unicode offsets and surrounding anchors"},
+  {"verse":"10:88","source_words":[11,11],"source_text":"الْحَيَاةِ","target_text":"ٱلْحَيَوٰةِ","target_range":[92,104],"method":"Explicit authored equivalence: alif versus Uthmani waw with dagger alif in the same word; exact pinned spellings, Unicode offsets and surrounding anchors"}
 ]

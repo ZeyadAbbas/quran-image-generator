@@ -1,7 +1,7 @@
 # Independent QuranScribe handoff
 
 Install renderer **0.3.x**, schema **1** in a separate environment. The integrated
-baseline release tag is `v0.3.3`; translation preparation requires 0.3.4 or later
+baseline release tag is `v0.3.3`; translation preparation requires 0.3.4 or later; the reviewed 10:88 partial-word mapping requires 0.3.5
 (a pinned merged commit or built wheel is supported).
 There is no claim of PyPI publication. Pick the executable/environment
 explicitly, check `--capabilities`, and reject incompatible schema/renderer versions.

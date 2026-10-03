@@ -15,6 +15,8 @@ from scripts.build_word_bridge import reviewed_groups
     [
         (17, 15, [(1, 10), (11, 13), (14, 15), (16, 21)]),
         (5, 72, [(1, 4), (5, 14), (15, 22), (23, 34)]),
+        (10, 88, [(1, 5), (6, 11), (12, 16), (17, 23), (24, 29)]),
+        (10, 89, [(1, 5), (6, 11)]),
     ],
 )
 def test_actual_consumer_phrase_boundaries_reconstruct_verbatim_ayah(surah, ayah, ranges):

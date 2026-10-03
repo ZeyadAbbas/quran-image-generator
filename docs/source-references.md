@@ -1,4 +1,4 @@
-# Source references, mapping revision simple-uthmani-3
+# Source references, mapping revision simple-uthmani-4
 
 The public `CorpusIdentity`, `SourceSpan` and `resolve_span` surface uses the
 QuranScribe Tanzil Simple Hafs 1.1 hash, inclusive 1-based words after its
@@ -22,7 +22,12 @@ the 5:72 vocative/Israel group at a verified whitespace boundary. The joined
 Simple words 13–14 remain indivisible; word 15 can now be selected independently.
 Authored partitions must cover the original group contiguously in both editions,
 with exact spellings and character offsets. No display text is changed.
-The remaining 4,190 spelling groups stay unavailable for partial selection.
+Revision 4 adds three exact 10:88 associations for the legacy recitation
+segments: madda alif versus hamza/alif, small connecting waw, and the Uthmani
+waw/dagger-alif spelling of life. All previously selectable groups and target
+slices are unchanged. Revision 3 English bindings remain valid only with their
+exact spans, source provenance and Arabic hash still checked.
+The remaining 4,187 spelling groups stay unavailable for partial selection.
 
 `bridge_data()['review']` is the exhaustive review backlog. A later reviewed
 revision may admit more boundaries, with a new pinned mapping checksum. Runtime

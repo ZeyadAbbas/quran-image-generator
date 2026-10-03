@@ -15,7 +15,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 SOURCE_HASH = "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
-REVISION = "simple-uthmani-3"
+REVISION = "simple-uthmani-4"
 
 
 def reviewed_groups(approval: dict, group: list, words: list[str], text: str) -> list:
