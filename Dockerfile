@@ -1,5 +1,5 @@
 # Official Python image manifest verified against Docker Hub on 2026-09-26.
-FROM python:3.14.7-slim-bookworm@sha256:82bc3c539b8813ada9d68c63b40158fa002f7f33de9bf3312a3dfdc0620dff56 AS builder
+FROM python:3.14.8-slim-bookworm@sha256:48b13b003dda20b16f9442b8475aa05fe21bf6579a8c881db92ffb4d8fd20f83 AS builder
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1
@@ -11,7 +11,7 @@ RUN python -m pip install "build>=1.3,<2" \
     && python -m build --wheel --outdir /dist
 
 
-FROM python:3.14.7-slim-bookworm@sha256:82bc3c539b8813ada9d68c63b40158fa002f7f33de9bf3312a3dfdc0620dff56 AS runtime-base
+FROM python:3.14.8-slim-bookworm@sha256:48b13b003dda20b16f9442b8475aa05fe21bf6579a8c881db92ffb4d8fd20f83 AS runtime-base
 
 ENV HOME=/home/qig \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
