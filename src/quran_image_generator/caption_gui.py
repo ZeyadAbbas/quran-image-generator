@@ -401,6 +401,49 @@ class CaptionStudio:
             lambda: self._edit_metadata("cue"),
         )
         self._button(extra, "Apply caption", self._apply_cue)
+        self._button(extra, "Source-word line breaks…", self._edit_line_breaks)
+
+    def _edit_line_breaks(self) -> None:
+        self._commit_cue()
+        pending = copy.deepcopy(self.document.data["cues"][self._cue_index].get("line_breaks", []))
+        dialog = tk.Toplevel(self.window)
+        dialog.title("Source-word line breaks")
+        ttk.Label(dialog, text="Choose a range occurrence (1 is the first range) and its source word.\nForced breaks always start a line; preferred breaks guide automatic wrapping.").grid(row=0, column=0, columnspan=4, padx=10, pady=10)
+        rows = ttk.Treeview(dialog, columns=("occurrence", "word", "mode"), show="headings", height=6)
+        for name, title in (("occurrence", "Range occurrence"), ("word", "After source word"), ("mode", "Break policy")):
+            rows.heading(name, text=title)
+        rows.grid(row=1, column=0, columnspan=4, padx=10)
+        occurrence, word, mode = tk.StringVar(dialog, "1"), tk.StringVar(dialog, "1"), tk.StringVar(dialog, "forced")
+        ttk.Entry(dialog, textvariable=occurrence, width=6).grid(row=2, column=0)
+        ttk.Entry(dialog, textvariable=word, width=6).grid(row=2, column=1)
+        ttk.Combobox(dialog, textvariable=mode, values=("forced", "preferred"), state="readonly").grid(row=2, column=2)
+
+        def fill() -> None:
+            rows.delete(*rows.get_children())
+            for i, hint in enumerate(pending):
+                rows.insert("", "end", iid=str(i), values=(hint["span_occurrence"] + 1, hint["source_word"], hint["mode"]))
+
+        def add() -> None:
+            hint = {"span_occurrence": int(occurrence.get()) - 1, "source_word": int(word.get()), "mode": mode.get()}
+            self.document.validate_line_breaks(self._cue_index, [*pending, hint])
+            pending.append(hint)
+            fill()
+
+        def remove() -> None:
+            if rows.selection():
+                pending.pop(int(rows.selection()[0]))
+                fill()
+
+        def save() -> None:
+            self.document.set_line_breaks(self._cue_index, pending)
+            self._changed()
+            dialog.destroy()
+
+        ttk.Button(dialog, text="Add break", command=self._guard(add)).grid(row=2, column=3)
+        ttk.Button(dialog, text="Remove selected", command=self._guard(remove)).grid(row=3, column=0, pady=8)
+        ttk.Button(dialog, text="Save breaks", command=self._guard(save)).grid(row=3, column=2)
+        ttk.Button(dialog, text="Cancel", command=dialog.destroy).grid(row=3, column=3)
+        fill()
 
     def _build_layers(self) -> None:
         frame = self._frames["Layers"]
@@ -1060,6 +1103,8 @@ class CaptionStudio:
             self.document.data["cues"][self._cue_index]["spans"] = [
                 asdict(s) for s in candidate
             ]
+            cue = self.document.data["cues"][self._cue_index]
+            cue["line_breaks"] = [h for h in cue.get("line_breaks", []) if h["span_occurrence"] != index]
         else:
             self.document.add_span(self._cue_index, span)
         self._fill_cues()
@@ -1083,7 +1128,11 @@ class CaptionStudio:
         selection = self._spans.selection()
         spans = self.document.data["cues"][self._cue_index]["spans"]
         if selection and len(spans) > 1:
-            spans.pop(int(selection[0]))
+            index = int(selection[0])
+            spans.pop(index)
+            cue = self.document.data["cues"][self._cue_index]
+            cue["line_breaks"] = [{**h, "span_occurrence": h["span_occurrence"] - (h["span_occurrence"] > index)}
+                                  for h in cue.get("line_breaks", []) if h["span_occurrence"] != index]
             self._fill_cue()
             self._changed()
 
@@ -1096,6 +1145,9 @@ class CaptionStudio:
             target = index + direction
             if 0 <= target < len(spans):
                 spans.insert(target, spans.pop(index))
+                for hint in self.document.data["cues"][self._cue_index].get("line_breaks", []):
+                    if hint["span_occurrence"] in (index, target):
+                        hint["span_occurrence"] = target if hint["span_occurrence"] == index else index
                 self._fill_cue()
                 self._spans.selection_set(str(target))
                 self._changed()

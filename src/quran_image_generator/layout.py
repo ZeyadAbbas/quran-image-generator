@@ -19,6 +19,8 @@ class TextStyle:
     max_width: int
     word_spacing: str
     direction: str = "undefined"
+    additional_word_spacing: float = 0
+    native_space_advance: float | None = None
 
 
 @dataclass(frozen=True, slots=True)

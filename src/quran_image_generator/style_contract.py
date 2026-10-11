@@ -15,6 +15,7 @@ RANGES = {
     "shadow_opacity": (0, 1), "suffix_scale": (0.25, 1), "line_spacing": (0, 64),
     "safe_margin": (0, 64), "suffix_spacing": (0, 32), "suffix_offset": (-32, 32),
     "quote_spacing": (0, 32), "horizontal_scale": (0.5, 2), "decoration_scale": (0.5, 2),
+    "word_spacing": (0, 2), "line_height": (0, 4), "tracking": (0, 1),
 }
 ENUMS = {
     "direction": ["rtl", "ltr"], "fit": ["wrap", "shrink"],
@@ -35,6 +36,9 @@ DESCRIPTIONS = {
     "sha256": "Optional required primary font or image byte identity",
     "enabled": "Explicitly disabled layers produce no asset",
     "required": "Missing content fails when enabled and required",
+    "word_spacing": "Additional word gap in em of the final fitted font; zero preserves legacy spacing",
+    "line_height": "Baseline step in fitted em; zero uses legacy line_spacing",
+    "tracking": "Additional Latin grapheme gap in fitted em; optional cross-grapheme ligatures are disabled",
 }
 
 
@@ -53,7 +57,7 @@ def field_metadata(name: str, spec: dict[str, Any], default: Any) -> dict[str, A
         result.update(maxLength=8, pattern=r"^\S*$")
     if name.endswith("color") or name == "color":
         result["x-format"] = "opaque_rgb; opacity is a separate field"
-    result["x-units"] = ("reference_pixels" if name in REFERENCE_FIELDS else
+    result["x-units"] = ("em" if name in ("word_spacing", "line_height", "tracking") else "reference_pixels" if name in REFERENCE_FIELDS else
                          "normalized_canvas" if name in ("anchor", "region") else
                          "ratio" if name in ("opacity", "shadow_opacity", "suffix_scale", "horizontal_scale", "decoration_scale") else "unitless")
     result["x-scaling"] = "canvas_width/576" if name in REFERENCE_FIELDS else "none"
@@ -64,6 +68,9 @@ def field_metadata(name: str, spec: dict[str, Any], default: Any) -> dict[str, A
         result["x-constraints"] = ["min_font_size <= font_size after resolving omitted defaults"]
     if name == "region":
         result["x-constraints"] = ["left < right", "top < bottom"]
+    if name in ("word_spacing", "tracking"):
+        result["x-constraints"] = (["requires native Wand-RAQM for nonzero spacing"] if name == "word_spacing" else
+                                  ["nonzero tracking supports LTR Latin graphemes only", "combining marks remain attached"])
     return result
 
 

@@ -62,6 +62,30 @@ def test_close_cancel_preserves_unsaved_request(studio, monkeypatch):
     assert studio.window.winfo_exists()
 
 
+def test_source_line_break_dialog_and_occurrence_reorder(studio):
+    import tkinter as tk
+    from tkinter import ttk
+
+    studio._edit_line_breaks()
+    dialog = next(c for c in studio.window.winfo_children() if isinstance(c, tk.Toplevel))
+    entries = [c for c in dialog.winfo_children() if isinstance(c, ttk.Entry) and not isinstance(c, ttk.Combobox)]
+    entries[1].delete(0, "end")
+    entries[1].insert(0, "2")
+    buttons = {c.cget("text"): c for c in dialog.winfo_children() if isinstance(c, ttk.Button)}
+    buttons["Add break"].invoke()
+    buttons["Save breaks"].invoke()
+    cue = studio.document.data["cues"][0]
+    assert cue["line_breaks"] == [{"span_occurrence": 0, "source_word": 2, "mode": "forced"}]
+    cue["spans"].append(copy.deepcopy(cue["spans"][0]))
+    studio._fill_cue()
+    studio._spans.selection_set("0")
+    studio._move_range(1)
+    assert cue["line_breaks"][0]["span_occurrence"] == 1
+    studio._spans.selection_set("1")
+    studio._remove_range()
+    assert cue["line_breaks"] == []
+
+
 def test_close_during_render_cancels_without_touching_destroyed_widgets(
     studio, monkeypatch
 ):

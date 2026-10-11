@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from io import BytesIO
 
 from PIL import Image, ImageDraw, ImageFont, features
@@ -13,7 +14,8 @@ from .references import ReferenceError
 
 class ShapedFont:
     def __init__(
-        self, path: str, size: int | float, direction: str, horizontal_scale: float = 1
+        self, path: str, size: int | float, direction: str, horizontal_scale: float = 1,
+        *, word_spacing: float = 0, tracking: float = 0,
     ) -> None:
         if size > 512:
             raise ReferenceError(
@@ -21,8 +23,18 @@ class ShapedFont:
             )
         self.path, self.size, self.direction = path, size, direction
         self.horizontal_scale = horizontal_scale
+        self.word_spacing, self.tracking = word_spacing, tracking
+        self.natural_space: float | None = None
+        if word_spacing:
+            from fontTools.ttLib import TTFont
+
+            with TTFont(path) as face:
+                glyph = (face.getBestCmap() or {}).get(32)
+                if glyph:
+                    self.natural_space = face["hmtx"][glyph][0] * size / face["head"].unitsPerEm
+        self.backend = "pillow_raqm"
         self.pillow: ImageFont.FreeTypeFont | None = None
-        if features.check_feature("raqm"):
+        if features.check_feature("raqm") and not word_spacing:
             self.pillow = ImageFont.truetype(
                 path, size, layout_engine=ImageFont.Layout.RAQM
             )
@@ -31,9 +43,26 @@ class ShapedFont:
 
             if "raqm" not in MAGICK_VERSION_DELEGATES.split():
                 raise ReferenceError(
-                    "missing_shaping",
+                    "unsupported_shaping_option" if word_spacing else "missing_shaping",
+                    "Nonzero word spacing requires native Wand-RAQM" if word_spacing else
                     "Install Pillow or ImageMagick with RAQM/Harfbuzz support",
+                    details={"field": "word_spacing", "backend": "wand_raqm"} if word_spacing else None,
                 )
+            self.backend = "wand_raqm"
+        if self.pillow is None:
+            from .rendering import WandTextMeasurer
+
+            self._measurer = WandTextMeasurer()
+
+    def _style(self) -> TextStyle:
+        return TextStyle(self.path, self.size, "#FFFFFF", 0, 8192, " ",
+                         "right_to_left" if self.direction == "rtl" else "left_to_right",
+                         self.word_spacing, self.natural_space)
+
+    def advance(self, text: str) -> float:
+        if self.pillow:
+            return float(self.pillow.getlength(text, direction=self.direction))
+        return self._measurer.measure(text, self._style()).width
 
     def space_width(self) -> float:
         if self.pillow:
@@ -41,47 +70,49 @@ class ShapedFont:
                 float(self.pillow.getlength(" ", direction=self.direction))
                 * self.horizontal_scale
             )
-        from .rendering import WandTextMeasurer
-
-        return (
-            float(
-                WandTextMeasurer()
-                .measure(
-                    " ",
-                    TextStyle(
-                        self.path,
-                        self.size,
-                        "#FFFFFF",
-                        0,
-                        8192,
-                        " ",
-                        "right_to_left" if self.direction == "rtl" else "left_to_right",
-                    ),
-                )
-                .width
-            )
-            * self.horizontal_scale
-        )
+        return self.advance(" ") * self.horizontal_scale
 
     def getbbox(self, text: str, **kwargs: object) -> tuple[float, float, float, float]:
         left, top, right, bottom = self._bbox(text)
         return left * self.horizontal_scale, top, right * self.horizontal_scale, bottom
 
     def _bbox(self, text: str) -> tuple[float, float, float, float]:
+        if self.tracking:
+            runs = self._tracked_runs(text)
+            boxes = [(x + b[0], b[1], x + b[2], b[3]) for _, x, b in runs if b != (0, 0, 0, 0)]
+            if not boxes:
+                return (0, 0, 0, 0)
+            return (min(b[0] for b in boxes), min(b[1] for b in boxes),
+                    max(b[2] for b in boxes), max(b[3] for b in boxes))
+        return self._bbox_plain(text)
+
+    def _tracked_runs(self, text: str) -> list[tuple[str, float, tuple[float, float, float, float]]]:
+        clusters: list[str] = []
+        if self.direction != "ltr":
+            raise ReferenceError("unsupported_tracking", "Tracking requires LTR Latin text", details={"field": "tracking", "direction": self.direction})
+        for char in text:
+            category = unicodedata.category(char)
+            if category.startswith("M") and clusters and not clusters[-1].isspace():
+                clusters[-1] += char
+            elif (category.startswith("L") and unicodedata.name(char, "").startswith("LATIN")) or char.isspace() or category[0] in "PN":
+                clusters.append(char)
+            else:
+                raise ReferenceError("unsupported_tracking", "Tracking supports Latin graphemes only; connected scripts must use word spacing", details={"field": "tracking", "codepoint": f"U+{ord(char):04X}"})
+        if len(clusters) > 512:
+            raise ReferenceError("resource_limit", "Tracked lines are limited to 512 graphemes")
+        result = []
+        cursor = 0.0
+        for cluster in clusters:
+            box = (0, 0, 0, 0) if cluster.isspace() else self._bbox_plain(cluster)
+            result.append((cluster, cursor, box))
+            cursor += self.advance(cluster) + self.tracking
+        return result
+
+    def _bbox_plain(self, text: str) -> tuple[float, float, float, float]:
         if self.pillow:
             return self.pillow.getbbox(text, anchor="ls", direction=self.direction)
-        from .rendering import WandTextMeasurer
-
-        style = TextStyle(
-            self.path,
-            self.size,
-            "#FFFFFF",
-            0,
-            8192,
-            " ",
-            "right_to_left" if self.direction == "rtl" else "left_to_right",
-        )
-        measurer = WandTextMeasurer()
+        style = self._style()
+        measurer = self._measurer
         if measurer.measure(text, style).width > 16384:
             raise ReferenceError(
                 "layout_overflow",
@@ -131,15 +162,11 @@ class ShapedFont:
     def _paint(
         self, image: Image.Image, text: str, x: float, y: float, color: str
     ) -> None:
+        runs = [(cluster, x + offset, y) for cluster, offset, _ in self._tracked_runs(text)] if self.tracking else [(text, x, y)]
         if self.pillow:
-            ImageDraw.Draw(image).text(
-                (x, y),
-                text,
-                font=self.pillow,
-                fill=color,
-                anchor="ls",
-                direction=self.direction,
-            )
+            draw = ImageDraw.Draw(image)
+            for value, px, py in runs:
+                draw.text((px, py), value, font=self.pillow, fill=color, anchor="ls", direction=self.direction)
             return
         from wand.drawing import Drawing
         from wand.image import Image as WandImage
@@ -156,7 +183,12 @@ class ShapedFont:
             draw.text_direction = (
                 "right_to_left" if self.direction == "rtl" else "left_to_right"
             )
-            draw.text(round(x), round(y), text)
+            if self.word_spacing:
+                natural = self.natural_space if self.natural_space is not None else draw.get_font_metrics(raster, " ").text_width
+                draw.text_interword_spacing = natural + self.word_spacing
+            for value, px, py in runs:
+                if not value.isspace():
+                    draw.text(round(px), round(py), value)
             draw(raster)
             with Image.open(BytesIO(raster.make_blob("png"))) as rendered:
                 with rendered.convert("RGBA") as rgba:

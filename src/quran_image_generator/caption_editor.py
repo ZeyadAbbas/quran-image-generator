@@ -191,6 +191,19 @@ class CaptionDocument:
     def arabic(self, index: int) -> str:
         return select_excerpt(ExcerptRequest("selection", self.spans(index))).text
 
+    def validate_line_breaks(self, index: int, hints: list[dict[str, Any]]) -> None:
+        from .contract_schema import CUE
+        from .diagnostics import validate_schema
+        from .typography import apply_break_hints
+
+        validate_schema(hints, CUE["properties"]["line_breaks"], prefix=f"/cues/{index}/line_breaks")
+        excerpt = select_excerpt(ExcerptRequest("selection", self.spans(index)))
+        apply_break_hints(excerpt, caption_scene(excerpt), hints, quotations=False, verse_numbers=False)
+
+    def set_line_breaks(self, index: int, hints: list[dict[str, Any]]) -> None:
+        self.validate_line_breaks(index, hints)
+        self.data["cues"][index]["line_breaks"] = copy.deepcopy(hints)
+
     @staticmethod
     def word_count(surah: int, ayah: int) -> int:
         if (surah, ayah) == (0, 0):

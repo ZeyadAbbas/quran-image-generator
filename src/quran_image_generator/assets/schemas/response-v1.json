@@ -1216,6 +1216,64 @@
                       ],
                       "x-applies-to": "text"
                     },
+                    "word_spacing": {
+                      "type": "number",
+                      "default": 0,
+                      "description": "Additional word gap in em of the final fitted font; zero preserves legacy spacing",
+                      "minimum": 0,
+                      "maximum": 2,
+                      "x-units": "em",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text",
+                      "x-constraints": [
+                        "requires native Wand-RAQM for nonzero spacing"
+                      ]
+                    },
+                    "line_height": {
+                      "type": "number",
+                      "default": 0,
+                      "description": "Baseline step in fitted em; zero uses legacy line_spacing",
+                      "minimum": 0,
+                      "maximum": 4,
+                      "x-units": "em",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
+                    "tracking": {
+                      "type": "number",
+                      "default": 0,
+                      "description": "Additional Latin grapheme gap in fitted em; optional cross-grapheme ligatures are disabled",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "x-units": "em",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text",
+                      "x-constraints": [
+                        "nonzero tracking supports LTR Latin graphemes only",
+                        "combining marks remain attached"
+                      ]
+                    },
                     "role": {
                       "type": "string",
                       "minLength": 1,
@@ -1259,6 +1317,20 @@
                         "type": "string"
                       },
                       "maxItems": 32
+                    },
+                    "forced_breaks": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      },
+                      "maxItems": 128
+                    },
+                    "preferred_breaks": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      },
+                      "maxItems": 128
                     }
                   },
                   "required": [
@@ -1388,6 +1460,12 @@
                     "minItems": 3,
                     "maxItems": 3
                   }
+                },
+                "typography": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
                 }
               },
               "required": [

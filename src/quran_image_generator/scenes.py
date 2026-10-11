@@ -65,6 +65,11 @@ class Layer:
     inline_markers: tuple[str, ...] = ()
     horizontal_scale: float = 1
     decoration_scale: float = 1
+    word_spacing: float = 0
+    line_height: float = 0
+    tracking: float = 0
+    forced_breaks: tuple[int, ...] = ()
+    preferred_breaks: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -188,6 +193,7 @@ class LayerPlan:
     suffix_position: tuple[float, float, int] | None = None
     ornament_positions: tuple[tuple[str, float, float], ...] = ()
     decoration_asset_sha256: str = ""
+    typography: dict | None = None
 
 
 def checked_asset(path: str, expected_hash: str = "") -> str:
@@ -206,7 +212,8 @@ def checked_asset(path: str, expected_hash: str = "") -> str:
 
 def layer_font(layer: Layer, size: int | float) -> ShapedFont | MixedMarkerFont:
     try:
-        primary = ShapedFont(layer.font, size, layer.direction, layer.horizontal_scale)
+        primary = ShapedFont(layer.font, size, layer.direction, layer.horizontal_scale,
+                             word_spacing=layer.word_spacing * size, tracking=layer.tracking * size)
         if layer.inline_markers and layer.decoration_font:
             return MixedMarkerFont(
                 primary,

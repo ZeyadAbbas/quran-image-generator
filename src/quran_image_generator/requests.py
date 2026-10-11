@@ -43,6 +43,14 @@ class CueRequest:
     arabic_title: str | None = None
     latin_title: str | None = None
     preview_unreviewed_translation: bool = False
+    line_breaks: tuple[LineBreakHint, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class LineBreakHint:
+    span_occurrence: int
+    source_word: int
+    mode: str = "forced"
 
 
 @dataclass(frozen=True, slots=True)

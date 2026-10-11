@@ -60,6 +60,8 @@ def style_schema() -> dict[str, Any]:
             "decoration_sha256",
             "ornaments",
             "inline_markers",
+            "forced_breaks",
+            "preferred_breaks",
         ):
             continue
         default = field.default
@@ -178,6 +180,10 @@ CUE = obj(
         "title_surah": {"type": "integer", "minimum": 1, "maximum": 114},
         "arabic_title": {"type": "string", "maxLength": 256},
         "latin_title": {"type": "string", "maxLength": 256},
+        "line_breaks": {"type": "array", "maxItems": 128, "items": obj({
+            "span_occurrence": {"type": "integer", "minimum": 0, "maximum": 31},
+            "source_word": {"type": "integer", "minimum": 1},
+            "mode": {"enum": ["forced", "preferred"]}}, ("span_occurrence", "source_word", "mode"))},
     },
     ("cue_id", "spans"),
 )
@@ -327,6 +333,8 @@ LAYER_PROPERTIES = {
     "decoration_sha256": {"anyOf": [HASH, {"const": ""}]},
     "ornaments": {"type": "boolean"},
     "inline_markers": {"type": "array", "items": {"type": "string"}, "maxItems": 32},
+    "forced_breaks": {"type": "array", "items": {"type": "integer"}, "maxItems": 128},
+    "preferred_breaks": {"type": "array", "items": {"type": "integer"}, "maxItems": 128},
 }
 LAYER_PLAN = obj(
     {
@@ -351,6 +359,11 @@ LAYER_PLAN = obj(
                     "inline_markers",
                     "horizontal_scale",
                     "decoration_scale",
+                    "word_spacing",
+                    "line_height",
+                    "tracking",
+                    "forced_breaks",
+                    "preferred_breaks",
                 )
             ),
         ),
@@ -392,6 +405,7 @@ LAYER_PLAN = obj(
                 "maxItems": 3,
             },
         },
+        "typography": {"type": ["object", "null"]},
     },
     (
         "layer",
