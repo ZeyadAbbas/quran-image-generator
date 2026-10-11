@@ -63,6 +63,7 @@ Use **Apply layer** to commit, **Import styles…** to load a reusable profile, 
 | `numeral_system`, `marker_prefix`, `marker_suffix` | Latin or Arabic-Indic digits and optional glyphs surrounding the actual verse number. |
 | `suffix_scale`, `suffix_spacing`, `suffix_offset` | Small end-number size, separation and vertical adjustment. Numbers appear only at true numbered verse endings. |
 | `sha256` | Optional required font fingerprint; selecting an asset updates this pin. |
+| `font_face`, `variation_axes`, `font_features`, `font_language`, `font_fallbacks` | Explicit faces/axes, supported shaping choices and pinned whole-layer fallback. Structured values use JSON; [font inspection](font-controls.md) provides valid choices and coverage. |
 
 Sizes, outlines, offsets, spacing and margins use reference pixels at a
 576-pixel-wide canvas and scale with canvas width. Normalized coordinates are

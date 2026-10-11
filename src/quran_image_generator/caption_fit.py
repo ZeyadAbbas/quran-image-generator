@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import math
 from dataclasses import replace
 from typing import TYPE_CHECKING
@@ -83,6 +84,7 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
         replace(
             layer,
             font=layer.decoration_font,
+            resolved_font="", resolved_font_sha256="", variation_axes={}, font_face=0, font_fallbacks=(), font_features=(), font_language="",
             text=layer.suffix
             + "".join(layer.inline_markers)
             + (layer.quote_open + layer.quote_close if layer.ornaments else ""),
@@ -264,6 +266,15 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
         last_bounds, last_count = bounds, len(lines)
         collisions = [(i - 1, i) for i in range(1, len(lines)) if boxes[i - 1][3] + padding > boxes[i][1] - padding] if layer.line_height else []
         if len(lines) <= layer.max_lines and within(bounds, allowed) and not collisions:
+            font_info = copy.deepcopy(layer.font_info)
+            if font_info:
+                effective = font_info["effective"]
+                effective["font_size_output_pixels"] = size
+                for metric in ("ascender", "descender", "line_gap"):
+                    effective["metrics"][metric + "_pixels"] = effective["metrics"][metric] * size / effective["units_per_em"]
+                font_info["runs"] = [{"line_index": i, "font_sha256": effective["sha256"], "derived_sha256": font_info["derived_sha256"],
+                                      "font_face": effective["font_face"], "axes": effective["effective_axes"],
+                                      "baseline": line[2]} for i, line in enumerate(positioned)]
             return LayerPlan(
                 layer,
                 tuple(positioned),
@@ -273,6 +284,7 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
                 suffix_position=suffix_position,
                 ornament_positions=tuple(ornament_positions),
                 decoration_asset_sha256=decoration_digest,
+                font_info=font_info,
                 typography={"word_spacing_em": layer.word_spacing, "word_spacing_pixels": size * layer.word_spacing,
                             "tracking_em": layer.tracking, "tracking_pixels": size * layer.tracking,
                             "baseline_step": step, "baselines": [v[2] for v in positioned],

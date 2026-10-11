@@ -30,6 +30,12 @@ def parse_style_value(name: str, value: Any) -> Any:
     spec = STYLE_FIELDS[name]
     kind = spec.get("type")
     try:
+        if name in ("variation_axes", "font_features", "font_fallbacks"):
+            result = json.loads(str(value))
+            from .diagnostics import validate_schema
+
+            validate_schema(result, spec, code="invalid_profile", prefix="/profile/styles/" + name)
+            return result
         if kind == "boolean":
             if type(value) is not bool:
                 raise ValueError("Expected a checkbox value")
@@ -87,6 +93,9 @@ class CaptionDocument:
                 self.data[key] = str(self.resolve(self.data[key]))
         for asset in self.data.get("assets", {}).values():
             asset["path"] = str(self.resolve(asset["path"]))
+        for style in self.data.get("profile", {}).get("styles", {}).values():
+            for fallback in style.get("font_fallbacks", []):
+                fallback["path"] = str(self.resolve(fallback["path"]))
         if "translation_snapshot" in self.data:
             pin = self.data["translation_snapshot"]
             pin["directory"] = str(self.resolve(pin["directory"]))

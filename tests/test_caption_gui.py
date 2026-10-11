@@ -86,6 +86,24 @@ def test_source_line_break_dialog_and_occurrence_reorder(studio):
     assert cue["line_breaks"] == []
 
 
+def test_font_axis_json_survives_layer_switch_and_inspector(studio):
+    import tkinter as tk
+
+    studio._change_layer("translation")
+    studio._styles["variation_axes"].set('{"wght": 600, "wdth": 90}')
+    studio._apply_layer()
+    studio._change_layer("arabic")
+    studio._change_layer("translation")
+    assert json.loads(studio._styles["variation_axes"].get()) == {"wght": 600, "wdth": 90}
+    studio._asset_role = "translation"
+    studio._fill_asset()
+    studio._inspect_font()
+    dialog = next(c for c in studio.window.winfo_children() if isinstance(c, tk.Toplevel))
+    text = next(c for c in dialog.winfo_children() if isinstance(c, tk.Text)).get("1.0", "end")
+    assert '"wght": 600' in text and "no sample; metrics only" in text
+    dialog.destroy()
+
+
 def test_close_during_render_cancels_without_touching_destroyed_widgets(
     studio, monkeypatch
 ):

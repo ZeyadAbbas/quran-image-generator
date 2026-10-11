@@ -541,6 +541,7 @@ class CaptionStudio:
             buttons, "Use / pin this file", lambda: self._apply_asset(force=True)
         )
         self._button(buttons, "Use bundled / omit logo", self._clear_asset)
+        self._button(buttons, "Inspect font…", self._inspect_font)
         ttk.Label(
             frame,
             text="Choose any compatible local font for each role. Decorations may use a separate font. Branding accepts a PNG image or a font plus its glyph. Changed files must be explicitly pinned again. Blank font paths use the identified bundled font; blank branding omits it.",
@@ -777,11 +778,8 @@ class CaptionStudio:
         was_loading = self._loading
         self._loading = True
         for name, value in self.document.styles(self._layer).items():
-            self._styles[name].set(
-                ", ".join(str(v) for v in value)
-                if isinstance(value, (list, tuple))
-                else value
-            )
+            formatted = json.dumps(value) if name in ("variation_axes", "font_features", "font_fallbacks") else ", ".join(str(v) for v in value) if isinstance(value, (list, tuple)) else value
+            self._styles[name].set(formatted)
         self._loading = was_loading
 
     def _fill_asset(self) -> None:
@@ -1159,6 +1157,30 @@ class CaptionStudio:
         )
         if path:
             self._vars["asset_path"].set(path)
+
+    def _inspect_font(self) -> None:
+        from .font_controls import inspect_font
+        from .resources import asset_path
+
+        sample = self.document.arabic(self._cue_index) if self._asset_role in ("arabic", "arabic_title") else ""
+        if self._asset_role == "translation":
+            dataset = self.document.dataset()
+            cue = self.document.data["cues"][self._cue_index]
+            if dataset and cue.get("translation_binding_id"):
+                sample = dataset.lookup(cue["translation_binding_id"], self.document.spans(self._cue_index), require_approved=False).text
+        default = str(asset_path("fonts", "quran_font.ttf")) if self._asset_role in ("arabic", "arabic_title") else str(asset_path("fonts", "multilingual_fonts", "am.ttf")) if self._asset_role in ("translation", "latin_title") else ""
+        path = self._vars["asset_path"].get().strip() or default
+        style = {name: parse_style_value(name, var.get()) for name, var in self._styles.items()} if self._asset_role == self._layer else self.document.styles(self._asset_role) if self._asset_role in LAYER_ROLES else {}
+        info = inspect_font(self.document.resolve(path), sha256=self._vars["asset_sha"].get() if self._vars["asset_path"].get().strip() else "",
+                            text=sample, role=self._asset_role, font_face=style.get("font_face", 0), variation_axes=style.get("variation_axes", {}),
+                            license=self._vars["asset_license"].get(), attribution=self._vars["asset_attribution"].get())
+        dialog = tk.Toplevel(self.window)
+        dialog.title("Font metrics and coverage")
+        text = tk.Text(dialog, width=85, height=24, wrap="word")
+        text.pack(fill="both", expand=True)
+        text.insert("1.0", f"{info['family']} — {info['subfamily']}\nFace {info['font_face']}; units/em {info['units_per_em']}\n"
+                    f"Coverage: {'no sample; metrics only' if not sample else 'complete' if info['coverage']['complete'] else 'missing ' + ', '.join(info['coverage']['missing_codepoints'])}\n\n" + json.dumps(info, ensure_ascii=False, indent=2))
+        text.configure(state="disabled")
 
     def _clear_asset(self) -> None:
         self._apply_layer()

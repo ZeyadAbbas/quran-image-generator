@@ -36,6 +36,9 @@
     "capabilities": {
       "type": "object"
     },
+    "font_inspection": {
+      "type": "object"
+    },
     "preflight": {
       "type": "object"
     },
@@ -1274,6 +1277,143 @@
                         "combining marks remain attached"
                       ]
                     },
+                    "font_face": {
+                      "type": "integer",
+                      "default": 0,
+                      "description": "Zero-based selected collection face; ordinary fonts have only face 0",
+                      "minimum": 0,
+                      "maximum": 31,
+                      "x-units": "unitless",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
+                    "variation_axes": {
+                      "type": "object",
+                      "maxProperties": 16,
+                      "propertyNames": {
+                        "pattern": "^[A-Za-z0-9]{4}$"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      },
+                      "default": {},
+                      "description": "JSON object of selected-font axis tags and values; other axes stay at font defaults",
+                      "x-units": "unitless",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
+                    "font_features": {
+                      "type": "array",
+                      "maxItems": 32,
+                      "uniqueItems": true,
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[+-]?[A-Za-z0-9]{4}(=[0-9]{1,3})?$"
+                      },
+                      "default": [],
+                      "description": "JSON array of OpenType feature tags; required Arabic shaping cannot be disabled",
+                      "x-units": "unitless",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
+                    "font_language": {
+                      "type": "string",
+                      "maxLength": 32,
+                      "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$",
+                      "default": "",
+                      "description": "Explicit BCP-47 shaping language; requires Pillow-RAQM",
+                      "x-units": "unitless",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
+                    "font_fallbacks": {
+                      "type": "array",
+                      "maxItems": 4,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096
+                          },
+                          "sha256": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{64}$"
+                          },
+                          "license": {
+                            "type": "string",
+                            "maxLength": 4096
+                          },
+                          "attribution": {
+                            "type": "string",
+                            "maxLength": 4096
+                          },
+                          "font_face": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 31
+                          },
+                          "variation_axes": {
+                            "type": "object",
+                            "maxProperties": 16,
+                            "propertyNames": {
+                              "pattern": "^[A-Za-z0-9]{4}$"
+                            },
+                            "additionalProperties": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "required": [
+                          "path",
+                          "sha256",
+                          "license",
+                          "attribution"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "default": [],
+                      "description": "Ordered JSON array of pinned local fonts with license/attribution; whole-layer fallback preserves joins and marks",
+                      "x-units": "unitless",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
                     "role": {
                       "type": "string",
                       "minLength": 1,
@@ -1331,6 +1471,26 @@
                         "type": "integer"
                       },
                       "maxItems": 128
+                    },
+                    "resolved_font": {
+                      "type": "string"
+                    },
+                    "resolved_font_sha256": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        {
+                          "const": ""
+                        }
+                      ]
+                    },
+                    "font_info": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
                     }
                   },
                   "required": [
@@ -1462,6 +1622,12 @@
                   }
                 },
                 "typography": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                },
+                "font_info": {
                   "type": [
                     "object",
                     "null"
