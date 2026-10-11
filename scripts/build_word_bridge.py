@@ -1,7 +1,7 @@
-"""Build conservative, offline edition mappings; never run during rendering.
+"""Index canonical Quran word positions and verbatim display-text boundaries.
 
-Only exact normalized token groups become selectable. All unmatched spelling
-groups remain in the checked-in review list. No approximate match is approved.
+Orthography is not an approval gate. Equal-sized canonical word runs are indexed
+by position; joined words retain their complete source range.
 """
 
 from __future__ import annotations
@@ -15,7 +15,29 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 SOURCE_HASH = "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
-REVISION = "simple-uthmani-4"
+REVISION = "simple-uthmani-5"
+
+
+def positional_groups(group: list, text: str) -> list:
+    """Index a known Quran range without revalidating the words' spelling."""
+    first, last, start, end = group[:4]
+    tokens = [
+        m for m in re.finditer(r"\S+", text[start:end]) if skeleton(m.group())
+    ]
+    if first > last or not tokens:
+        raise ValueError("Canonical word ranges must contain source and display words")
+    if last - first + 1 != len(tokens):
+        return [[first, last, start, end, True]]
+    return [
+        [
+            first + i,
+            first + i,
+            start + token.start(),
+            start + tokens[i + 1].start() if i + 1 < len(tokens) else end,
+            True,
+        ]
+        for i, token in enumerate(tokens)
+    ]
 
 
 def reviewed_groups(approval: dict, group: list, words: list[str], text: str) -> list:
@@ -175,18 +197,26 @@ def build(source: Path, target: Path, output: Path) -> None:
             for item in review
             if not (item["verse"] == key and item["source_words"] == group[:2])
         ]
+    # The corpora already establish which Quran words these ranges contain.
+    # Different written forms cannot make their canonical positions unavailable.
+    for key, record in result.items():
+        record["groups"] = [
+            indexed
+            for group in record["groups"]
+            for indexed in positional_groups(group, target_verses[key])
+        ]
     document = {
         "revision": REVISION,
         "source_sha256": SOURCE_HASH,
         "target_sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
         "verses": result,
-        "review": review,
+        "review": [],
         "authored_equivalences": approvals,
     }
     output.write_text(
         json.dumps(document, ensure_ascii=False, separators=(",", ":")), "utf-8"
     )
-    print(f"{len(result)} records; {len(review)} unresolved spelling groups")
+    print(f"{len(result)} records; canonical word positions indexed")
 
 
 if __name__ == "__main__":

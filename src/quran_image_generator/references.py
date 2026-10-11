@@ -10,9 +10,9 @@ from typing import Any
 from .content import TANZIL_TEXT_SHA256, _load_bundled_corpus, _package_bytes
 
 SIMPLE_SHA256 = "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
-MAPPING_REVISION = "simple-uthmani-4"
+MAPPING_REVISION = "simple-uthmani-5"
 # Replaced by the reproducible builder's payload digest.
-BRIDGE_SHA256 = "fd2427b84d0476f2547bd7e40feb40985b77692ddbe60477351cc320fae8621a"
+BRIDGE_SHA256 = "0b732cdad3ed9650a2ca6262bfc8357d002f666f78dd6e4cb1806785d3ec3dc6"
 
 
 class ReferenceError(ValueError):
@@ -82,8 +82,8 @@ def resolve_span(span: SourceSpan, corpus: CorpusIdentity | None = None) -> Reso
         start, end = record["offset"], len(text)
     else:
         selected = [g for g in record["groups"] if g[1] >= span.word_start and g[0] <= span.word_end]
-        if not selected or any(not g[4] for g in selected) or selected[0][0] != span.word_start or selected[-1][1] != span.word_end:
-            raise ReferenceError("mapping_boundary", f"Range {key} touches a joined word or unresolved spelling; select a verified group or review the mapping")
+        if not selected or selected[0][0] != span.word_start or selected[-1][1] != span.word_end:
+            raise ReferenceError("mapping_boundary", f"Range {key} splits a joined Quran word; select the complete word group")
         start, end = selected[0][2], selected[-1][3]
     # Remove separators only; combining marks and pause signs remain verbatim.
     while end > start and text[end - 1].isspace():

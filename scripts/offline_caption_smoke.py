@@ -8,6 +8,7 @@ import json
 import subprocess
 import sys
 from dataclasses import asdict
+from importlib.metadata import version
 from pathlib import Path
 
 from PIL import Image
@@ -30,7 +31,7 @@ def smoke(output: Path) -> None:
     output = output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     assert 1 in capabilities()["schema_versions"]
-    assert capabilities()["renderer_version"] == "0.3.5"
+    assert capabilities()["renderer_version"] == version("quran-image-generator")
     spans = (SourceSpan(31, 9, 1, 5),)
     excerpt = select_excerpt(ExcerptRequest("phrase", spans))
     source = TranslationSource(
@@ -157,7 +158,7 @@ def smoke(output: Path) -> None:
                 "status": "complete",
                 "assets": len(machine["assets"]),
                 "schema_version": 1,
-                "renderer_version": "0.3.5",
+                "renderer_version": capabilities()["renderer_version"],
             }
         ),
         "utf-8",
