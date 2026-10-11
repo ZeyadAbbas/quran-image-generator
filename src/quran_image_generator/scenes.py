@@ -5,8 +5,9 @@ from __future__ import annotations
 import hashlib
 import math
 import unicodedata
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from pathlib import Path
+from typing import Any
 
 from fontTools.ttLib import TTFont
 from PIL import Image, ImageColor, ImageFilter
@@ -70,6 +71,14 @@ class Layer:
     tracking: float = 0
     forced_breaks: tuple[int, ...] = ()
     preferred_breaks: tuple[int, ...] = ()
+    font_face: int = 0
+    variation_axes: dict[str, float] = field(default_factory=dict)
+    font_features: tuple[str, ...] = ()
+    font_language: str = ""
+    font_fallbacks: tuple[dict[str, Any], ...] = ()
+    resolved_font: str = ""
+    resolved_font_sha256: str = ""
+    font_info: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -194,6 +203,7 @@ class LayerPlan:
     ornament_positions: tuple[tuple[str, float, float], ...] = ()
     decoration_asset_sha256: str = ""
     typography: dict | None = None
+    font_info: dict[str, Any] | None = None
 
 
 def checked_asset(path: str, expected_hash: str = "") -> str:
@@ -212,8 +222,11 @@ def checked_asset(path: str, expected_hash: str = "") -> str:
 
 def layer_font(layer: Layer, size: int | float) -> ShapedFont | MixedMarkerFont:
     try:
-        primary = ShapedFont(layer.font, size, layer.direction, layer.horizontal_scale,
-                             word_spacing=layer.word_spacing * size, tracking=layer.tracking * size)
+        if (layer.variation_axes or layer.font_face or layer.font_fallbacks or layer.font_features or layer.font_language) and not layer.resolved_font:
+            raise ReferenceError("unresolved_font", "Prepare advanced scene fonts inside a FontWorkspace before planning")
+        primary = ShapedFont(layer.resolved_font or layer.font, size, layer.direction, layer.horizontal_scale,
+                             word_spacing=layer.word_spacing * size, tracking=layer.tracking * size,
+                             font_features=layer.font_features, font_language=layer.font_language)
         if layer.inline_markers and layer.decoration_font:
             return MixedMarkerFont(
                 primary,
@@ -230,11 +243,15 @@ def layer_font(layer: Layer, size: int | float) -> ShapedFont | MixedMarkerFont:
         raise ReferenceError(
             "missing_font", "Required font could not be loaded"
         ) from error
+    except ReferenceError as error:
+        error.details = getattr(error, "details", {})
+        error.details["role"] = layer.role
+        raise
 
 
 def check_glyphs(layer: Layer) -> None:
     try:
-        with TTFont(layer.font) as font:
+        with TTFont(layer.resolved_font or layer.font) as font:
             cmap = font.getBestCmap() or {}
             text = layer.text
             if layer.decoration_font:
@@ -312,6 +329,11 @@ def render_layer(
         layer = plan.layer
         if plan.status == "ready":
             checked_asset(layer.image or layer.font, plan.asset_sha256)
+            if layer.resolved_font:
+                checked_asset(layer.resolved_font, layer.resolved_font_sha256)
+            if layer.font_info:
+                for selected in layer.font_info["inputs"]:
+                    checked_asset(selected["path"], selected["sha256"])
             if layer.decoration_font:
                 checked_asset(layer.decoration_font, plan.decoration_asset_sha256)
             if layer.image and plan.bounds:
@@ -333,6 +355,7 @@ def render_layer(
                             replace(
                                 layer,
                                 font=layer.decoration_font,
+                                resolved_font="", resolved_font_sha256="", variation_axes={}, font_face=0, font_fallbacks=(), font_features=(), font_language="",
                                 inline_markers=(),
                                 horizontal_scale=1,
                             )
@@ -345,6 +368,7 @@ def render_layer(
                             replace(
                                 layer,
                                 font=layer.decoration_font,
+                                resolved_font="", resolved_font_sha256="", variation_axes={}, font_face=0, font_fallbacks=(), font_features=(), font_language="",
                                 inline_markers=(),
                                 horizontal_scale=1,
                             ),

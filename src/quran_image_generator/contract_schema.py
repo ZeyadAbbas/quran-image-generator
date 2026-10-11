@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import fields
+from dataclasses import MISSING, fields
 from typing import Any, get_type_hints
 
 from .scenes import Layer
@@ -42,6 +42,10 @@ ASSET = obj(
     },
     ("path", "sha256", "license", "attribution"),
 )
+AXES = {"type": "object", "maxProperties": 16, "propertyNames": {"pattern": "^[A-Za-z0-9]{4}$"}, "additionalProperties": {"type": "number"}}
+FONT_FALLBACK = obj({**{k: v for k, v in ASSET["properties"].items() if k != "glyph"},
+                     "font_face": {"type": "integer", "minimum": 0, "maximum": 31}, "variation_axes": AXES},
+                    ("path", "sha256", "license", "attribution"))
 
 
 def style_schema() -> dict[str, Any]:
@@ -62,9 +66,11 @@ def style_schema() -> dict[str, Any]:
             "inline_markers",
             "forced_breaks",
             "preferred_breaks",
+            "resolved_font", "resolved_font_sha256", "font_info",
         ):
             continue
-        default = field.default
+        factory = field.default_factory
+        default = factory() if field.default is MISSING and callable(factory) else field.default
         if isinstance(default, bool):
             properties[field.name] = {"type": "boolean"}
         elif types[field.name] in (float, int | float):
@@ -82,6 +88,14 @@ def style_schema() -> dict[str, Any]:
             }
         else:
             properties[field.name] = {"type": "string", "maxLength": 64}
+        if field.name == "variation_axes":
+            properties[field.name] = AXES
+        elif field.name == "font_features":
+            properties[field.name] = {"type": "array", "maxItems": 32, "uniqueItems": True, "items": {"type": "string", "pattern": "^[+-]?[A-Za-z0-9]{4}(=[0-9]{1,3})?$"}}
+        elif field.name == "font_fallbacks":
+            properties[field.name] = {"type": "array", "maxItems": 4, "items": FONT_FALLBACK}
+        elif field.name == "font_language":
+            properties[field.name] = {"type": "string", "maxLength": 32, "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$"}
         properties[field.name] = field_metadata(field.name, properties[field.name], default)
     return obj(properties)
 
@@ -201,6 +215,7 @@ REQUEST_SCHEMA = {
                     "validate",
                     "layout",
                     "inspect",
+                    "inspect_fonts",
                     "render_batch",
                     "translation_catalog",
                     "prepare_translations",
@@ -260,6 +275,7 @@ REQUEST_SCHEMA = {
             "error_mode": {"enum": ["all_or_nothing", "per_cue"]},
             "require_approved_profile": {"type": "boolean"},
             "metadata": {"type": "object"},
+            "font_samples": {"type": "object", "maxProperties": 16, "additionalProperties": {"type": "string", "maxLength": 8000}},
         },
         ("schema_version", "request_id", "operation"),
     ),
@@ -276,6 +292,7 @@ REQUEST_SCHEMA = {
             "if": {"properties": {"operation": {"const": "render_batch"}}},
             "then": {"required": ["output_directory"]},
         },
+        {"if": {"properties": {"operation": {"const": "inspect_fonts"}}}, "then": {"required": ["assets"]}},
         {
             "if": {"properties": {"operation": {"const": "prepare_translations"}}},
             "then": {"required": ["source_corpus", "cues", "translation_resource",
@@ -335,6 +352,8 @@ LAYER_PROPERTIES = {
     "inline_markers": {"type": "array", "items": {"type": "string"}, "maxItems": 32},
     "forced_breaks": {"type": "array", "items": {"type": "integer"}, "maxItems": 128},
     "preferred_breaks": {"type": "array", "items": {"type": "integer"}, "maxItems": 128},
+    "resolved_font": {"type": "string"}, "resolved_font_sha256": {"anyOf": [HASH, {"const": ""}]},
+    "font_info": {"type": ["object", "null"]},
 }
 LAYER_PLAN = obj(
     {
@@ -364,6 +383,8 @@ LAYER_PLAN = obj(
                     "tracking",
                     "forced_breaks",
                     "preferred_breaks",
+                    "font_face", "variation_axes", "font_features", "font_language", "font_fallbacks",
+                    "resolved_font", "resolved_font_sha256", "font_info",
                 )
             ),
         ),
@@ -406,6 +427,7 @@ LAYER_PLAN = obj(
             },
         },
         "typography": {"type": ["object", "null"]},
+        "font_info": {"type": ["object", "null"]},
     },
     (
         "layer",
@@ -429,6 +451,7 @@ RESPONSE_SCHEMA = {
             "profile": {"type": "object"},
             "runtime": {"type": "object"},
             "capabilities": {"type": "object"},
+            "font_inspection": {"type": "object"},
             "preflight": {"type": "object"},
             "translation_catalog": {"type": "array", "items": {"type": "object"}},
             "translation_preparation": obj(

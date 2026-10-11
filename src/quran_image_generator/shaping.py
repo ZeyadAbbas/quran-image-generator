@@ -16,6 +16,7 @@ class ShapedFont:
     def __init__(
         self, path: str, size: int | float, direction: str, horizontal_scale: float = 1,
         *, word_spacing: float = 0, tracking: float = 0,
+        font_features: tuple[str, ...] = (), font_language: str = "",
     ) -> None:
         if size > 512:
             raise ReferenceError(
@@ -24,6 +25,13 @@ class ShapedFont:
         self.path, self.size, self.direction = path, size, direction
         self.horizontal_scale = horizontal_scale
         self.word_spacing, self.tracking = word_spacing, tracking
+        self.options: dict = {}
+        if font_features:
+            self.options["features"] = list(font_features)
+        if font_language:
+            self.options["language"] = font_language
+        if tracking and font_features:
+            raise ReferenceError("unsupported_shaping_option", "Explicit font features cannot be combined with grapheme tracking", details={"field": "font_features"})
         self.natural_space: float | None = None
         if word_spacing:
             from fontTools.ttLib import TTFont
@@ -49,6 +57,9 @@ class ShapedFont:
                     details={"field": "word_spacing", "backend": "wand_raqm"} if word_spacing else None,
                 )
             self.backend = "wand_raqm"
+            if self.options:
+                raise ReferenceError("unsupported_shaping_option", "Font features/language require Pillow-RAQM; they cannot be combined with native word spacing", details={
+                    "field": "font_features" if font_features else "font_language", "backend": self.backend})
         if self.pillow is None:
             from .rendering import WandTextMeasurer
 
@@ -61,13 +72,13 @@ class ShapedFont:
 
     def advance(self, text: str) -> float:
         if self.pillow:
-            return float(self.pillow.getlength(text, direction=self.direction))
+            return float(self.pillow.getlength(text, direction=self.direction, **self.options))
         return self._measurer.measure(text, self._style()).width
 
     def space_width(self) -> float:
         if self.pillow:
             return (
-                float(self.pillow.getlength(" ", direction=self.direction))
+                float(self.pillow.getlength(" ", direction=self.direction, **self.options))
                 * self.horizontal_scale
             )
         return self.advance(" ") * self.horizontal_scale
@@ -110,7 +121,7 @@ class ShapedFont:
 
     def _bbox_plain(self, text: str) -> tuple[float, float, float, float]:
         if self.pillow:
-            return self.pillow.getbbox(text, anchor="ls", direction=self.direction)
+            return self.pillow.getbbox(text, anchor="ls", direction=self.direction, **self.options)
         style = self._style()
         measurer = self._measurer
         if measurer.measure(text, style).width > 16384:
@@ -166,7 +177,7 @@ class ShapedFont:
         if self.pillow:
             draw = ImageDraw.Draw(image)
             for value, px, py in runs:
-                draw.text((px, py), value, font=self.pillow, fill=color, anchor="ls", direction=self.direction)
+                draw.text((px, py), value, font=self.pillow, fill=color, anchor="ls", direction=self.direction, **self.options)
             return
         from wand.drawing import Drawing
         from wand.image import Image as WandImage

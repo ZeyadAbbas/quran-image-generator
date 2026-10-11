@@ -16,6 +16,7 @@ RANGES = {
     "safe_margin": (0, 64), "suffix_spacing": (0, 32), "suffix_offset": (-32, 32),
     "quote_spacing": (0, 32), "horizontal_scale": (0.5, 2), "decoration_scale": (0.5, 2),
     "word_spacing": (0, 2), "line_height": (0, 4), "tracking": (0, 1),
+    "font_face": (0, 31),
 }
 ENUMS = {
     "direction": ["rtl", "ltr"], "fit": ["wrap", "shrink"],
@@ -39,6 +40,11 @@ DESCRIPTIONS = {
     "word_spacing": "Additional word gap in em of the final fitted font; zero preserves legacy spacing",
     "line_height": "Baseline step in fitted em; zero uses legacy line_spacing",
     "tracking": "Additional Latin grapheme gap in fitted em; optional cross-grapheme ligatures are disabled",
+    "font_face": "Zero-based selected collection face; ordinary fonts have only face 0",
+    "variation_axes": "JSON object of selected-font axis tags and values; other axes stay at font defaults",
+    "font_features": "JSON array of OpenType feature tags; required Arabic shaping cannot be disabled",
+    "font_language": "Explicit BCP-47 shaping language; requires Pillow-RAQM",
+    "font_fallbacks": "Ordered JSON array of pinned local fonts with license/attribution; whole-layer fallback preserves joins and marks",
 }
 
 

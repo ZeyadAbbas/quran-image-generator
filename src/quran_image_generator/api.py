@@ -14,6 +14,7 @@ from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
+import fontTools
 import jsonschema
 import PIL
 from PIL import features
@@ -24,6 +25,7 @@ from .content import TANZIL_TEXT_SHA256
 from .contract_schema import REQUEST_SCHEMA, RESPONSE_SCHEMA, style_schema
 from .diagnostics import validate_schema
 from .excerpts import ExcerptRequest, select_excerpt
+from .font_controls import FontWorkspace, inspect_font
 from .profiles import CaptionProfile, decorate_excerpt
 from .references import (
     BRIDGE_SHA256,
@@ -43,7 +45,7 @@ from .scenes import (
 from .snapshots import SnapshotStore, canonical_bytes
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.3.8"
+RENDERER_VERSION = "0.3.9"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -115,6 +117,7 @@ def runtime_identity() -> dict[str, Any]:
         "pillow_raqm": features.check_feature("raqm"),
         "imagemagick": native,
         "native_raqm": native_raqm,
+        "fonttools": fontTools.__version__,
     }
 
 
@@ -127,6 +130,7 @@ def capabilities() -> dict[str, Any]:
             "validate",
             "layout",
             "inspect",
+            "inspect_fonts",
             "render_batch",
             "translation_catalog",
             "prepare_translations",
@@ -156,6 +160,12 @@ def capabilities() -> dict[str, Any]:
             "fixed_line_height": True,
             "latin_grapheme_tracking": True,
             "source_line_breaks": True,
+            "font_inspection": True,
+            "font_collection_faces": True,
+            "variation_axes": True,
+            "font_features": runtime_identity()["pillow_raqm"],
+            "font_language": runtime_identity()["pillow_raqm"],
+            "pinned_font_fallbacks": True,
             "outline_and_shadow": True,
             "reviewed_phrase_bindings": True,
             "offline_translation_snapshots": True,
@@ -187,6 +197,8 @@ def style_descriptor() -> dict[str, Any]:
     for spec in fields.values():
         spec["backend_support"] = {"pillow_raqm": True, "wand_raqm": True}
     fields["word_spacing"]["backend_support"] = {"pillow_raqm": False, "wand_raqm": True}
+    for name in ("font_features", "font_language"):
+        fields[name]["backend_support"] = {"pillow_raqm": True, "wand_raqm": False}
     return {
         "descriptor_version": 1,
         "schema_version": 1,
@@ -199,7 +211,8 @@ def style_descriptor() -> dict[str, Any]:
         "asset_roles": [*LAYER_ROLES, "decorations"],
         "backend": {"active": backend,
                     "shaping": runtime["pillow_raqm"] or runtime["native_raqm"],
-                    "font_features": False, "variation_axes": False, "font_fallbacks": False,
+                    "font_features": runtime["pillow_raqm"], "font_language": runtime["pillow_raqm"],
+                    "variation_axes": True, "font_fallbacks": True, "fallback_policy": "whole_layer",
                     "word_spacing": runtime["native_raqm"], "tracking_scripts": ["Latin LTR"]},
         "constraints": ["min_font_size <= font_size", "region left < right; top < bottom",
                         "opaque RGB colors with separate alpha", "effective font size <= 512 output pixels",
@@ -249,6 +262,7 @@ def _prepare_cue(
     cue: dict[str, Any],
     root: Path,
     dataset: BindingDataset | None,
+    font_workspace: FontWorkspace,
 ) -> tuple[dict[str, Any], Scene, tuple[LayerPlan, ...]]:
     spans = tuple(SourceSpan(**span) for span in cue["spans"])
     policy = cue.get("translation_policy", "none")
@@ -359,12 +373,23 @@ def _prepare_cue(
             )
         if layer.role == "translation" and dataset is not None:
             layer = replace(layer, direction=dataset.source.direction)
+        if layer.font_fallbacks:
+            layer = replace(layer, font_fallbacks=tuple({**selector, "path": str(_local_path(selector["path"], root))} for selector in layer.font_fallbacks))
         layers.append(layer)
     scene = replace(scene, layers=tuple(layers))
     from .typography import apply_break_hints
 
     scene = apply_break_hints(excerpt, scene, cue.get("line_breaks", []),
                              quotations=data.get("quotations", False), verse_numbers=data.get("verse_numbers", False))
+    resolved_layers = []
+    for layer in scene.layers:
+        try:
+            resolved_layers.append(font_workspace.prepare(layer, primary_terms=assets.get(layer.role)))
+        except ReferenceError as error:
+            error.details = getattr(error, "details", {})
+            error.details["role"] = layer.role
+            raise
+    scene = replace(scene, layers=tuple(resolved_layers))
     plans = plan_scene(scene)
     entry = {
             "cue_id": cue["cue_id"],
@@ -373,7 +398,7 @@ def _prepare_cue(
             "source_spans": [asdict(span) for span in excerpt.spans],
             "translation": translation,
             "metadata": cue.get("metadata", {}),
-            "layers": [asdict(plan) for plan in plans],
+            "layers": [{**asdict(plan), "layer": {**asdict(plan.layer), "resolved_font": ""}} for plan in plans],
             "asset_ids": [],
             "warnings": warnings,
         }
@@ -402,6 +427,16 @@ def execute_request(
     deadline_seconds: float | None = None,
 ) -> RenderResponse:
     """Execute one batch in one process; paths are rooted explicitly, no viewer/UI."""
+    with FontWorkspace() as font_workspace:
+        return _execute_request(request, asset_root=asset_root, progress=progress, cancelled=cancelled,
+                                deadline_seconds=deadline_seconds, font_workspace=font_workspace)
+
+
+def _execute_request(
+    request: RenderRequest | dict[str, Any], *, asset_root: Path | None,
+    progress: Callable[[BatchProgress], None] | None, cancelled: Callable[[], bool] | None,
+    deadline_seconds: float | None, font_workspace: FontWorkspace,
+) -> RenderResponse:
     raw = request.payload if isinstance(request, RenderRequest) else request
     candidate = raw.get("request_id") if isinstance(raw, dict) else None
     request_id = (
@@ -426,6 +461,35 @@ def execute_request(
             result["capabilities"] = capabilities()
             return RenderResponse(result)
         root = (asset_root or Path.cwd()).resolve()
+        if data["operation"] == "inspect_fonts":
+            if not data["assets"]:
+                raise ReferenceError("missing_asset", "Select at least one pinned font to inspect")
+            inspections = {}
+            if data.get("profile"):
+                CaptionProfile.from_dict(data["profile"])
+            from .caption_editor import LAYER_ROLES, default_styles
+            from .scenes import Layer
+            from .style_contract import validate_layer_style
+
+            for role, asset in data["assets"].items():
+                style = {**(default_styles(role) if role in LAYER_ROLES else {}), **data.get("profile", {}).get("styles", {}).get(role, {})}
+                validate_layer_style(Layer(role, **style), prefix="/profile/styles/" + role)
+                preferred = style.get("font_size", 30)
+                effective_size = max(1, round(preferred * data.get("canvas", {}).get("width", 576) / 576, 2)
+                                     if isinstance(preferred, float) else round(preferred * data.get("canvas", {}).get("width", 576) / 576))
+                try:
+                    inspections[role] = inspect_font(_local_path(asset["path"], root), sha256=asset["sha256"],
+                        role=role, text=data.get("font_samples", {}).get(role, asset.get("glyph", "")), font_face=style.get("font_face", 0),
+                        variation_axes=style.get("variation_axes", {}), font_size=effective_size,
+                        license=asset["license"], attribution=asset["attribution"])
+                except ReferenceError as error:
+                    error.details = getattr(error, "details", {})
+                    error.details["role"] = role
+                    error.details["path"] = ("/profile/styles/" + role + "/" + error.details["field"] + error.details.get("path_suffix", "")
+                                             if "field" in error.details else "/assets/" + role + ("/sha256" if error.code == "changed_asset" else "/path"))
+                    raise
+            result["font_inspection"] = inspections
+            return RenderResponse(result)
         if data["operation"] in ("translation_catalog", "prepare_translations"):
             from .translation_api import prepare_translation_source, translation_catalog
 
@@ -485,7 +549,7 @@ def execute_request(
                     )
                     layout_cache.move_to_end(key)
                 else:
-                    entry, scene, plans = _prepare_cue(data, cue, root, dataset)
+                    entry, scene, plans = _prepare_cue(data, cue, root, dataset, font_workspace)
                     layout_cache[key] = (copy.deepcopy(entry), scene, plans)
                     if len(layout_cache) > 256:
                         layout_cache.popitem(last=False)
@@ -494,6 +558,8 @@ def execute_request(
             except ReferenceError as error:
                 details = getattr(error, "details", {})
                 details["cue_id"] = cue["cue_id"]
+                if "field" in details and "path" not in details and "role" in details:
+                    details["path"] = "/profile/styles/" + details["role"] + "/" + details["field"] + details.get("path_suffix", "")
                 if details.get("path", "").startswith("/line_breaks/"):
                     details["path"] = f"/cues/{index}" + details["path"]
                 if "role" in details and details.get("path", "").startswith("/layers/"):
@@ -567,6 +633,7 @@ def execute_request(
                         visual_plan["layer"]["font"] = ""
                         visual_plan["layer"]["image"] = ""
                         visual_plan["layer"]["decoration_font"] = ""
+                        visual_plan["layer"]["resolved_font"] = ""
                         identity = {
                             "scene_size": [scene.width, scene.height],
                             "plan": visual_plan,
@@ -675,6 +742,9 @@ def execute_request(
                 for plan in plans
                 if plan.status == "ready" and plan.layer.decoration_font
             )
+            inputs.update((asset["path"], asset["sha256"])
+                          for _, _, plans in prepared for plan in plans if plan.font_info
+                          for asset in plan.font_info["inputs"])
             for path, digest in inputs:
                 checked_asset(path, digest)
             control.checkpoint("publish", len(prepared), len(prepared))

@@ -26,6 +26,6 @@ errors identify the resolved minimum, role and cue. Fit bounds and suggestions
 remain available. Unknown fields fail instead of being dropped.
 
 Pillow-RAQM and Wand-RAQM both implement the existing complete-line shaping
-contract. Discovery reports which backend is active; advanced features, variable
-axes and fallback are explicitly unavailable until supported by that backend.
-An unavailable shaping backend fails before PNG output.
+contract. Discovery reports backend support for each field, including the
+[font-control](font-controls.md) and [spacing](caption-typography.md) limitations.
+An unavailable backend/option fails before PNG output.
