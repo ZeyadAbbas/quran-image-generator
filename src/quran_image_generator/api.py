@@ -22,6 +22,7 @@ from .batching import AssetCache, BatchControl, BatchProgress
 from .bindings import BindingDataset
 from .content import TANZIL_TEXT_SHA256
 from .contract_schema import REQUEST_SCHEMA, RESPONSE_SCHEMA, style_schema
+from .diagnostics import validate_schema
 from .excerpts import ExcerptRequest, select_excerpt
 from .profiles import CaptionProfile, decorate_excerpt
 from .references import (
@@ -42,7 +43,7 @@ from .scenes import (
 from .snapshots import SnapshotStore, canonical_bytes
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.3.6"
+RENDERER_VERSION = "0.3.7"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -64,12 +65,7 @@ class RenderRequest:
             raise ReferenceError("unsupported_version", "Supported schema version is 1")
         if len(canonical_bytes(value)) > MAX_REQUEST_BYTES:
             raise ReferenceError("invalid_request", "Request exceeds 8 MB")
-        try:
-            jsonschema.Draft202012Validator(REQUEST_SCHEMA).validate(value)
-        except jsonschema.ValidationError as error:
-            raise ReferenceError(
-                "invalid_request", "Request does not conform to request-v1.json"
-            ) from error
+        validate_schema(value, REQUEST_SCHEMA)
         if "cues" in value and len({cue["cue_id"] for cue in value["cues"]}) != len(
             value["cues"]
         ):
@@ -130,6 +126,7 @@ def capabilities() -> dict[str, Any]:
             "preflight",
             "validate",
             "layout",
+            "inspect",
             "render_batch",
             "translation_catalog",
             "prepare_translations",
@@ -147,6 +144,7 @@ def capabilities() -> dict[str, Any]:
         "custom_profiles": True,
         "layer_roles": ["arabic", "translation", "arabic_title", "latin_title", "logo"],
         "style_fields": sorted(style_schema()["properties"]),
+        "style_contract": style_descriptor(),
         "features": {
             "transparent_layers": True,
             "independent_titles_and_branding": True,
@@ -172,6 +170,41 @@ def capabilities() -> dict[str, Any]:
         "word_highlighting": False,
         "runtime": runtime_identity(),
     }
+
+
+def style_descriptor() -> dict[str, Any]:
+    """Versioned defaults, constraints and units suitable for generated controls."""
+    from .caption_editor import LAYER_ROLES, default_styles
+
+    runtime = runtime_identity()
+    backend = "pillow_raqm" if runtime["pillow_raqm"] else "wand_raqm" if runtime["native_raqm"] else "unavailable"
+    fields = copy.deepcopy(style_schema()["properties"])
+    for spec in fields.values():
+        spec["backend_support"] = {"pillow_raqm": True, "wand_raqm": True}
+    return {
+        "descriptor_version": 1,
+        "schema_version": 1,
+        "fields": fields,
+        "role_defaults": {role: default_styles(role) for role in LAYER_ROLES},
+        "request_schema": REQUEST_SCHEMA,
+        "request_defaults": {"titles": False, "quotations": False, "verse_numbers": False,
+                             "cropped": False, "error_mode": "all_or_nothing",
+                             "require_approved_profile": False, "deadline_seconds": 300},
+        "asset_roles": [*LAYER_ROLES, "decorations"],
+        "backend": {"active": backend,
+                    "shaping": runtime["pillow_raqm"] or runtime["native_raqm"],
+                    "font_features": False, "variation_axes": False, "font_fallbacks": False},
+        "constraints": ["min_font_size <= font_size", "region left < right; top < bottom",
+                        "opaque RGB colors with separate alpha", "effective font size <= 512 output pixels",
+                        "custom profiles require provenance", "unavailable fields fail; no settings are discarded"],
+    }
+
+
+def inspect_request(request: RenderRequest | dict[str, Any], *, asset_root: Path | None = None) -> RenderResponse:
+    """Resolve styles and layout using the same renderer, without producing files."""
+    data = request.to_dict() if isinstance(request, RenderRequest) else copy.deepcopy(request)
+    data["operation"] = "inspect"
+    return execute_request(data, asset_root=asset_root)
 
 
 def error_record(error: ReferenceError) -> dict[str, Any]:
@@ -322,8 +355,7 @@ def _prepare_cue(
         layers.append(layer)
     scene = replace(scene, layers=tuple(layers))
     plans = plan_scene(scene)
-    return (
-        {
+    entry = {
             "cue_id": cue["cue_id"],
             "status": "needs_review" if warnings else "ready",
             "arabic": excerpt.text,
@@ -333,10 +365,21 @@ def _prepare_cue(
             "layers": [asdict(plan) for plan in plans],
             "asset_ids": [],
             "warnings": warnings,
-        },
-        scene,
-        plans,
-    )
+        }
+    if data["operation"] == "inspect":
+        from .style_contract import REFERENCE_FIELDS
+
+        fields = style_schema()["properties"]
+        styles = profile_data["styles"]
+        entry["inspection"] = {"scale": scene.width / 576, "layers": [
+            {"role": plan.layer.role, "status": plan.status,
+             "effective": {k: v for k, v in asdict(plan.layer).items() if k in fields},
+             "origins": {k: "explicit" if k in styles.get(plan.layer.role, {}) else "default" for k in fields},
+             "resolved_pixels": {k: (tuple(v * scene.width / 576 for v in value) if isinstance(value, tuple) else value * scene.width / 576)
+                                 for k, value in asdict(plan.layer).items() if k in REFERENCE_FIELDS},
+             "fitted_font_size": plan.font_size}
+            for plan in plans]}
+    return entry, scene, plans
 
 
 def execute_request(
@@ -438,6 +481,11 @@ def execute_request(
                 prepared.append((entry, scene, plans))
                 result["cues"].append(entry)
             except ReferenceError as error:
+                details = getattr(error, "details", {})
+                details["cue_id"] = cue["cue_id"]
+                if "role" in details and details.get("path", "").startswith("/layers/"):
+                    details["path"] = "/profile/styles/" + details["path"][len("/layers/"):]
+                error.details = details
                 result["cues"].append(
                     {
                         "cue_id": cue["cue_id"],

@@ -1,4 +1,7 @@
-# Static caption API v1 (renderer 0.3.5)
+# Static caption API v1 (renderer 0.3.x)
+
+The [style contract](style-contract.md) defines machine-readable constraints and
+the output-free `inspect` operation alongside the existing schema-1 operations.
 
 Public imports: `quran_image_generator.api` (`RenderRequest`, `RenderResponse`,
 `execute_request`, `capabilities`), `quran_image_generator.requests` (`Canvas`,

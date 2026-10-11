@@ -17,6 +17,7 @@
         "preflight",
         "validate",
         "layout",
+        "inspect",
         "render_batch",
         "translation_catalog",
         "prepare_translations"
@@ -92,134 +93,587 @@
             "type": "object",
             "properties": {
               "font_size": {
-                "type": "number"
+                "type": "number",
+                "default": 30,
+                "description": "Font size",
+                "minimum": 1,
+                "maximum": 256,
+                "x-units": "reference_pixels",
+                "x-scaling": "canvas_width/576",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text",
+                "x-constraints": [
+                  "min_font_size <= font_size after resolving omitted defaults"
+                ]
               },
               "anchor": {
                 "type": "array",
                 "items": {
-                  "type": "number"
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
                 },
                 "minItems": 2,
-                "maxItems": 2
+                "maxItems": 2,
+                "default": [
+                  0.5,
+                  0.5
+                ],
+                "description": "Normalized x and baseline y in canvas coordinates",
+                "x-units": "normalized_canvas",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "layer"
               },
               "region": {
                 "type": "array",
                 "items": {
-                  "type": "number"
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
                 },
                 "minItems": 4,
-                "maxItems": 4
+                "maxItems": 4,
+                "default": [
+                  0.05,
+                  0.05,
+                  0.95,
+                  0.95
+                ],
+                "description": "Normalized allowed rectangle: left, top, right, bottom",
+                "x-units": "normalized_canvas",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "layer",
+                "x-constraints": [
+                  "left < right",
+                  "top < bottom"
+                ]
               },
               "direction": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 64,
+                "default": "rtl",
+                "description": "Direction",
+                "enum": [
+                  "rtl",
+                  "ltr"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "color": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 64,
+                "default": "#FFFFFF",
+                "description": "Color",
+                "x-format": "opaque_rgb; opacity is a separate field",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "opacity": {
-                "type": "number"
+                "type": "number",
+                "default": 1,
+                "description": "Opacity",
+                "minimum": 0,
+                "maximum": 1,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "layer"
               },
               "z_order": {
-                "type": "integer"
+                "type": "integer",
+                "default": 0,
+                "description": "Z order",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "layer"
               },
               "enabled": {
-                "type": "boolean"
+                "type": "boolean",
+                "default": true,
+                "description": "Explicitly disabled layers produce no asset",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "layer"
               },
               "required": {
-                "type": "boolean"
+                "type": "boolean",
+                "default": true,
+                "description": "Missing content fails when enabled and required",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "layer"
               },
               "sha256": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 64,
+                "default": "",
+                "description": "Optional required primary font or image byte identity",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "layer"
               },
               "outline_width": {
-                "type": "number"
+                "type": "number",
+                "default": 0,
+                "description": "Outline width",
+                "minimum": 0,
+                "maximum": 8,
+                "x-units": "reference_pixels",
+                "x-scaling": "canvas_width/576",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "outline_color": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 64,
+                "default": "#000000",
+                "description": "Outline color",
+                "x-format": "opaque_rgb; opacity is a separate field",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "shadow_offset": {
                 "type": "array",
                 "items": {
-                  "type": "number"
+                  "type": "number",
+                  "minimum": -32,
+                  "maximum": 32
                 },
                 "minItems": 2,
-                "maxItems": 2
+                "maxItems": 2,
+                "default": [
+                  0,
+                  0
+                ],
+                "description": "Shadow offset",
+                "x-units": "reference_pixels",
+                "x-scaling": "canvas_width/576",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "shadow_blur": {
-                "type": "number"
+                "type": "number",
+                "default": 0,
+                "description": "Shadow blur",
+                "minimum": 0,
+                "maximum": 16,
+                "x-units": "reference_pixels",
+                "x-scaling": "canvas_width/576",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "shadow_color": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 64,
+                "default": "#000000",
+                "description": "Shadow color",
+                "x-format": "opaque_rgb; opacity is a separate field",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "shadow_opacity": {
-                "type": "number"
+                "type": "number",
+                "default": 0,
+                "description": "Shadow opacity",
+                "minimum": 0,
+                "maximum": 1,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "suffix_scale": {
-                "type": "number"
+                "type": "number",
+                "default": 0.55,
+                "description": "True verse-end number size relative to fitted body size",
+                "minimum": 0.25,
+                "maximum": 1,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
               },
               "min_font_size": {
-                "type": "integer"
+                "type": "integer",
+                "default": 12,
+                "description": "Min font size",
+                "minimum": 1,
+                "maximum": 256,
+                "x-units": "reference_pixels",
+                "x-scaling": "canvas_width/576",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text",
+                "x-constraints": [
+                  "min_font_size <= font_size after resolving omitted defaults"
+                ]
               },
               "max_lines": {
-                "type": "integer"
+                "type": "integer",
+                "default": 3,
+                "description": "Max lines",
+                "minimum": 1,
+                "maximum": 8,
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "line_spacing": {
-                "type": "number"
+                "type": "number",
+                "default": 8,
+                "description": "Extra distance after the largest line ink height; legacy baseline rhythm",
+                "minimum": 0,
+                "maximum": 64,
+                "x-units": "reference_pixels",
+                "x-scaling": "canvas_width/576",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "baseline_anchor": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 64,
+                "default": "last",
+                "description": "Baseline anchor",
+                "enum": [
+                  "first",
+                  "last"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "fit": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 64,
+                "default": "wrap",
+                "description": "Fit",
+                "enum": [
+                  "wrap",
+                  "shrink"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "alignment": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 64,
+                "default": "center",
+                "description": "Alignment",
+                "enum": [
+                  "left",
+                  "center",
+                  "right"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "safe_margin": {
-                "type": "number"
+                "type": "number",
+                "default": 0,
+                "description": "Safe margin",
+                "minimum": 0,
+                "maximum": 64,
+                "x-units": "reference_pixels",
+                "x-scaling": "canvas_width/576",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "layer"
               },
               "quote_open": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 8,
+                "default": "\ufd3f",
+                "description": "Quote open",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
               },
               "quote_close": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 8,
+                "default": "\ufd3e",
+                "description": "Quote close",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
               },
               "numeral_system": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 64,
+                "default": "arabic_indic",
+                "description": "Numeral system",
+                "enum": [
+                  "latin",
+                  "arabic_indic"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
               },
               "marker_prefix": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 8,
+                "default": "",
+                "description": "Marker prefix",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
               },
               "marker_suffix": {
                 "type": "string",
-                "maxLength": 64
+                "maxLength": 8,
+                "default": "",
+                "description": "Marker suffix",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
               },
               "suffix_spacing": {
-                "type": "number"
+                "type": "number",
+                "default": 3,
+                "description": "Suffix spacing",
+                "minimum": 0,
+                "maximum": 32,
+                "x-units": "reference_pixels",
+                "x-scaling": "canvas_width/576",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
               },
               "suffix_offset": {
-                "type": "number"
+                "type": "number",
+                "default": 0,
+                "description": "Suffix offset",
+                "minimum": -32,
+                "maximum": 32,
+                "x-units": "reference_pixels",
+                "x-scaling": "canvas_width/576",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
               },
               "quote_spacing": {
-                "type": "number"
+                "type": "number",
+                "default": 3,
+                "description": "Quote spacing",
+                "minimum": 0,
+                "maximum": 32,
+                "x-units": "reference_pixels",
+                "x-scaling": "canvas_width/576",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
               },
               "horizontal_scale": {
-                "type": "number"
+                "type": "number",
+                "default": 1,
+                "description": "Scale the complete shaped line horizontally",
+                "minimum": 0.5,
+                "maximum": 2,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
               },
               "decoration_scale": {
-                "type": "number"
+                "type": "number",
+                "default": 1,
+                "description": "Quotation font size relative to fitted body size",
+                "minimum": 0.5,
+                "maximum": 2,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
               }
             },
             "required": [],
@@ -842,6 +1296,7 @@
             "enum": [
               "validate",
               "layout",
+              "inspect",
               "render_batch"
             ]
           }

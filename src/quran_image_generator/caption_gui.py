@@ -443,9 +443,9 @@ class CaptionStudio:
             self._styles[name] = variable
             if boolean:
                 control: Any = ttk.Checkbutton(form, variable=variable)
-            elif name in CHOICES:
+            elif "enum" in spec:
                 control = ttk.Combobox(
-                    form, textvariable=variable, values=CHOICES[name], state="readonly"
+                    form, textvariable=variable, values=spec["enum"], state="readonly"
                 )
             else:
                 control = ttk.Entry(form, textvariable=variable)
@@ -456,8 +456,11 @@ class CaptionStudio:
                     text="Choose…",
                     command=self._guard(partial(self._color, variable)),
                 ).grid(row=row * 2, column=2)
-            if name in STYLE_HELP:
-                ttk.Label(form, text=STYLE_HELP[name], wraplength=450).grid(
+            help_text = STYLE_HELP.get(name, spec.get("description", ""))
+            if spec.get("x-units") == "reference_pixels":
+                help_text += "; reference pixels scaled by canvas width / 576"
+            if help_text:
+                ttk.Label(form, text=help_text, wraplength=450).grid(
                     row=row * 2 + 1, column=0, columnspan=3, sticky="w", padx=4
                 )
         footer = ttk.Frame(frame)

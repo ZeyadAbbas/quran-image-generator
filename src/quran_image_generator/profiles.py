@@ -10,6 +10,7 @@ from typing import Any
 import jsonschema
 
 from .contract_schema import PROFILE
+from .diagnostics import validate_schema
 from .excerpts import Excerpt
 from .references import ReferenceError
 from .scenes import Scene
@@ -25,9 +26,8 @@ class CaptionProfile:
 
     def validate(self) -> None:
         try:
-            jsonschema.Draft202012Validator(PROFILE).validate(
-                json.loads(json.dumps(asdict(self), allow_nan=False))
-            )
+            validate_schema(json.loads(json.dumps(asdict(self), allow_nan=False)), PROFILE,
+                            code="invalid_profile", prefix="/profile")
         except (jsonschema.ValidationError, TypeError, ValueError) as error:
             raise ReferenceError(
                 "invalid_profile",

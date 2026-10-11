@@ -16,8 +16,10 @@ BRIDGE_SHA256 = "0b732cdad3ed9650a2ca6262bfc8357d002f666f78dd6e4cb1806785d3ec3dc
 
 
 class ReferenceError(ValueError):
-    def __init__(self, code: str, message: str) -> None:
+    def __init__(self, code: str, message: str, *, details: dict[str, Any] | None = None) -> None:
         self.code = code
+        if details is not None:
+            self.details = details
         super().__init__(message)
 
 
