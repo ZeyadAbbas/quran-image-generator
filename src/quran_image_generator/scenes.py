@@ -92,6 +92,9 @@ class Scene:
                 "invalid_request", "Layer roles must be unique, at most 16"
             )
         for layer in self.layers:
+            from .style_contract import validate_layer_style
+
+            validate_layer_style(layer)
             if (
                 layer.numeral_system not in ("latin", "arabic_indic")
                 or not 0 <= layer.suffix_spacing <= 32
@@ -147,13 +150,14 @@ class Scene:
                 raise ReferenceError(
                     "invalid_request", "Invalid outline, shadow or marker style"
                 )
-            for color in (layer.color, layer.outline_color, layer.shadow_color):
+            for name in ("color", "outline_color", "shadow_color"):
+                color = getattr(layer, name)
                 try:
                     if len(ImageColor.getrgb(color)) != 3:
                         raise ValueError("Use opaque RGB colors and separate opacity")
                 except ValueError as error:
                     raise ReferenceError(
-                        "invalid_request", "Use valid RGB colors"
+                        "invalid_request", "Use valid RGB colors", details={"path": "/layers/" + layer.role + "/" + name, "role": layer.role, "value": color, "allowed": "opaque RGB color"}
                     ) from error
             if (
                 any(

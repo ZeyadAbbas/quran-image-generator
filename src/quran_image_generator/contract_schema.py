@@ -6,6 +6,7 @@ from dataclasses import fields
 from typing import Any, get_type_hints
 
 from .scenes import Layer
+from .style_contract import field_metadata
 
 
 def obj(properties: dict[str, Any], required: tuple[str, ...] = ()) -> dict[str, Any]:
@@ -79,6 +80,7 @@ def style_schema() -> dict[str, Any]:
             }
         else:
             properties[field.name] = {"type": "string", "maxLength": 64}
+        properties[field.name] = field_metadata(field.name, properties[field.name], default)
     return obj(properties)
 
 
@@ -192,6 +194,7 @@ REQUEST_SCHEMA = {
                     "preflight",
                     "validate",
                     "layout",
+                    "inspect",
                     "render_batch",
                     "translation_catalog",
                     "prepare_translations",
@@ -258,7 +261,7 @@ REQUEST_SCHEMA = {
         {
             "if": {
                 "properties": {
-                    "operation": {"enum": ["validate", "layout", "render_batch"]}
+                    "operation": {"enum": ["validate", "layout", "inspect", "render_batch"]}
                 }
             },
             "then": {"required": ["source_corpus", "canvas", "cues"]},
@@ -443,6 +446,7 @@ RESPONSE_SCHEMA = {
                         },
                         "metadata": {"type": "object"},
                         "layers": {"type": "array", "items": LAYER_PLAN},
+                        "inspection": {"type": "object"},
                         "asset_ids": {"type": "array", "items": HASH},
                         "warnings": {"type": "array", "items": {"type": "string"}},
                         "error": ERROR_SCHEMA,
