@@ -24,6 +24,12 @@ def _apply_style(draw: Drawing, style: TextStyle) -> None:
     draw.word_spacing = style.word_spacing
     if style.direction != "undefined":
         draw.text_direction = style.direction
+    if style.additional_word_spacing:
+        natural_space = style.native_space_advance
+        if natural_space is None:
+            with Image(width=1, height=1) as probe:
+                natural_space = draw.get_font_metrics(probe, " ").text_width
+        draw.text_interword_spacing = natural_space + style.additional_word_spacing
 
 
 class WandTextMeasurer:

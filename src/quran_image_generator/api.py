@@ -43,7 +43,7 @@ from .scenes import (
 from .snapshots import SnapshotStore, canonical_bytes
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.3.7"
+RENDERER_VERSION = "0.3.8"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -152,6 +152,10 @@ def capabilities() -> dict[str, Any]:
             "separate_decoration_font": True,
             "fractional_font_sizes": True,
             "whole_line_horizontal_scale": True,
+            "word_spacing": runtime_identity()["native_raqm"],
+            "fixed_line_height": True,
+            "latin_grapheme_tracking": True,
+            "source_line_breaks": True,
             "outline_and_shadow": True,
             "reviewed_phrase_bindings": True,
             "offline_translation_snapshots": True,
@@ -164,6 +168,7 @@ def capabilities() -> dict[str, Any]:
             "spans_per_cue": 32,
             "layers": 16,
             "canvas_pixels": 8_500_000,
+            "tracked_graphemes_per_line": 512,
         },
         "alpha_mode": "straight",
         "color_space": "sRGB",
@@ -181,6 +186,7 @@ def style_descriptor() -> dict[str, Any]:
     fields = copy.deepcopy(style_schema()["properties"])
     for spec in fields.values():
         spec["backend_support"] = {"pillow_raqm": True, "wand_raqm": True}
+    fields["word_spacing"]["backend_support"] = {"pillow_raqm": False, "wand_raqm": True}
     return {
         "descriptor_version": 1,
         "schema_version": 1,
@@ -193,7 +199,8 @@ def style_descriptor() -> dict[str, Any]:
         "asset_roles": [*LAYER_ROLES, "decorations"],
         "backend": {"active": backend,
                     "shaping": runtime["pillow_raqm"] or runtime["native_raqm"],
-                    "font_features": False, "variation_axes": False, "font_fallbacks": False},
+                    "font_features": False, "variation_axes": False, "font_fallbacks": False,
+                    "word_spacing": runtime["native_raqm"], "tracking_scripts": ["Latin LTR"]},
         "constraints": ["min_font_size <= font_size", "region left < right; top < bottom",
                         "opaque RGB colors with separate alpha", "effective font size <= 512 output pixels",
                         "custom profiles require provenance", "unavailable fields fail; no settings are discarded"],
@@ -354,6 +361,10 @@ def _prepare_cue(
             layer = replace(layer, direction=dataset.source.direction)
         layers.append(layer)
     scene = replace(scene, layers=tuple(layers))
+    from .typography import apply_break_hints
+
+    scene = apply_break_hints(excerpt, scene, cue.get("line_breaks", []),
+                             quotations=data.get("quotations", False), verse_numbers=data.get("verse_numbers", False))
     plans = plan_scene(scene)
     entry = {
             "cue_id": cue["cue_id"],
@@ -483,6 +494,8 @@ def execute_request(
             except ReferenceError as error:
                 details = getattr(error, "details", {})
                 details["cue_id"] = cue["cue_id"]
+                if details.get("path", "").startswith("/line_breaks/"):
+                    details["path"] = f"/cues/{index}" + details["path"]
                 if "role" in details and details.get("path", "").startswith("/layers/"):
                     details["path"] = "/profile/styles/" + details["path"][len("/layers/"):]
                 error.details = details

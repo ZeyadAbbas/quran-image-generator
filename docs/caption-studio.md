@@ -55,6 +55,7 @@ Use **Apply layer** to commit, **Import styles…** to load a reusable profile, 
 | `direction`, `alignment`, `baseline_anchor` | RTL/LTR shaping, left/center/right alignment, and first/last baseline placement. |
 | `fit`, `max_lines`, `line_spacing`, `safe_margin` | Wrap or bounded shrink, line limit, interline spacing and required inset. Overflow fails with diagnostic boxes. |
 | `horizontal_scale` | Horizontal scaling of the complete shaped line, preserving connected Arabic. |
+| `word_spacing`, `line_height`, `tracking` | Additional word-gap em, fixed baseline em and supported Latin grapheme tracking. Zero retains legacy behavior; see [typography](caption-typography.md). |
 | `color`, `opacity`, `enabled`, `required`, `z_order` | Fill color and alpha, visibility, required-layer behavior and compositing order. Color pickers are provided. |
 | `outline_width`, `outline_color` | Outline thickness and color. |
 | `shadow_offset`, `shadow_blur`, `shadow_color`, `shadow_opacity` | Horizontal/vertical offset, blur, color and alpha. |

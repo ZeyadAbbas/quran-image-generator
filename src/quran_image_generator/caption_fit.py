@@ -6,7 +6,7 @@ import math
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
-from .layout import MeasuredLine, TextMetrics, TextStyle, _wrap_words
+from .layout import MeasuredLine, TextMetrics, TextStyle
 from .references import ReferenceError
 
 if TYPE_CHECKING:
@@ -167,20 +167,23 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
             " ",
         )
         lines: list[MeasuredLine] = []
-        for paragraph in layer.text.splitlines():
+        from .typography import layout_paragraphs, wrap_preferred
+
+        for paragraph, preferred_breaks in layout_paragraphs(layer.text, layer.forced_breaks, layer.preferred_breaks):
             words = paragraph.split()
             if words and words[0] == layer.quote_open and len(words) > 1:
                 words[:2] = [" ".join(words[:2])]
+                preferred_breaks = {max(1, i - 1) for i in preferred_breaks}
             if words and words[-1] == layer.quote_close and len(words) > 1:
                 words[-2:] = [" ".join(words[-2:])]
             lines.extend(
-                _wrap_words(
-                    tuple(words), style, _Measurer(font), final_line_reserve=reserve
+                wrap_preferred(
+                    tuple(words), style, _Measurer(font), preferred_breaks, reserve
                 )
             )
         if not lines:
             raise ReferenceError("missing_asset", f"{layer.role} has no visible text")
-        step = max(line.metrics.height for line in lines) + layer.line_spacing * scale
+        step = size * layer.line_height if layer.line_height else max(line.metrics.height for line in lines) + layer.line_spacing * scale
         positioned = []
         boxes = []
         for index, line in enumerate(lines):
@@ -259,7 +262,8 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
             math.ceil(max(b[3] for b in boxes) + padding + max(0, dy)),
         )
         last_bounds, last_count = bounds, len(lines)
-        if len(lines) <= layer.max_lines and within(bounds, allowed):
+        collisions = [(i - 1, i) for i in range(1, len(lines)) if boxes[i - 1][3] + padding > boxes[i][1] - padding] if layer.line_height else []
+        if len(lines) <= layer.max_lines and within(bounds, allowed) and not collisions:
             return LayerPlan(
                 layer,
                 tuple(positioned),
@@ -269,7 +273,16 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
                 suffix_position=suffix_position,
                 ornament_positions=tuple(ornament_positions),
                 decoration_asset_sha256=decoration_digest,
+                typography={"word_spacing_em": layer.word_spacing, "word_spacing_pixels": size * layer.word_spacing,
+                            "tracking_em": layer.tracking, "tracking_pixels": size * layer.tracking,
+                            "baseline_step": step, "baselines": [v[2] for v in positioned],
+                            "forced_breaks": layer.forced_breaks, "preferred_breaks": layer.preferred_breaks,
+                            "backend": (font.primary if hasattr(font, "primary") else font).backend},
             )
+    if layer.line_height and collisions:
+        raise ReferenceError("line_height_collision", "Configured baseline step overlaps line ink/effect bounds", details={
+            "path": "/layers/" + layer.role + "/line_height", "role": layer.role, "baseline_step": step,
+            "line_pairs": collisions, "bounds": bounds, "allowed": allowed, "suggestions": ["increase_line_height", "reduce_effects"]})
     raise FitError(
         layer.role,
         last_bounds,
