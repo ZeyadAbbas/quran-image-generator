@@ -1,6 +1,17 @@
 venv
+.venv/
 outputs
 __pycache__
+.mypy_cache
+.pytest_cache
+.ruff_cache
+build
+dist
 .idea
 background
 *.egg-info
+.env
+.env.*
+!.env.example
+config.local.yaml
+config.*.local.yaml

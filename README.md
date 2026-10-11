@@ -1,379 +1,272 @@
-
-
-<!--
-Zeyad Abbas
-Quran Image Generator
--->
-
-<!-- PROJECT SHIELDS -->
-<!-- [![Contributors][contributors-shield]][contributors-url] -->
-<!-- [![Forks][forks-shield]][forks-url] -->
-<!-- [![Stargazers][stars-shield]][stars-url] -->
-<!-- [![Issues][issues-shield]][issues-url] -->
-<!-- [![MIT License][license-shield]](https://github.com/ZeyadAbbas/quran-image-generator/blob/master/LICENSE.txt) -->
-
-#### ⛔ Due to breaking changes to the Quran.com API, this project NO LONGER WORKS. Updates will be made accordingly. ⛔ 
-
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/ZeyadAbbas/quran-image-generator">
-    <img src="readme_images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">Quran Image Generator</h3>
-
-  <p align="center">
-    Create custom Quran images in seconds!
-    <br />
-    <a href="#getting-started"><strong>How To Setup »</strong></a>
-    <br />
-    <br />
-    <!--<a href="https://github.com/github_username/repo_name">View Demo</a>-->
-    <a href="https://github.com/ZeyadAbbas/quran-image-generator/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
-    ·
-    <a href="https://github.com/ZeyadAbbas/quran-image-generator/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
-  </p>
-</div>
-
-
-
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <!-- <ul> -->
-      <!--   <li><a href="#installation">Installation</a></li> -->
-      <!-- </ul> -->
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#to-do">To Do</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
-
-
-
-<!-- ABOUT THE PROJECT -->
-## About The Project
-
-The aim of this program is to provide people with 0 prior coding knowledge 
-the ability to create custom Quran images to be shared online or for personal use.
-
-The program allows you to generate a quran verse, translations of your choice, and then post them 
-just by typing 3 sets of numbers: the chapter, the first verse, and the last verse.
-This makes the generation process incredibly easy, especially when you want to make a lot of them.
-
-Without this program, you would need to use something like [Photoshop](https://www.adobe.com/products/photoshop.html) 
-or [Pixlr](https://pixlr.com/editor/) to make something like it. Both these options are paid to an extent
-and take much more time to obtain the same result.
-
-These are some images made using this program, and there are countless other possibilities.
-<div style="display: flex; justify-content: space-around; align-items: center;">
-  <img src="readme_images/ex1.png" alt="Example 1" width="265" style="margin-right: 70px;"/>
-  <img src="readme_images/ex3.png" alt="Example 2" width="265" style="margin-right: 70px;"/>
-  <img src="readme_images/ex5.png" alt="Example 2" width="265"/>
-</div>
-<div style="display: flex; justify-content: space-around; align-items: center;">
-  <img src="readme_images/ex2.png" alt="Example 3" width="350" style="margin-right: 30px; margin-top: 60px"/>
-  <img src="readme_images/ex4.png" alt="Example 4" width="350" style="margin-top: 60px"/>
-</div>
-
-
-That's where my problem was. I wanted to make these images, but I didn't want to do all the work every time.
-This is why I have created this program for the public use, so it's easy for myself and everyone
-who may want to do the same.
-
-The program should not take longer than 3 minutes to set up and configure. Once setup is done,
-you have the ability to create countless custom images. Below are all the steps to get started.
-
-##### This program is in beta. It may return errors if not used properly. The code and the way it works is subject to change.
-<p align="right">(<a href="#about-the-project">back to top</a>)</p>
-
-
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-These instructions are all you need to get the program up and running. 
-They also include all the information about the configuration options.
-
-### Installation
-
-You must have Python installed to run this program. \
-If you don't have it installed then go to https://www.python.org/downloads/ to get the latest version of Python.
-
-1. Once you have installed Python, you must open your Command Prompt and run the command:
-    ```sh
-    pip install setuptools
-    ```
-   It may tell you that you already have it installed, that's fine.
-
-    If it says you don't have `pip` installed, then you must follow [this guide](https://stackoverflow.com/a/56678271)
-    to get set up with `pip`.
-
-
-2. Then download and extract the program from this GitHub if you haven't already.
-Make sure you know where you extracted it.
-
-3. You must download [ImageMagick](https://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows)
-to run the program if you don't already have it.
-
-4. Open the program's folder (that has all the python files) that you just downloaded, 
-press on the top address bar, and type `cmd`.
-   <div style="display: flex; justify-content: space-around; align-items: center;">
-     <img src="readme_images/explorer_bar.jfif" alt="Example 3" width="400" 
-      style="margin-right: 0px; margin-top: 10px"/>
-   </div>
-
-   This will open a command prompt that only sees files within the program directory.
-
-
-5. To download all the necessary libraries for the program to function, run:
-   ```sh
-   pip install .
-   ```
-   
-6. Now you should be ready to start the program. From now on all you have to do is
-open the command prompt from your program directory like done in step 4, 
-then run:
-   ```sh
-   python main.py
-   ```
-   This will start the program. Now you are ready to generate custom pictures.
-
-### Installation with Docker
-Only follow this installation if you know what Docker is used for.
-
-1. Make sure you have [Docker](https://www.docker.com/) installed and running in the background.
-2. Clone the GitHub repository. 
-    ```sh
-    git clone https://github.com/ZeyadAbbas/quran-image-generator.git
-    ```
-3. cd into the directory.
-    ```sh
-    cd quran-image-generator 
-    ```
-4. Build the docker image.
-    ```sh
-    docker build -t quran-image-generator .
-    ```
-5. Go through `config.yaml` and set your preferences (you may change them while you have the program running in the future).
-  - IMPORTANT:
-    - Make sure to NOT change the `output path` option. This Docker configuration will not access any files outside the repository.
-    - If you want to use a background image, **make sure that its path is within your local repo**, not outside of it, or else Docker won't be able to access it.
-6. Run the docker container in interactive mode `-it` (make sure you are still inside the local repository):
-    ```sh
-    docker run -it --rm --name QIG -v "%cd%:/app" quran-image-generator
-    ```
-7. You will be prompted on the terminal, follow the instructions.
-8. The generated images can be found in the `outputs` directory inside the local repo.
-
-<p align="right">(<a href="#about-the-project">back to top</a>)</p>
-
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-The program has a file that you need to open to customize the images, that file is `config.yaml`.
-In there, there are options to change with descriptions next to them acting as documentation.
-
-You have the ability to use any quran and translation fonts you like. However, fonts have been
-provided for you in `assets/fonts`. If you would like to add your own, you should follow
-the instructions in the config file.
-
-There is a config option for you to generate random Quran verses for you every time you run the program.
-This can be useful if you want daily Quran verses to be uploaded.
-
-The program lets you:
-* Pick the verses
-* Generate random verses
-* Post image online
-* Change Quran text size, color, width
-* Pick multiple languages to translate to
-* Change translation text size, color, width
-* Show verse numbers
-* Make everything fully customizable
-
-The program uses the [Quran.com](https://quran.com/1) api to get all the verses and their translations,
-this means that if a language is supported by Quran.com, then it's supported by the program.
-
-Here is a list of supported languages, and their ISO codes, that you need for the config file to use them.
-
-| Language      | Code  | Translation Name                                       |
-|---------------|-------|--------------------------------------------------------|
-| English       | en    | Dr. Mustafa Khattab, The Clear Quran                   |
-| Urdu          | ur    | Tafheem e Qur'an - Syed Abu Ali Maududi                |
-| Bengali       | bn    | Dr. Abu Bakr Muhammad Zakaria                          |
-| Turkish       | tr    | Elmalili Hamdi Yazir                                   |
-| Spanish       | es    | Sheikh Isa Garcia                                      |
-| French        | fr    | Muhammad Hamidullah                                    |
-| Bosnian       | bs    | Besim Korkut                                           |
-| Russian       | ru    | Russian Translation (Elmir Kuliev)                     |
-| Malayalam     | ml    | Malayalam Translation (Abdul Hameed and Kunhi)         |
-| Indonesian    | id    | Indonesian Islamic affairs ministry                    |
-| Uzbek         | uz    | Muhammad Sodik Muhammad Yusuf                          |
-| Dutch         | nl    | Sofian S. Siregar                                      |
-| German        | de    | Frank Bubenheim and Nadeem                             |
-| Tajik         | tg    | Tajik, AbdolMohammad Ayati                             |
-| Tamil         | ta    | Abdul Hameed Baqavi                                    |
-| Japanese      | ja    | Ryoichi Mita                                           |
-| Italian       | it    | Hamza Roberto Piccardo                                 |
-| Vietnamese    | vi    | Ruwwad Center, Translation Pioneers Center             |
-| Chinese       | zh    | Chinese Translation (Simplified) - Ma Jain             |
-| Albanian      | sq    | Albanian Translation, Sherif Ahmeti                    |
-| Persian       | fa    | Hussein Taji Kal Dari                                  |
-| Bulgarian     | bg    | Tzvetan Theophanov                                     |
-| Bambara       | bm    | Suliman Kanti                                          |
-| Hausa         | ha    | Hausa Translation (Abubakar Gumi)                      |
-| Portuguese    | pt    | Portuguese Translation (Samir), Samir El-Hayek         |
-| Romanian      | ro    | Grigore, George Grigore                                |
-| Hindi         | hi    | Maulana Azizul Haque al-Umari                          |
-| Swahili       | sw    | Dr. Abdullah Muhammad Abu Bakr and Sheikh Nasir Khamis |
-| Kazakh        | kk    | Khalifah Altai                                         |
-| Thai          | th    | Thai Translation (King Fahad Quran Complex)            |
-| Tagalog       | tl    | Dar Al-Salam Center                                    |
-| Central Khmer | km    | Cambodian Muslim Community Development                 |
-| Assamese      | as    | Shaykh Rafeequl Islam Habibur-Rahman                   |
-| Korean        | ko    | Hamed Choi                                             |
-| Somali        | so    | Mahmud Muhammad Abduh                                  |
-| Azeri         | az    | Alikhan Musayev                                        |
-| Kurdish       | ku    | Muhammad Saleh Bamoki                                  |
-| Malay         | ms    | Abdullah Muhammad Basmeih                              |
-| Dari          | prs   | Mawlawi Muhammad Anwar Badkhashani                     |
-| Amazigh       | zgh   | Ramdane At Mansour                                     |
-| Amharic       | am    | Sadiq and Sani                                         |
-| Chechen       | ce    | Magomed Magomedov                                      |
-| Divehi        | dv    | Office of the president of Maldives                    |
-| Czech         | cs    | Czech                                                  |
-| Finnish       | fi    | Finnish                                                |
-| Gujarati      | gu    | Rabila Al-Umry                                         |
-| Hebrew        | he    | Dar Al-Salam Center                                    |
-| Kannada       | kn    | Kannada Translation                                    |
-| Ganda         | lg    | African Development Foundation                         |
-| Marathi       | mr    | Muhammad Shafi’i Ansari                                |
-| Maranao       | mrn   | Maranao                                                |
-| Nepali        | ne    | Ahl Al-Hadith Central Society of Nepal                 |
-| Norwegian     | no    | Norwegian                                              |
-| Oromo         | om    | Ghali Apapur Apaghuna                                  |
-| Polish        | pl    | Józef Bielawski                                        |
-| Pashto        | ps    | Zakaria Abulsalam                                      |
-| Kinyarwanda   | rw    | The Rwanda Muslims Association team                    |
-| Sindhi        | sd    | Taj Mehmood Amroti                                     |
-| Sinhala       | si    | Ruwwad Center, Translation Pioneers Center             |
-| Swedish       | sv    | Knut Bernström                                         |
-| Telugu        | te    | Maulana Abder-Rahim ibn Muhammad                       |
-| Tatar         | tt    | Tatar                                                  |
-| Uyghur        | ug    | Muhammad Saleh                                         |
-| Ukrainian     | uk    | Dr. Mikhailo Yaqubovic                                 |
-| Yoruba        | yo    | Shaykh Abu Rahimah Mikael Aykyuni                      |
-
-#### These languages were not proof read by me. I only speak Arabic and English.
-If you want to change the translation currently in use, you may change it in the 
-`translation_codes` folder.
-
-
-The program gives you the ability to automatically post your images online once generated.
-You can set this option in the config file to either, true, false, or ask.
-You can also pick where you want to post the image.
-
-To use this feature, you must be connected to WI-FI and you must provide your username and
-password in the appropriate fields in the config file.
-
-This is a list of currently supported post methods:
-* Instagram
-  * Story (insta_story)
-  * Post (insta_post)
-
-#### Your username and password cannot be viewed by me, or anyone online. The program only requires this to post your image.
-
-<p align="right">(<a href="#about-the-project">back to top</a>)</p>
-
-
-
-<!-- To Do -->
-## To Do
-
-- [ ] Change the way read_config.py works
-- [ ] Add the ability to post automatically based on an interval
-- [ ] Add bounds to ensure no errors occur
-- [ ] Add more post method support
-- [ ] Create program to test all config options
-- [ ] Comment code
-    - [ ] Add error logs
-
-See the [open issues](https://github.com/ZeyadAbbas/quran-image-generator/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#about-the-project">back to top</a>)</p>
-
-
-
-<!-- CONTRIBUTING -->
-## Contributing
-
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-<p align="right">(<a href="#about-the-project">back to top</a>)</p>
-
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#about-the-project">back to top</a>)</p>
-
-
-
-<!-- CONTACT -->
-## Contact
-
-<div>
-    <a href="https://www.linkedin.com/in/zeyad-abbas-/">
-        <img src="https://skillicons.dev/icons?i=linkedin" />
-    </a>
-    <a href="mailto:zeyadabbas238@gmail.com">
-        <img src="https://skillicons.dev/icons?i=gmail" />
-    </a>
-</div>
-
-Project Link: [https://github.com/ZeyadAbbas/quran-image-generator](https://github.com/ZeyadAbbas/quran-image-generator)
-
-<p align="right">(<a href="#about-the-project">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-* [Quran.com](https://quran.com/1)
-* [me_quran Quran Font](https://tanzil.net/docs/me_quran_font)
-* [Different Language Fonts](https://fonts.google.com/noto)
-
-<p align="right">(<a href="#about-the-project">back to top</a>)</p>
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/linkedin_username
+# Quran Image Generator
+
+<p align="center">
+  <img src="readme_images/logo.png" alt="Quran Image Generator logo" width="80" height="80">
+</p>
+
+Create customizable PNG images from Quran passages with a desktop app or a
+command-line workflow. Arabic Quran text and chapter metadata are bundled from
+the Tanzil Project, so Arabic-only generation works offline and requires no
+account, API key, or secret. Optional translations are discovered and retrieved
+from QuranEnc.
+
+> **Release status:** the project is usable from a source checkout and is under
+> active development. There is no public PyPI package or published release yet.
+
+## What it includes
+
+- A desktop GUI for passage selection, complete layout editing, previewing,
+  saving, and optional confirmed Instagram publishing.
+- Interactive and one-shot CLI modes, including random passage generation and
+  headless operation.
+- Bundled Arabic text, up to three ordered QuranEnc translations, bundled
+  fonts, verse-number artwork, backgrounds, colors, spacing, and positioning.
+- Validated YAML configuration, a non-root CLI Docker image, and offline tests
+  and render smoke checks.
+
+### Desktop app
+
+![Quran Image Generator desktop app showing a Quran passage and rendered preview](readme_images/gui.webp)
+
+### Example outputs
+
+The same passage can be presented in very different ways by changing the
+canvas, typography, colors, spacing, verse markers, and translations.
+
+<p align="center">
+  <img src="readme_images/ex1.png" alt="Portrait Quran verse image with a soft blue background and two translations" width="265">
+  <img src="readme_images/ex3.png" alt="Portrait Quran verse image over a waterfront mosque photograph" width="265">
+  <img src="readme_images/ex5.png" alt="Portrait Quran passage image with a dark minimal layout" width="265">
+</p>
+
+<p align="center">
+  <img src="readme_images/ex2.png" alt="Square framed Quran passage print in a bright room" width="350">
+  <img src="readme_images/ex4.png" alt="Square Quran passage image with a minimal white layout" width="350">
+</p>
+
+## Requirements
+
+- Python 3.10 through 3.14.
+- [ImageMagick](https://imagemagick.org/script/download.php) and its native
+  libraries. See the [Wand installation guide](https://docs.wand-py.org/en/latest/guide/install.html).
+- [Tk](https://docs.python.org/3/library/tkinter.html) and a graphical display
+  for the desktop app. The CLI itself does not require Tk.
+- Network access only when listing or using optional translations.
+
+## Quick start: desktop app
+
+Install ImageMagick, then clone this repository:
+
+```sh
+git clone https://github.com/ZeyadAbbas/quran-image-generator.git
+cd quran-image-generator
+```
+
+Create an isolated [virtual environment](https://docs.python.org/3/library/venv.html)
+from the repository root.
+
+**Windows PowerShell**
+
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e .
+quran-image-generator-gui
+```
+
+**Linux (POSIX shell)**
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e .
+quran-image-generator-gui
+```
+
+No setup prompt or content credential is required. Use
+`quran-image-generator-gui --config path/to/config.yaml` to start with a
+different configuration file. Choose a chapter and verse range, adjust the
+layout, and select **Generate / Refresh**. **Save PNG…** always opens a save
+dialog; the configured output directory is its suggested starting location.
+Any edit makes the current preview stale until it is regenerated. Publishing
+is never implicit and requires confirmation in the app.
+
+The GUI exposes the normal generation settings documented in
+[`docs/configuration.md`](docs/configuration.md). It can load and save YAML,
+open the most recently saved PNG, and includes its own Help / About tab. To
+verify Tk and the current display independently, run `python -m tkinter`.
+
+Choose **Caption Studio…** for the general caption editor, or run
+`quran-image-generator-gui --captions`. It exposes all caption layer styles,
+custom fonts and decoration glyphs, branding, ordered partial ranges/repeats,
+reviewed phrase translations, offline snapshots and transparent exports. Load
+and save complete requests for reuse by any user or program. See the
+[Caption Studio guide](docs/caption-studio.md); these capabilities are available
+without a QuranScribe-specific configuration.
+
+## Content sources
+
+The package includes the verbatim Tanzil Uthmani Quran text, version 1.1, and
+Tanzil chapter metadata, version 1.0. The text is verified at runtime with this
+SHA-256 digest:
+
+```text
+bf4f57b968d03f4131c070b1e285da9be0e0a108a21c910e872801ca273312c8
+```
+
+The files are distributed under the Creative Commons Attribution 3.0 license.
+Their original notice is preserved, and attribution details are recorded in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
+Translations are not bundled. The app retrieves selected translations and
+their version metadata from [QuranEnc](https://quranenc.com/) at runtime. If
+that service or the network is unavailable, the GUI remains usable for
+Arabic-only images. Translation material remains subject to
+[QuranEnc's terms](https://quranenc.com/en/terms).
+
+## Static caption layers and integration
+
+Renderer 0.3.x exposes a versioned static-caption Python/JSON API. It supports
+verified partial source spans, reviewed offline English bindings, independent
+transparent title/caption/logo assets and isolated batches. Start with
+`quran-caption-render --capabilities` and `--preflight`; see
+[the independent install guide](docs/integration-install.md) and
+[API v1](docs/render-api-v1.md). Styling is supplied by each request; the app does
+not install a QuranScribe preset or change its still-image defaults. The
+[sample-video handoff](docs/quranscribe-handoff.md) provides measured request
+options, font identities, translation requirements and composition instructions.
+
+## Command line
+
+Run the CLI as either `quran-image-generator` or
+`python -m quran_image_generator`.
+
+```sh
+# Repeating interactive prompts; generated images open by default
+quran-image-generator
+
+# One passage; one-shot modes do not open the image by default
+quran-image-generator --chapter 1 --start 1 --end 7
+
+# One random passage, then open it
+quran-image-generator --random --open
+
+# Explicit headless output location
+quran-image-generator --chapter 2 --start 255 --end 255 --no-open --output-dir outputs
+
+# Select a configuration file explicitly
+quran-image-generator --config config.yaml --chapter 1 --start 1 --end 1
+```
+
+`--chapter`, `--start`, and `--end` must be supplied together. They cannot be
+combined with `--random`. With no selector, the CLI repeatedly prompts for a
+passage and asks whether to continue. One-shot modes generate once and exit.
+Use `--open` or `--no-open` to override each mode's default.
+
+Generated names are `<Chapter> <first> - <last>.png` (or
+`<Chapter> <verse>.png`). Repeating the same passage in the same directory may
+overwrite the earlier file. A config-relative output path is resolved beside
+the selected config file; a relative `--output-dir` override is resolved from
+the current working directory.
+
+### Translation catalog
+
+List the current QuranEnc translation catalog:
+
+```sh
+quran-image-generator --list-translations
+quran-image-generator --list-translations --refresh-catalog
+```
+
+List mode cannot be combined with passage selectors, `--random`, output/open
+overrides, or publishing. Choose at most three resources in `config.yaml`; their
+order is preserved. Prefer an exact `key`, such as `english_saheeh`. A
+`language` selector works only when that language has exactly one resource;
+otherwise the application reports the exact choices. Use
+`translation languages: []` to create Arabic-only images. See
+[configuration](docs/configuration.md#translations) for examples.
+
+## Docker (CLI only)
+
+The image runs as non-root user `10001:10001` and intentionally contains no GUI
+or display stack. Build it from the repository root:
+
+```sh
+docker build --target runtime -t quran-image-generator .
+mkdir -p outputs
+docker run --rm \
+  --user "$(id -u):$(id -g)" --env HOME=/tmp \
+  --mount type=bind,src="$(pwd)/config.yaml",dst=/config/config.yaml,readonly \
+  --mount type=bind,src="$(pwd)/outputs",dst=/output \
+  quran-image-generator \
+  --config /config/config.yaml --output-dir /output --no-open \
+  --chapter 1 --start 1 --end 1
+```
+
+Mount any custom background or font separately as read-only and reference its
+container path in YAML. Docker Desktop's Linux-container bind mounts on Windows
+are not covered by CI; use Docker's
+[bind-mount guidance](https://docs.docker.com/engine/storage/bind-mounts/) with
+absolute host paths.
+
+## Optional Instagram publishing
+
+From this source checkout, install the optional extra:
+
+```sh
+python -m pip install -e ".[instagram]"
+```
+
+Set `QIG_INSTAGRAM_USERNAME` and `QIG_INSTAGRAM_PASSWORD`, then opt in per run
+with `--publish post` or `--publish story`. A CLI attached to a terminal may
+prompt for missing Instagram credentials (with a hidden password); the GUI
+never prompts for them. Publishing is attempted only after the PNG is saved,
+and a publishing failure does not remove the local file.
+
+## Configuration and help
+
+- [`config.yaml`](config.yaml) is a working, annotated example.
+- [`docs/configuration.md`](docs/configuration.md) is the canonical setting
+  reference, including defaults, ranges, paths, and translation selectors.
+- [`docs/troubleshooting.md`](docs/troubleshooting.md) covers content,
+  ImageMagick, Tk, fonts, layout, Docker, and publishing failures.
+- [`docs/gui-smoke-test.md`](docs/gui-smoke-test.md) is the manual GUI release
+  smoke checklist.
+
+## Development
+
+Install from a checkout with the development extra, then run the checks:
+
+```sh
+python -m pip install -e ".[dev]"
+python -m pytest
+python -m ruff check .
+python -m mypy
+python -m compileall -q -f src
+python -m build
+python scripts/verify_artifacts.py
+```
+
+Tests run without external network access. A separate manual smoke test covers
+the current QuranEnc catalog and translation responses.
+
+Caption regression fixtures and the six-reference preview sheet are documented
+in [caption regressions](docs/caption-regressions.md). Creator assets and visual
+approval remain explicit pending inputs.
+
+## License and support
+
+The application code is released under the [MIT License](LICENSE.txt).
+Third-party data and assets retain their own licenses; see
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Please use
+[GitHub Issues](https://github.com/ZeyadAbbas/quran-image-generator/issues) for
+reproducible bugs and focused feature requests, but redact personal paths and
+private generated content.
+
+Arabic Quran text and metadata come from the
+[Tanzil Project](https://tanzil.net/). Optional translations come from
+[QuranEnc](https://quranenc.com/). The bundled Arabic typeface comes from
+[me_quran](https://tanzil.net/docs/me_quran_font), and multilingual fonts come
+from [Google Noto Fonts](https://fonts.google.com/noto).
