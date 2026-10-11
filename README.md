@@ -106,6 +106,10 @@ and save complete requests for reuse by any user or program. See the
 [Caption Studio guide](docs/caption-studio.md); these capabilities are available
 without a QuranScribe-specific configuration.
 
+Bundled fonts are in `src/quran_image_generator/assets/fonts`. You can also
+select your own local TTF/OTF fonts in Caption Studio; saved caption requests
+pin their SHA-256 checksums and record their license and attribution.
+
 ## Content sources
 
 The package includes the verbatim Tanzil Uthmani Quran text, version 1.1, and
