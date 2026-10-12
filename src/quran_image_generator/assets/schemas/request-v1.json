@@ -106,7 +106,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text",
                 "x-constraints": [
@@ -134,7 +137,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "layer"
               },
@@ -161,7 +167,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "layer",
                 "x-constraints": [
@@ -185,7 +194,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -202,7 +214,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -219,7 +234,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "layer"
               },
@@ -234,7 +252,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "layer"
               },
@@ -249,7 +270,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "layer"
               },
@@ -264,7 +288,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "layer"
               },
@@ -280,7 +307,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "layer"
               },
@@ -297,7 +327,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -314,7 +347,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -339,7 +375,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -356,7 +395,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -373,7 +415,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -390,7 +435,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -420,7 +468,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text",
                 "x-constraints": [
@@ -440,7 +491,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -457,7 +511,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -477,7 +534,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -497,7 +557,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -518,7 +581,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -535,7 +601,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "layer"
               },
@@ -659,7 +728,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -689,7 +761,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text",
                 "x-constraints": [
@@ -709,7 +784,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -726,7 +804,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text",
                 "x-constraints": [
@@ -747,7 +828,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -769,7 +853,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -790,7 +877,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -807,7 +897,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -867,7 +960,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -901,7 +997,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "layer",
                     "x-default-source": "body"
@@ -919,7 +1018,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -937,7 +1039,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "layer",
                     "x-default-source": "body"
@@ -955,7 +1060,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -973,7 +1081,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -999,7 +1110,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1017,7 +1131,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1035,7 +1152,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1053,7 +1173,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1071,7 +1194,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1094,7 +1220,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1116,7 +1245,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1134,7 +1266,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1195,7 +1330,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1216,7 +1354,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1263,7 +1404,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "layer",
                     "x-default-source": "body"
@@ -1281,7 +1425,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1299,7 +1446,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "layer",
                     "x-default-source": "body"
@@ -1317,7 +1467,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1335,7 +1488,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1361,7 +1517,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1379,7 +1538,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1397,7 +1559,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1415,7 +1580,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1433,7 +1601,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1456,7 +1627,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1478,7 +1652,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1496,7 +1673,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1557,7 +1737,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1578,7 +1761,10 @@
                       "translation",
                       "arabic_title",
                       "latin_title",
-                      "logo"
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
                     ],
                     "x-applies-to": "text",
                     "x-default-source": "body"
@@ -1773,7 +1959,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -1794,7 +1983,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -1819,7 +2011,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -1839,7 +2034,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               },
@@ -1860,7 +2058,10 @@
                   "translation",
                   "arabic_title",
                   "latin_title",
-                  "logo"
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
                 ],
                 "x-applies-to": "text"
               }
@@ -2366,6 +2567,4374 @@
       ],
       "additionalProperties": false
     },
+    "translation_tracks": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "properties": {
+          "track_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "language": {
+            "type": "string",
+            "maxLength": 32,
+            "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$",
+            "default": ""
+          },
+          "translation_policy": {
+            "enum": [
+              "none",
+              "review",
+              "required"
+            ],
+            "default": "required"
+          },
+          "preview_unreviewed_translation": {
+            "type": "boolean",
+            "default": false
+          },
+          "dataset": {
+            "type": "object",
+            "properties": {
+              "schema_version": {
+                "const": 1
+              },
+              "source": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "resource": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "version": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "translator": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "license": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "attribution": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "direction": {
+                    "enum": [
+                      "ltr",
+                      "rtl"
+                    ]
+                  }
+                },
+                "required": [
+                  "provider",
+                  "resource",
+                  "version",
+                  "translator",
+                  "license",
+                  "attribution",
+                  "direction"
+                ],
+                "additionalProperties": false
+              },
+              "corpus": {
+                "type": "object",
+                "properties": {
+                  "edition": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "version": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "edition",
+                  "version",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              },
+              "bindings": {
+                "type": "array",
+                "maxItems": 10000,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "binding_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "revision": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "spans": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "surah": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 114
+                          },
+                          "ayah": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 286
+                          },
+                          "word_start": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "word_end": {
+                            "type": "integer",
+                            "minimum": 1
+                          }
+                        },
+                        "required": [
+                          "surah",
+                          "ayah",
+                          "word_start",
+                          "word_end"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1,
+                      "maxItems": 32
+                    },
+                    "arabic_sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "source_text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100000
+                    },
+                    "source_text_sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "source_identity_sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "segments": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 32,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 8000
+                      }
+                    },
+                    "review_status": {
+                      "enum": [
+                        "approved",
+                        "needs_review"
+                      ]
+                    },
+                    "reviewer": {
+                      "type": "string",
+                      "maxLength": 512
+                    },
+                    "edited": {
+                      "type": "boolean"
+                    },
+                    "mapping_revision": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "required": [
+                    "binding_id",
+                    "revision",
+                    "spans",
+                    "arabic_sha256",
+                    "source_text",
+                    "source_text_sha256",
+                    "source_identity_sha256",
+                    "segments",
+                    "review_status",
+                    "reviewer",
+                    "edited",
+                    "mapping_revision"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "schema_version",
+              "source",
+              "corpus",
+              "bindings"
+            ],
+            "additionalProperties": false
+          },
+          "snapshot": {
+            "type": "object",
+            "properties": {
+              "directory": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "directory",
+              "sha256"
+            ],
+            "additionalProperties": false
+          },
+          "binding": {
+            "type": "object",
+            "properties": {
+              "binding_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "revision": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "binding_id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "font": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "license": {
+                "type": "string",
+                "maxLength": 4096
+              },
+              "attribution": {
+                "type": "string",
+                "maxLength": 4096
+              },
+              "glyph": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            },
+            "required": [
+              "path",
+              "sha256",
+              "license",
+              "attribution"
+            ],
+            "additionalProperties": false
+          },
+          "style": {
+            "type": "object",
+            "properties": {
+              "font_size": {
+                "type": "number",
+                "default": 30,
+                "description": "Font size",
+                "minimum": 1,
+                "maximum": 256,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text",
+                "x-constraints": [
+                  "min_font_size <= font_size after resolving omitted defaults"
+                ]
+              },
+              "anchor": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "default": [
+                  0.5,
+                  0.5
+                ],
+                "description": "Normalized x and baseline y in canvas coordinates",
+                "x-units": "normalized_canvas",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "region": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "minItems": 4,
+                "maxItems": 4,
+                "default": [
+                  0.05,
+                  0.05,
+                  0.95,
+                  0.95
+                ],
+                "description": "Normalized allowed rectangle: left, top, right, bottom",
+                "x-units": "normalized_canvas",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer",
+                "x-constraints": [
+                  "left < right",
+                  "top < bottom"
+                ]
+              },
+              "direction": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "rtl",
+                "description": "Direction",
+                "enum": [
+                  "rtl",
+                  "ltr"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "color": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "#FFFFFF",
+                "description": "Color",
+                "x-format": "opaque_rgb; opacity is a separate field",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "opacity": {
+                "type": "number",
+                "default": 1,
+                "description": "Opacity",
+                "minimum": 0,
+                "maximum": 1,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "z_order": {
+                "type": "integer",
+                "default": 0,
+                "description": "Z order",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Explicitly disabled layers produce no asset",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "required": {
+                "type": "boolean",
+                "default": true,
+                "description": "Missing content fails when enabled and required",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "sha256": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "",
+                "description": "Optional required primary font or image byte identity",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "outline_width": {
+                "type": "number",
+                "default": 0,
+                "description": "Outline width",
+                "minimum": 0,
+                "maximum": 8,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "outline_color": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "#000000",
+                "description": "Outline color",
+                "x-format": "opaque_rgb; opacity is a separate field",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "shadow_offset": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": -32,
+                  "maximum": 32
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "default": [
+                  0,
+                  0
+                ],
+                "description": "Shadow offset",
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "shadow_blur": {
+                "type": "number",
+                "default": 0,
+                "description": "Shadow blur",
+                "minimum": 0,
+                "maximum": 16,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "shadow_color": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "#000000",
+                "description": "Shadow color",
+                "x-format": "opaque_rgb; opacity is a separate field",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "shadow_opacity": {
+                "type": "number",
+                "default": 0,
+                "description": "Shadow opacity",
+                "minimum": 0,
+                "maximum": 1,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "suffix_scale": {
+                "type": "number",
+                "default": 0.55,
+                "description": "True verse-end number size relative to fitted body size",
+                "minimum": 0.25,
+                "maximum": 1,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "min_font_size": {
+                "type": "integer",
+                "default": 12,
+                "description": "Min font size",
+                "minimum": 1,
+                "maximum": 256,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text",
+                "x-constraints": [
+                  "min_font_size <= font_size after resolving omitted defaults"
+                ]
+              },
+              "max_lines": {
+                "type": "integer",
+                "default": 3,
+                "description": "Max lines",
+                "minimum": 1,
+                "maximum": 8,
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "line_spacing": {
+                "type": "number",
+                "default": 8,
+                "description": "Extra distance after the largest line ink height; legacy baseline rhythm",
+                "minimum": 0,
+                "maximum": 64,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "baseline_anchor": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "last",
+                "description": "Baseline anchor",
+                "enum": [
+                  "first",
+                  "last"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "fit": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "wrap",
+                "description": "Fit",
+                "enum": [
+                  "wrap",
+                  "shrink"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "alignment": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "center",
+                "description": "Alignment",
+                "enum": [
+                  "left",
+                  "center",
+                  "right"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "safe_margin": {
+                "type": "number",
+                "default": 0,
+                "description": "Safe margin",
+                "minimum": 0,
+                "maximum": 64,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "quote_open": {
+                "type": "string",
+                "maxLength": 8,
+                "default": "\ufd3f",
+                "description": "Quote open",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "quote_close": {
+                "type": "string",
+                "maxLength": 8,
+                "default": "\ufd3e",
+                "description": "Quote close",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "numeral_system": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "arabic_indic",
+                "description": "Numeral system",
+                "enum": [
+                  "latin",
+                  "arabic_indic"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "marker_prefix": {
+                "type": "string",
+                "maxLength": 8,
+                "default": "",
+                "description": "Marker prefix",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "marker_suffix": {
+                "type": "string",
+                "maxLength": 8,
+                "default": "",
+                "description": "Marker suffix",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "suffix_spacing": {
+                "type": "number",
+                "default": 3,
+                "description": "Suffix spacing",
+                "minimum": 0,
+                "maximum": 32,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "suffix_offset": {
+                "type": "number",
+                "default": 0,
+                "description": "Suffix offset",
+                "minimum": -32,
+                "maximum": 32,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "quote_spacing": {
+                "type": "number",
+                "default": 3,
+                "description": "Quote spacing",
+                "minimum": 0,
+                "maximum": 32,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "horizontal_scale": {
+                "type": "number",
+                "default": 1,
+                "description": "Scale the complete shaped line horizontally",
+                "minimum": 0.5,
+                "maximum": 2,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "decoration_scale": {
+                "type": "number",
+                "default": 1,
+                "description": "Quotation font size relative to fitted body size",
+                "minimum": 0.5,
+                "maximum": 2,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "word_spacing": {
+                "type": "number",
+                "default": 0,
+                "description": "Additional word gap in em of the final fitted font; zero preserves legacy spacing",
+                "minimum": 0,
+                "maximum": 2,
+                "x-units": "em",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text",
+                "x-constraints": [
+                  "requires native Wand-RAQM for nonzero spacing"
+                ]
+              },
+              "line_height": {
+                "type": "number",
+                "default": 0,
+                "description": "Baseline step in fitted em; zero uses legacy line_spacing",
+                "minimum": 0,
+                "maximum": 4,
+                "x-units": "em",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "tracking": {
+                "type": "number",
+                "default": 0,
+                "description": "Additional Latin grapheme gap in fitted em; optional cross-grapheme ligatures are disabled",
+                "minimum": 0,
+                "maximum": 1,
+                "x-units": "em",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text",
+                "x-constraints": [
+                  "nonzero tracking supports LTR Latin graphemes only",
+                  "combining marks remain attached"
+                ]
+              },
+              "font_face": {
+                "type": "integer",
+                "default": 0,
+                "description": "Zero-based selected collection face; ordinary fonts have only face 0",
+                "minimum": 0,
+                "maximum": 31,
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "variation_axes": {
+                "type": "object",
+                "maxProperties": 16,
+                "propertyNames": {
+                  "pattern": "^[A-Za-z0-9]{4}$"
+                },
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "default": {},
+                "description": "JSON object of selected-font axis tags and values; other axes stay at font defaults",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "font_features": {
+                "type": "array",
+                "maxItems": 32,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[+-]?[A-Za-z0-9]{4}(=[0-9]{1,3})?$"
+                },
+                "default": [],
+                "description": "JSON array of OpenType feature tags; required Arabic shaping cannot be disabled",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "font_language": {
+                "type": "string",
+                "maxLength": 32,
+                "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$",
+                "default": "",
+                "description": "Explicit BCP-47 shaping language; requires Pillow-RAQM",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "font_fallbacks": {
+                "type": "array",
+                "maxItems": 4,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "license": {
+                      "type": "string",
+                      "maxLength": 4096
+                    },
+                    "attribution": {
+                      "type": "string",
+                      "maxLength": 4096
+                    },
+                    "font_face": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 31
+                    },
+                    "variation_axes": {
+                      "type": "object",
+                      "maxProperties": 16,
+                      "propertyNames": {
+                        "pattern": "^[A-Za-z0-9]{4}$"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "sha256",
+                    "license",
+                    "attribution"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": [],
+                "description": "Ordered JSON array of pinned local fonts with license/attribution; whole-layer fallback preserves joins and marks",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "decoration_layout": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "legacy",
+                "description": "Legacy pixels or independently styled source-associated elements",
+                "enum": [
+                  "legacy",
+                  "elements"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "quotation_style": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Explicitly disabled layers produce no asset",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "layer",
+                    "x-default-source": "body"
+                  },
+                  "color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#FFFFFF",
+                    "description": "Color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "opacity": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Opacity",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "x-units": "ratio",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "layer",
+                    "x-default-source": "body"
+                  },
+                  "outline_width": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Outline width",
+                    "minimum": 0,
+                    "maximum": 8,
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "outline_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000",
+                    "description": "Outline color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_offset": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": -32,
+                      "maximum": 32
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "default": [
+                      0,
+                      0
+                    ],
+                    "description": "Shadow offset",
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_blur": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Shadow blur",
+                    "minimum": 0,
+                    "maximum": 16,
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000",
+                    "description": "Shadow color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_opacity": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Shadow opacity",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "x-units": "ratio",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_face": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Zero-based selected collection face; ordinary fonts have only face 0",
+                    "minimum": 0,
+                    "maximum": 31,
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "variation_axes": {
+                    "type": "object",
+                    "maxProperties": 16,
+                    "propertyNames": {
+                      "pattern": "^[A-Za-z0-9]{4}$"
+                    },
+                    "additionalProperties": {
+                      "type": "number"
+                    },
+                    "default": {},
+                    "description": "JSON object of selected-font axis tags and values; other axes stay at font defaults",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_features": {
+                    "type": "array",
+                    "maxItems": 32,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[+-]?[A-Za-z0-9]{4}(=[0-9]{1,3})?$"
+                    },
+                    "default": [],
+                    "description": "JSON array of OpenType feature tags; required Arabic shaping cannot be disabled",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_language": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$",
+                    "default": "",
+                    "description": "Explicit BCP-47 shaping language; requires Pillow-RAQM",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_fallbacks": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "license": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "attribution": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "font_face": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 31
+                        },
+                        "variation_axes": {
+                          "type": "object",
+                          "maxProperties": 16,
+                          "propertyNames": {
+                            "pattern": "^[A-Za-z0-9]{4}$"
+                          },
+                          "additionalProperties": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "sha256",
+                        "license",
+                        "attribution"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": [],
+                    "description": "Ordered JSON array of pinned local fonts with license/attribution; whole-layer fallback preserves joins and marks",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "rtl",
+                    "description": "Direction",
+                    "enum": [
+                      "rtl",
+                      "ltr"
+                    ],
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "offset": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": -32,
+                      "maximum": 32
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "default": [
+                      0,
+                      0
+                    ],
+                    "x-units": "reference_pixels",
+                    "x-scaling": "canvas_width/576"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false,
+                "default": {},
+                "description": "JSON element style; omitted fields inherit body choices",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "marker_style": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Explicitly disabled layers produce no asset",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "layer",
+                    "x-default-source": "body"
+                  },
+                  "color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#FFFFFF",
+                    "description": "Color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "opacity": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Opacity",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "x-units": "ratio",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "layer",
+                    "x-default-source": "body"
+                  },
+                  "outline_width": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Outline width",
+                    "minimum": 0,
+                    "maximum": 8,
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "outline_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000",
+                    "description": "Outline color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_offset": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": -32,
+                      "maximum": 32
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "default": [
+                      0,
+                      0
+                    ],
+                    "description": "Shadow offset",
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_blur": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Shadow blur",
+                    "minimum": 0,
+                    "maximum": 16,
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000",
+                    "description": "Shadow color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_opacity": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Shadow opacity",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "x-units": "ratio",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_face": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Zero-based selected collection face; ordinary fonts have only face 0",
+                    "minimum": 0,
+                    "maximum": 31,
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "variation_axes": {
+                    "type": "object",
+                    "maxProperties": 16,
+                    "propertyNames": {
+                      "pattern": "^[A-Za-z0-9]{4}$"
+                    },
+                    "additionalProperties": {
+                      "type": "number"
+                    },
+                    "default": {},
+                    "description": "JSON object of selected-font axis tags and values; other axes stay at font defaults",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_features": {
+                    "type": "array",
+                    "maxItems": 32,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[+-]?[A-Za-z0-9]{4}(=[0-9]{1,3})?$"
+                    },
+                    "default": [],
+                    "description": "JSON array of OpenType feature tags; required Arabic shaping cannot be disabled",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_language": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$",
+                    "default": "",
+                    "description": "Explicit BCP-47 shaping language; requires Pillow-RAQM",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_fallbacks": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "license": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "attribution": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "font_face": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 31
+                        },
+                        "variation_axes": {
+                          "type": "object",
+                          "maxProperties": 16,
+                          "propertyNames": {
+                            "pattern": "^[A-Za-z0-9]{4}$"
+                          },
+                          "additionalProperties": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "sha256",
+                        "license",
+                        "attribution"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": [],
+                    "description": "Ordered JSON array of pinned local fonts with license/attribution; whole-layer fallback preserves joins and marks",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "rtl",
+                    "description": "Direction",
+                    "enum": [
+                      "rtl",
+                      "ltr"
+                    ],
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "offset": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": -32,
+                      "maximum": 32
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "default": [
+                      0,
+                      0
+                    ],
+                    "x-units": "reference_pixels",
+                    "x-scaling": "canvas_width/576"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false,
+                "default": {},
+                "description": "JSON true-ending marker style; omitted fields inherit body choices",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "quote_open_enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Quote open enabled",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "quote_close_enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Quote close enabled",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "marker_placement": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "adjacent",
+                "description": "Adjacent to the real ending, or after the closing quote for the final ending",
+                "enum": [
+                  "adjacent",
+                  "after_quote"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "panel": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "mode": {
+                    "enum": [
+                      "block",
+                      "line",
+                      "region"
+                    ],
+                    "default": "block"
+                  },
+                  "color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000"
+                  },
+                  "opacity": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0.6
+                  },
+                  "padding": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 64
+                    },
+                    "default": [
+                      0.5,
+                      0.35
+                    ]
+                  },
+                  "unit": {
+                    "enum": [
+                      "em",
+                      "reference_pixels"
+                    ],
+                    "default": "em"
+                  },
+                  "corner_radius": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 64,
+                    "default": 0.25
+                  },
+                  "border_width": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16,
+                    "default": 0
+                  },
+                  "border_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000"
+                  },
+                  "shadow_offset": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number",
+                      "minimum": -32,
+                      "maximum": 32
+                    },
+                    "default": [
+                      0,
+                      0
+                    ]
+                  },
+                  "shadow_blur": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16,
+                    "default": 0
+                  },
+                  "shadow_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000"
+                  },
+                  "shadow_opacity": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0
+                  },
+                  "inset": {
+                    "enum": [
+                      "effects",
+                      "ink"
+                    ],
+                    "default": "effects"
+                  },
+                  "region": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                },
+                "required": [],
+                "additionalProperties": false,
+                "default": {},
+                "description": "JSON backplate style with independent fill/alpha, padding, border, corners and shadow; empty object disables it",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "scale_basis": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "width",
+                "description": "Reference dimensions use width/576, short-side/576, or fixed output pixels",
+                "enum": [
+                  "width",
+                  "short_side",
+                  "pixels"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "anchor_mode": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "baseline",
+                "description": "Legacy baseline, or glyph/decorated ink/effect-block top/middle/bottom",
+                "enum": [
+                  "baseline",
+                  "ink_top",
+                  "ink_middle",
+                  "ink_bottom",
+                  "block_top",
+                  "block_middle",
+                  "block_bottom"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "anchor_space": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "canvas",
+                "description": "Normalized anchor in canvas or the caller's allowed region",
+                "enum": [
+                  "canvas",
+                  "region"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "anchor_horizontal": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "center",
+                "description": "Reading start/center/end for ink/block anchor modes",
+                "enum": [
+                  "start",
+                  "center",
+                  "end"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "metadata": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "track_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "annotations": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "properties": {
+          "annotation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+          },
+          "kind": {
+            "enum": [
+              "source_reference",
+              "edition_label",
+              "annotation"
+            ]
+          },
+          "format": {
+            "enum": [
+              "compact",
+              "words",
+              "named"
+            ],
+            "default": "words"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "track_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+          },
+          "approved": {
+            "type": "boolean",
+            "default": false
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "font": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "license": {
+                "type": "string",
+                "maxLength": 4096
+              },
+              "attribution": {
+                "type": "string",
+                "maxLength": 4096
+              },
+              "glyph": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            },
+            "required": [
+              "path",
+              "sha256",
+              "license",
+              "attribution"
+            ],
+            "additionalProperties": false
+          },
+          "style": {
+            "type": "object",
+            "properties": {
+              "font_size": {
+                "type": "number",
+                "default": 30,
+                "description": "Font size",
+                "minimum": 1,
+                "maximum": 256,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text",
+                "x-constraints": [
+                  "min_font_size <= font_size after resolving omitted defaults"
+                ]
+              },
+              "anchor": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "default": [
+                  0.5,
+                  0.5
+                ],
+                "description": "Normalized x and baseline y in canvas coordinates",
+                "x-units": "normalized_canvas",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "region": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "minItems": 4,
+                "maxItems": 4,
+                "default": [
+                  0.05,
+                  0.05,
+                  0.95,
+                  0.95
+                ],
+                "description": "Normalized allowed rectangle: left, top, right, bottom",
+                "x-units": "normalized_canvas",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer",
+                "x-constraints": [
+                  "left < right",
+                  "top < bottom"
+                ]
+              },
+              "direction": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "rtl",
+                "description": "Direction",
+                "enum": [
+                  "rtl",
+                  "ltr"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "color": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "#FFFFFF",
+                "description": "Color",
+                "x-format": "opaque_rgb; opacity is a separate field",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "opacity": {
+                "type": "number",
+                "default": 1,
+                "description": "Opacity",
+                "minimum": 0,
+                "maximum": 1,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "z_order": {
+                "type": "integer",
+                "default": 0,
+                "description": "Z order",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Explicitly disabled layers produce no asset",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "required": {
+                "type": "boolean",
+                "default": true,
+                "description": "Missing content fails when enabled and required",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "sha256": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "",
+                "description": "Optional required primary font or image byte identity",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "outline_width": {
+                "type": "number",
+                "default": 0,
+                "description": "Outline width",
+                "minimum": 0,
+                "maximum": 8,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "outline_color": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "#000000",
+                "description": "Outline color",
+                "x-format": "opaque_rgb; opacity is a separate field",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "shadow_offset": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": -32,
+                  "maximum": 32
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "default": [
+                  0,
+                  0
+                ],
+                "description": "Shadow offset",
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "shadow_blur": {
+                "type": "number",
+                "default": 0,
+                "description": "Shadow blur",
+                "minimum": 0,
+                "maximum": 16,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "shadow_color": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "#000000",
+                "description": "Shadow color",
+                "x-format": "opaque_rgb; opacity is a separate field",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "shadow_opacity": {
+                "type": "number",
+                "default": 0,
+                "description": "Shadow opacity",
+                "minimum": 0,
+                "maximum": 1,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "suffix_scale": {
+                "type": "number",
+                "default": 0.55,
+                "description": "True verse-end number size relative to fitted body size",
+                "minimum": 0.25,
+                "maximum": 1,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "min_font_size": {
+                "type": "integer",
+                "default": 12,
+                "description": "Min font size",
+                "minimum": 1,
+                "maximum": 256,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text",
+                "x-constraints": [
+                  "min_font_size <= font_size after resolving omitted defaults"
+                ]
+              },
+              "max_lines": {
+                "type": "integer",
+                "default": 3,
+                "description": "Max lines",
+                "minimum": 1,
+                "maximum": 8,
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "line_spacing": {
+                "type": "number",
+                "default": 8,
+                "description": "Extra distance after the largest line ink height; legacy baseline rhythm",
+                "minimum": 0,
+                "maximum": 64,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "baseline_anchor": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "last",
+                "description": "Baseline anchor",
+                "enum": [
+                  "first",
+                  "last"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "fit": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "wrap",
+                "description": "Fit",
+                "enum": [
+                  "wrap",
+                  "shrink"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "alignment": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "center",
+                "description": "Alignment",
+                "enum": [
+                  "left",
+                  "center",
+                  "right"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "safe_margin": {
+                "type": "number",
+                "default": 0,
+                "description": "Safe margin",
+                "minimum": 0,
+                "maximum": 64,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "layer"
+              },
+              "quote_open": {
+                "type": "string",
+                "maxLength": 8,
+                "default": "\ufd3f",
+                "description": "Quote open",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "quote_close": {
+                "type": "string",
+                "maxLength": 8,
+                "default": "\ufd3e",
+                "description": "Quote close",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "numeral_system": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "arabic_indic",
+                "description": "Numeral system",
+                "enum": [
+                  "latin",
+                  "arabic_indic"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "marker_prefix": {
+                "type": "string",
+                "maxLength": 8,
+                "default": "",
+                "description": "Marker prefix",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "marker_suffix": {
+                "type": "string",
+                "maxLength": 8,
+                "default": "",
+                "description": "Marker suffix",
+                "pattern": "^\\S*$",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "suffix_spacing": {
+                "type": "number",
+                "default": 3,
+                "description": "Suffix spacing",
+                "minimum": 0,
+                "maximum": 32,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "suffix_offset": {
+                "type": "number",
+                "default": 0,
+                "description": "Suffix offset",
+                "minimum": -32,
+                "maximum": 32,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "quote_spacing": {
+                "type": "number",
+                "default": 3,
+                "description": "Quote spacing",
+                "minimum": 0,
+                "maximum": 32,
+                "x-units": "reference_pixels",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "horizontal_scale": {
+                "type": "number",
+                "default": 1,
+                "description": "Scale the complete shaped line horizontally",
+                "minimum": 0.5,
+                "maximum": 2,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "decoration_scale": {
+                "type": "number",
+                "default": 1,
+                "description": "Quotation font size relative to fitted body size",
+                "minimum": 0.5,
+                "maximum": 2,
+                "x-units": "ratio",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "word_spacing": {
+                "type": "number",
+                "default": 0,
+                "description": "Additional word gap in em of the final fitted font; zero preserves legacy spacing",
+                "minimum": 0,
+                "maximum": 2,
+                "x-units": "em",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text",
+                "x-constraints": [
+                  "requires native Wand-RAQM for nonzero spacing"
+                ]
+              },
+              "line_height": {
+                "type": "number",
+                "default": 0,
+                "description": "Baseline step in fitted em; zero uses legacy line_spacing",
+                "minimum": 0,
+                "maximum": 4,
+                "x-units": "em",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "tracking": {
+                "type": "number",
+                "default": 0,
+                "description": "Additional Latin grapheme gap in fitted em; optional cross-grapheme ligatures are disabled",
+                "minimum": 0,
+                "maximum": 1,
+                "x-units": "em",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text",
+                "x-constraints": [
+                  "nonzero tracking supports LTR Latin graphemes only",
+                  "combining marks remain attached"
+                ]
+              },
+              "font_face": {
+                "type": "integer",
+                "default": 0,
+                "description": "Zero-based selected collection face; ordinary fonts have only face 0",
+                "minimum": 0,
+                "maximum": 31,
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "variation_axes": {
+                "type": "object",
+                "maxProperties": 16,
+                "propertyNames": {
+                  "pattern": "^[A-Za-z0-9]{4}$"
+                },
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "default": {},
+                "description": "JSON object of selected-font axis tags and values; other axes stay at font defaults",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "font_features": {
+                "type": "array",
+                "maxItems": 32,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[+-]?[A-Za-z0-9]{4}(=[0-9]{1,3})?$"
+                },
+                "default": [],
+                "description": "JSON array of OpenType feature tags; required Arabic shaping cannot be disabled",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "font_language": {
+                "type": "string",
+                "maxLength": 32,
+                "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$",
+                "default": "",
+                "description": "Explicit BCP-47 shaping language; requires Pillow-RAQM",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "font_fallbacks": {
+                "type": "array",
+                "maxItems": 4,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "license": {
+                      "type": "string",
+                      "maxLength": 4096
+                    },
+                    "attribution": {
+                      "type": "string",
+                      "maxLength": 4096
+                    },
+                    "font_face": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 31
+                    },
+                    "variation_axes": {
+                      "type": "object",
+                      "maxProperties": 16,
+                      "propertyNames": {
+                        "pattern": "^[A-Za-z0-9]{4}$"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "sha256",
+                    "license",
+                    "attribution"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": [],
+                "description": "Ordered JSON array of pinned local fonts with license/attribution; whole-layer fallback preserves joins and marks",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "decoration_layout": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "legacy",
+                "description": "Legacy pixels or independently styled source-associated elements",
+                "enum": [
+                  "legacy",
+                  "elements"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "quotation_style": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Explicitly disabled layers produce no asset",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "layer",
+                    "x-default-source": "body"
+                  },
+                  "color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#FFFFFF",
+                    "description": "Color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "opacity": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Opacity",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "x-units": "ratio",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "layer",
+                    "x-default-source": "body"
+                  },
+                  "outline_width": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Outline width",
+                    "minimum": 0,
+                    "maximum": 8,
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "outline_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000",
+                    "description": "Outline color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_offset": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": -32,
+                      "maximum": 32
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "default": [
+                      0,
+                      0
+                    ],
+                    "description": "Shadow offset",
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_blur": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Shadow blur",
+                    "minimum": 0,
+                    "maximum": 16,
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000",
+                    "description": "Shadow color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_opacity": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Shadow opacity",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "x-units": "ratio",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_face": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Zero-based selected collection face; ordinary fonts have only face 0",
+                    "minimum": 0,
+                    "maximum": 31,
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "variation_axes": {
+                    "type": "object",
+                    "maxProperties": 16,
+                    "propertyNames": {
+                      "pattern": "^[A-Za-z0-9]{4}$"
+                    },
+                    "additionalProperties": {
+                      "type": "number"
+                    },
+                    "default": {},
+                    "description": "JSON object of selected-font axis tags and values; other axes stay at font defaults",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_features": {
+                    "type": "array",
+                    "maxItems": 32,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[+-]?[A-Za-z0-9]{4}(=[0-9]{1,3})?$"
+                    },
+                    "default": [],
+                    "description": "JSON array of OpenType feature tags; required Arabic shaping cannot be disabled",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_language": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$",
+                    "default": "",
+                    "description": "Explicit BCP-47 shaping language; requires Pillow-RAQM",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_fallbacks": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "license": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "attribution": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "font_face": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 31
+                        },
+                        "variation_axes": {
+                          "type": "object",
+                          "maxProperties": 16,
+                          "propertyNames": {
+                            "pattern": "^[A-Za-z0-9]{4}$"
+                          },
+                          "additionalProperties": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "sha256",
+                        "license",
+                        "attribution"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": [],
+                    "description": "Ordered JSON array of pinned local fonts with license/attribution; whole-layer fallback preserves joins and marks",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "rtl",
+                    "description": "Direction",
+                    "enum": [
+                      "rtl",
+                      "ltr"
+                    ],
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "offset": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": -32,
+                      "maximum": 32
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "default": [
+                      0,
+                      0
+                    ],
+                    "x-units": "reference_pixels",
+                    "x-scaling": "canvas_width/576"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false,
+                "default": {},
+                "description": "JSON element style; omitted fields inherit body choices",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "marker_style": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Explicitly disabled layers produce no asset",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "layer",
+                    "x-default-source": "body"
+                  },
+                  "color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#FFFFFF",
+                    "description": "Color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "opacity": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Opacity",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "x-units": "ratio",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "layer",
+                    "x-default-source": "body"
+                  },
+                  "outline_width": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Outline width",
+                    "minimum": 0,
+                    "maximum": 8,
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "outline_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000",
+                    "description": "Outline color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_offset": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": -32,
+                      "maximum": 32
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "default": [
+                      0,
+                      0
+                    ],
+                    "description": "Shadow offset",
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_blur": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Shadow blur",
+                    "minimum": 0,
+                    "maximum": 16,
+                    "x-units": "reference_pixels",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000",
+                    "description": "Shadow color",
+                    "x-format": "opaque_rgb; opacity is a separate field",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "shadow_opacity": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Shadow opacity",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "x-units": "ratio",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_face": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Zero-based selected collection face; ordinary fonts have only face 0",
+                    "minimum": 0,
+                    "maximum": 31,
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "variation_axes": {
+                    "type": "object",
+                    "maxProperties": 16,
+                    "propertyNames": {
+                      "pattern": "^[A-Za-z0-9]{4}$"
+                    },
+                    "additionalProperties": {
+                      "type": "number"
+                    },
+                    "default": {},
+                    "description": "JSON object of selected-font axis tags and values; other axes stay at font defaults",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_features": {
+                    "type": "array",
+                    "maxItems": 32,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[+-]?[A-Za-z0-9]{4}(=[0-9]{1,3})?$"
+                    },
+                    "default": [],
+                    "description": "JSON array of OpenType feature tags; required Arabic shaping cannot be disabled",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_language": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$",
+                    "default": "",
+                    "description": "Explicit BCP-47 shaping language; requires Pillow-RAQM",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "font_fallbacks": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "license": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "attribution": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "font_face": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 31
+                        },
+                        "variation_axes": {
+                          "type": "object",
+                          "maxProperties": 16,
+                          "propertyNames": {
+                            "pattern": "^[A-Za-z0-9]{4}$"
+                          },
+                          "additionalProperties": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "sha256",
+                        "license",
+                        "attribution"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": [],
+                    "description": "Ordered JSON array of pinned local fonts with license/attribution; whole-layer fallback preserves joins and marks",
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "rtl",
+                    "description": "Direction",
+                    "enum": [
+                      "rtl",
+                      "ltr"
+                    ],
+                    "x-units": "unitless",
+                    "x-scaling": "none",
+                    "x-roles": [
+                      "arabic",
+                      "translation",
+                      "arabic_title",
+                      "latin_title",
+                      "logo",
+                      "source_reference",
+                      "edition_label",
+                      "annotation"
+                    ],
+                    "x-applies-to": "text",
+                    "x-default-source": "body"
+                  },
+                  "offset": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": -32,
+                      "maximum": 32
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "default": [
+                      0,
+                      0
+                    ],
+                    "x-units": "reference_pixels",
+                    "x-scaling": "canvas_width/576"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false,
+                "default": {},
+                "description": "JSON true-ending marker style; omitted fields inherit body choices",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "quote_open_enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Quote open enabled",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "quote_close_enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Quote close enabled",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "marker_placement": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "adjacent",
+                "description": "Adjacent to the real ending, or after the closing quote for the final ending",
+                "enum": [
+                  "adjacent",
+                  "after_quote"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic"
+                ],
+                "x-applies-to": "text"
+              },
+              "panel": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "mode": {
+                    "enum": [
+                      "block",
+                      "line",
+                      "region"
+                    ],
+                    "default": "block"
+                  },
+                  "color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000"
+                  },
+                  "opacity": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0.6
+                  },
+                  "padding": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 64
+                    },
+                    "default": [
+                      0.5,
+                      0.35
+                    ]
+                  },
+                  "unit": {
+                    "enum": [
+                      "em",
+                      "reference_pixels"
+                    ],
+                    "default": "em"
+                  },
+                  "corner_radius": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 64,
+                    "default": 0.25
+                  },
+                  "border_width": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16,
+                    "default": 0
+                  },
+                  "border_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000"
+                  },
+                  "shadow_offset": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number",
+                      "minimum": -32,
+                      "maximum": 32
+                    },
+                    "default": [
+                      0,
+                      0
+                    ]
+                  },
+                  "shadow_blur": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16,
+                    "default": 0
+                  },
+                  "shadow_color": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "default": "#000000"
+                  },
+                  "shadow_opacity": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0
+                  },
+                  "inset": {
+                    "enum": [
+                      "effects",
+                      "ink"
+                    ],
+                    "default": "effects"
+                  },
+                  "region": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                },
+                "required": [],
+                "additionalProperties": false,
+                "default": {},
+                "description": "JSON backplate style with independent fill/alpha, padding, border, corners and shadow; empty object disables it",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "scale_basis": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "width",
+                "description": "Reference dimensions use width/576, short-side/576, or fixed output pixels",
+                "enum": [
+                  "width",
+                  "short_side",
+                  "pixels"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "anchor_mode": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "baseline",
+                "description": "Legacy baseline, or glyph/decorated ink/effect-block top/middle/bottom",
+                "enum": [
+                  "baseline",
+                  "ink_top",
+                  "ink_middle",
+                  "ink_bottom",
+                  "block_top",
+                  "block_middle",
+                  "block_bottom"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "anchor_space": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "canvas",
+                "description": "Normalized anchor in canvas or the caller's allowed region",
+                "enum": [
+                  "canvas",
+                  "region"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              },
+              "anchor_horizontal": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "center",
+                "description": "Reading start/center/end for ink/block anchor modes",
+                "enum": [
+                  "start",
+                  "center",
+                  "end"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo",
+                  "source_reference",
+                  "edition_label",
+                  "annotation"
+                ],
+                "x-applies-to": "text"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "annotation_id",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
     "translation_resource": {
       "type": "string",
       "minLength": 1,
@@ -2472,6 +7041,36 @@
           },
           "preview_unreviewed_translation": {
             "type": "boolean"
+          },
+          "track_bindings": {
+            "type": "object",
+            "maxProperties": 8,
+            "propertyNames": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "binding_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "revision": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                }
+              },
+              "required": [
+                "binding_id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
           },
           "metadata": {
             "type": "object"

@@ -117,6 +117,12 @@ The error record includes retryability; repairing input differs from retrying I/
 
 ## Machine invocation
 
+Renderer 0.3.13 supports independently verified and styled
+[translation tracks and reference labels](translation-tracks.md). These are
+opt-in schema-1 additions; legacy single-translation requests retain their
+defaults. Instance IDs, exact binding revisions and explicit combined layout
+are required for the new workflow.
+
 ```
 quran-caption-render --capabilities
 quran-caption-render --request "caption plan.json"

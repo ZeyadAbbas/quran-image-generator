@@ -223,6 +223,43 @@ BINDING_DATASET = obj(
     },
     ("schema_version", "source", "corpus", "bindings"),
 )
+INSTANCE_ID = {"type": "string", "minLength": 1, "maxLength": 64,
+               "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"}
+TRACK_BINDING = obj({"binding_id": TEXT, "revision": TEXT}, ("binding_id", "revision"))
+TRANSLATION_TRACK = obj({
+    "track_id": INSTANCE_ID, "enabled": {"type": "boolean", "default": True},
+    "language": {"type": "string", "maxLength": 32, "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$", "default": ""},
+    "translation_policy": {"enum": ["none", "review", "required"], "default": "required"},
+    "preview_unreviewed_translation": {"type": "boolean", "default": False},
+    "dataset": BINDING_DATASET,
+    "snapshot": obj({"directory": {"type": "string", "minLength": 1, "maxLength": 4096}, "sha256": HASH}, ("directory", "sha256")),
+    "binding": TRACK_BINDING, "font": ASSET, "style": style_schema(), "metadata": {"type": "object"},
+}, ("track_id",))
+ANNOTATION = obj({
+    "annotation_id": INSTANCE_ID, "kind": {"enum": ["source_reference", "edition_label", "annotation"]},
+    "format": {"enum": ["compact", "words", "named"], "default": "words"},
+    "text": {"type": "string", "minLength": 1, "maxLength": 512}, "track_id": INSTANCE_ID,
+    "approved": {"type": "boolean", "default": False}, "enabled": {"type": "boolean", "default": True},
+    "font": ASSET, "style": style_schema(),
+}, ("annotation_id", "kind"))
+TRACK_RESULT_PROPERTIES = {
+    "track_id": INSTANCE_ID, "language": TRANSLATION_TRACK["properties"]["language"],
+    "status": {"enum": ["ready", "disabled", "omitted_optional", "needs_review"]},
+    "source": {"anyOf": [{"type": "null"}, TRANSLATION_SOURCE]},
+    "binding": {"anyOf": [{"type": "null"}, BINDING]},
+    "font": {"anyOf": [{"type": "null"}, ASSET]}, "metadata": {"type": "object"},
+    "policy": TRANSLATION_TRACK["properties"]["translation_policy"],
+    "snapshot": {"anyOf": [{"type": "null"}, TRANSLATION_TRACK["properties"]["snapshot"]]},
+    "displayed": {"type": "boolean"},
+}
+TRACK_RESULT = obj(TRACK_RESULT_PROPERTIES, tuple(TRACK_RESULT_PROPERTIES))
+ANNOTATION_RESULT_PROPERTIES = {
+    "annotation_id": INSTANCE_ID, "kind": ANNOTATION["properties"]["kind"],
+    "text": {"type": "string", "maxLength": 512}, "approved": {"type": "boolean"},
+    "track_id": {"anyOf": [{"type": "null"}, INSTANCE_ID]},
+    "font": {"anyOf": [{"type": "null"}, ASSET]}, "enabled": {"type": "boolean"},
+}
+ANNOTATION_RESULT = obj(ANNOTATION_RESULT_PROPERTIES, tuple(ANNOTATION_RESULT_PROPERTIES))
 CUE = obj(
     {
         "cue_id": TEXT,
@@ -230,6 +267,7 @@ CUE = obj(
         "translation_policy": {"enum": ["none", "review", "required"]},
         "translation_binding_id": TEXT,
         "preview_unreviewed_translation": {"type": "boolean"},
+        "track_bindings": {"type": "object", "maxProperties": 8, "propertyNames": INSTANCE_ID, "additionalProperties": TRACK_BINDING},
         "metadata": {"type": "object"},
         "title_surah": {"type": "integer", "minimum": 1, "maximum": 114},
         "arabic_title": {"type": "string", "maxLength": 256},
@@ -287,6 +325,8 @@ REQUEST_SCHEMA = {
                 "additionalProperties": False,
             },
             "translation_dataset": BINDING_DATASET,
+            "translation_tracks": {"type": "array", "maxItems": 8, "items": TRANSLATION_TRACK},
+            "annotations": {"type": "array", "maxItems": 4, "items": ANNOTATION},
             "translation_resource": TEXT,
             "translation_language": TEXT,
             "snapshot_directory": {"type": "string", "minLength": 1, "maxLength": 4096},
@@ -534,6 +574,8 @@ RESPONSE_SCHEMA = {
                                 ),
                             ]
                         },
+                        "translation_tracks": {"type": "array", "maxItems": 8, "items": TRACK_RESULT},
+                        "annotations": {"type": "array", "maxItems": 4, "items": ANNOTATION_RESULT},
                         "metadata": {"type": "object"},
                         "layers": {"type": "array", "items": LAYER_PLAN},
                         "inspection": {"type": "object"},
@@ -563,6 +605,7 @@ RESPONSE_SCHEMA = {
                         "alpha_mode": {"const": "straight"},
                         "color_space": {"const": "sRGB"},
                         "roles": {"type": "array", "items": {"type": "string"}},
+                        "instance_ids": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 128}},
                         "persistent": {"type": "boolean"},
                         "effect_bounds": PIXEL_BOX,
                         "anchor": POINT,

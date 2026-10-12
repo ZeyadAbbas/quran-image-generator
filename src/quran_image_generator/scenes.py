@@ -355,7 +355,12 @@ def plan_scene(scene: Scene) -> tuple[LayerPlan, ...]:
         from .caption_fit import plan_text
         from .panels import plan_panel_text
 
-        plans.append(plan_panel_text(scene, layer, digest) if layer.panel else plan_text(scene, layer, digest))
+        try:
+            plans.append(plan_panel_text(scene, layer, digest) if layer.panel else plan_text(scene, layer, digest))
+        except ReferenceError as error:
+            if layer.instance_id:
+                error.details = {**getattr(error, "details", {}), "layer_id": layer.instance_id}
+            raise
     if scene.groups:
         from .panels import group_panel_plans
 

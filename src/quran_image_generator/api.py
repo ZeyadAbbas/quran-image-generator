@@ -43,9 +43,18 @@ from .scenes import (
     render_layer,
 )
 from .snapshots import SnapshotStore, canonical_bytes
+from .translation_tracks import (
+    PreparedTrack,
+    check_instance_collisions,
+    enforce_instance_layout,
+    prepare_tracks,
+    resolve_annotations,
+    resolve_tracks,
+    validate_instances,
+)
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.3.12"
+RENDERER_VERSION = "0.3.13"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -78,6 +87,7 @@ class RenderRequest:
             raise ReferenceError(
                 "invalid_request", "Choose one translation dataset or pinned snapshot"
             )
+        validate_instances(value)
         if any(
             "glyph" in asset and role != "logo"
             for role, asset in value.get("assets", {}).items()
@@ -146,7 +156,7 @@ def capabilities() -> dict[str, Any]:
         },
         "profiles": [{"id": "plain", "revision": "1", "approval": "approved"}],
         "custom_profiles": True,
-        "layer_roles": ["arabic", "translation", "arabic_title", "latin_title", "logo", "panel"],
+        "layer_roles": ["arabic", "translation", "arabic_title", "latin_title", "logo", "panel", "source_reference", "edition_label", "annotation"],
         "style_fields": sorted(style_schema()["properties"]),
         "style_contract": style_descriptor(),
         "features": {
@@ -180,6 +190,9 @@ def capabilities() -> dict[str, Any]:
             "offline_translation_snapshots": True,
             "translation_source_preparation": True,
             "unreviewed_translation_preview": True,
+            "independent_translation_tracks": True,
+            "verified_source_labels": True,
+            "approved_presentation_annotations": True,
         },
         "limits": {
             "request_bytes": MAX_REQUEST_BYTES,
@@ -189,6 +202,9 @@ def capabilities() -> dict[str, Any]:
             "canvas_pixels": 8_500_000,
             "tracked_graphemes_per_line": 512,
             "group_fit_attempts": 257,
+            "translation_tracks": 8,
+            "annotations": 4,
+            "annotation_characters": 512,
         },
         "alpha_mode": "straight",
         "color_space": "sRGB",
@@ -214,6 +230,11 @@ def style_descriptor() -> dict[str, Any]:
         "schema_version": 1,
         "fields": fields,
         "role_defaults": {role: default_styles(role) for role in LAYER_ROLES},
+        "instance_defaults": {
+            "translation": {**default_styles("translation"), "anchor": [0.5, 0.5], "region": [0.05, 0.05, 0.95, 0.95]},
+            "annotation": {**default_styles("translation"), "font_size": 12, "z_order": 10, "anchor": [0.5, 0.5], "region": [0.05, 0.05, 0.95, 0.95]},
+        },
+        "instance_index_adjusted_defaults": ["z_order"],
         "request_schema": REQUEST_SCHEMA,
         "request_defaults": {"titles": False, "quotations": False, "verse_numbers": False,
                              "cropped": False, "error_mode": "all_or_nothing",
@@ -293,6 +314,7 @@ def _prepare_cue(
     root: Path,
     dataset: BindingDataset | None,
     font_workspace: FontWorkspace,
+    tracks: tuple[PreparedTrack, ...] = (),
 ) -> tuple[dict[str, Any], Scene, tuple[LayerPlan, ...]]:
     spans = tuple(SourceSpan(**span) for span in cue["spans"])
     policy = cue.get("translation_policy", "none")
@@ -369,6 +391,12 @@ def _prepare_cue(
             )
         warnings.append("profile_review_required")
     scene = profile.apply(scene)
+    track_layers, track_records, track_warnings = resolve_tracks(tracks, cue, excerpt, root)
+    annotation_layers, annotation_records = resolve_annotations(data, excerpt, track_records, root)
+    warnings.extend(track_warnings)
+    scene = replace(scene, layers=(*scene.layers, *track_layers, *annotation_layers))
+    instance_specs = {item["track_id"]: ("translation_tracks", index, item) for index, item in enumerate(data.get("translation_tracks", []))}
+    instance_specs.update({item["annotation_id"]: ("annotations", index, item) for index, item in enumerate(data.get("annotations", []))})
     if "quotes" in assets or "markers" in assets:
         scene = replace(scene, layers=tuple(replace(layer, decoration_layout="elements") if layer.role == "arabic" else layer for layer in scene.layers))
     if "decorations" in assets:
@@ -394,7 +422,7 @@ def _prepare_cue(
     )
     layers = []
     for layer in scene.layers:
-        if layer.role in assets:
+        if not layer.instance_id and layer.role in assets:
             selector = assets[layer.role]
             path = str(_local_path(selector["path"], root))
             checked_asset(path, selector["sha256"])
@@ -403,7 +431,7 @@ def _prepare_cue(
                 if layer.role == "logo" and not selector.get("glyph")
                 else replace(layer, font=path, sha256=selector["sha256"])
             )
-        if layer.role == "translation" and dataset is not None:
+        if not layer.instance_id and layer.role == "translation" and dataset is not None:
             layer = replace(layer, direction=dataset.source.direction)
         if layer.font_fallbacks:
             layer = replace(layer, font_fallbacks=tuple({**selector, "path": str(_local_path(selector["path"], root))} for selector in layer.font_fallbacks))
@@ -416,16 +444,26 @@ def _prepare_cue(
     resolved_layers = []
     for layer in scene.layers:
         try:
-            resolved_layers.append(font_workspace.prepare(layer, primary_terms=assets.get(layer.role)))
+            if layer.instance_id:
+                Scene(scene.width, scene.height, (layer,)).validate()
+            terms = instance_specs[layer.instance_id][2].get("font") if layer.instance_id else assets.get(layer.role)
+            resolved_layers.append(font_workspace.prepare(layer, primary_terms=terms))
         except ReferenceError as error:
             error.details = getattr(error, "details", {})
             error.details["role"] = layer.role
+            if layer.instance_id:
+                collection, index, _ = instance_specs[layer.instance_id]
+                error.details["layer_id"] = layer.instance_id
+                field = error.details.get("field") or error.details.get("path", "").split("/")[-1] or "font"
+                error.details["path"] = f"/{collection}/{index}/style/" + field + error.details.get("path_suffix", "")
             raise
     scene = replace(scene, layers=tuple(resolved_layers), groups=tuple(data.get("caption_groups", ())))
     from .decoration_elements import prepare_element_fonts
 
     scene = replace(scene, layers=tuple(prepare_element_fonts(layer, assets, root, font_workspace) for layer in scene.layers))
+    enforce_instance_layout(scene)
     plans = plan_scene(scene)
+    check_instance_collisions(plans)
     entry = {
             "cue_id": cue["cue_id"],
             "status": "needs_review" if warnings else "ready",
@@ -437,6 +475,10 @@ def _prepare_cue(
             "asset_ids": [],
             "warnings": warnings,
         }
+    if "translation_tracks" in data:
+        entry["translation_tracks"] = track_records
+    if "annotations" in data:
+        entry["annotations"] = annotation_records
     if data["operation"] == "inspect":
         from .style_contract import REFERENCE_FIELDS
 
@@ -444,15 +486,15 @@ def _prepare_cue(
         from .scenes import dimension_scale
         styles = profile_data["styles"]
         entry["inspection"] = {"scale": scene.width / 576, "layers": [
-            {"role": plan.layer.role, "status": plan.status,
+            {"role": plan.layer.role, "instance_id": plan.layer.instance_id, "status": plan.status,
              "effective": {k: v for k, v in asdict(plan.layer).items() if k in fields},
-             "origins": {k: "explicit" if k in styles.get(plan.layer.role, {}) else "default" for k in fields},
+             "origins": {k: "explicit" if k in (instance_specs[plan.layer.instance_id][2].get("style", {}) if plan.layer.instance_id in instance_specs else styles.get(plan.layer.role, {})) else "default" for k in fields},
              "resolved_pixels": {k: (tuple(v * dimension_scale(scene, plan.layer) for v in value) if isinstance(value, tuple) else value * dimension_scale(scene, plan.layer))
                                  for k, value in asdict(plan.layer).items() if k in REFERENCE_FIELDS},
              "fitted_font_size": plan.font_size, "scale": dimension_scale(scene, plan.layer), "layout": plan.layout_info}
             for plan in plans]}
         for inspected in entry["inspection"]["layers"]:
-            original = styles.get(inspected["role"], {})
+            original = instance_specs[inspected["instance_id"]][2].get("style", {}) if inspected["instance_id"] in instance_specs else styles.get(inspected["role"], {})
             inspected["nested_origins"] = {name: {field: "explicit" if field in original.get(name, {}) else "body"
                                                   for field in inspected["effective"].get(name, {})}
                                            for name in ("quotation_style", "marker_style")}
@@ -581,6 +623,8 @@ def _execute_request(
             cancelled,
             progress,
         )
+        control.checkpoint("layout", 0, len(data["cues"]))
+        tracks = prepare_tracks(data, root, lambda index: control.checkpoint("layout", 0, len(data["cues"])))
         prepared = []
         layout_cache: OrderedDict[str, Any] = OrderedDict()
         for index, cue in enumerate(data["cues"]):
@@ -599,7 +643,7 @@ def _execute_request(
                     )
                     layout_cache.move_to_end(key)
                 else:
-                    entry, scene, plans = _prepare_cue(data, cue, root, dataset, font_workspace)
+                    entry, scene, plans = _prepare_cue(data, cue, root, dataset, font_workspace, tracks)
                     layout_cache[key] = (copy.deepcopy(entry), scene, plans)
                     if len(layout_cache) > 256:
                         layout_cache.popitem(last=False)
@@ -612,6 +656,16 @@ def _execute_request(
                     details["path"] = "/profile/styles/" + details["role"] + "/" + details["field"] + details.get("path_suffix", "")
                 if details.get("path", "").startswith("/line_breaks/"):
                     details["path"] = f"/cues/{index}" + details["path"]
+                if details.get("path", "").startswith("/track_bindings/"):
+                    details["path"] = f"/cues/{index}" + details["path"]
+                if details.get("layer_id") and details["layer_id"] in {item["track_id"] for item in data.get("translation_tracks", [])}:
+                    details["track_id"] = details["layer_id"]
+                if details.get("layer_id") and ("path" not in details or details["path"].startswith(("/layers/", "/profile/styles/"))):
+                    for collection, key in (("translation_tracks", "track_id"), ("annotations", "annotation_id")):
+                        for instance_index, spec in enumerate(data.get(collection, [])):
+                            if spec[key] == details["layer_id"]:
+                                field = details.get("field") or details.get("path", "").split("/")[-1] or "region"
+                                details["path"] = f"/{collection}/{instance_index}/style/{field}" + details.get("path_suffix", "")
                 if "role" in details and details.get("path", "").startswith("/layers/"):
                     details["path"] = "/profile/styles/" + details["path"][len("/layers/"):]
                 error.details = details
@@ -700,6 +754,10 @@ def _execute_request(
                                 "source": entry["source_spans"],
                                 "translation": entry["translation"],
                             }
+                            instance_id = plan.layer.instance_id
+                            if instance_id:
+                                identity["content"]["translation_track"] = next((record for record in entry.get("translation_tracks", []) if record["track_id"] == instance_id), None)
+                                identity["content"]["annotation"] = next((record for record in entry.get("annotations", []) if record["annotation_id"] == instance_id), None)
                         asset_id = hashlib.sha256(canonical_bytes(identity)).hexdigest()
                         if asset_id not in shared:
                             if len(shared) >= 512:
@@ -734,6 +792,8 @@ def _execute_request(
                                 "anchor": plan.layer.anchor,
                                 "font_sha256": plan.asset_sha256,
                             }
+                            if plan.layer.instance_id:
+                                shared[asset_id]["instance_ids"] = [plan.layer.instance_id]
                         entry["asset_ids"].append(asset_id)
                         entry["layers"][plan_index]["asset_id"] = asset_id
                 except Exception as error:

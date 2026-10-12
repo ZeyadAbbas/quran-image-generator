@@ -98,6 +98,7 @@ def _flow(scene: Scene, group: dict[str, Any], members: list[Layer]) -> tuple[La
                     break
                 plans.append(replace(plan, layer=layer))
             except ReferenceError as error:
+                error.details = {**getattr(error, "details", {}), "layer_id": identifier}
                 if error.code not in ("layout_overflow", "line_height_collision", "resource_limit"):
                     raise
                 if error.code == "resource_limit" and getattr(error, "details", {}).get("field") not in ("font_size", "decoration_scale"):

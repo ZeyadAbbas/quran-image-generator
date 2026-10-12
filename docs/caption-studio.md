@@ -151,3 +151,10 @@ paths while retaining hashes. A GUI-produced request can be passed directly to
 No consumer-specific configuration name is necessary. For the supplied sample
 videos, load the complete measured request from the
 [QuranScribe handoff](quranscribe-handoff.md) and supply its actual local assets.
+
+**Translations and labels…** edits independent track IDs, ordered datasets or
+pinned snapshots, exact binding revisions, fonts/styles, labels and per-cue
+binding overrides. **Caption groups…** controls their joint layout. This
+advanced editor preserves each instance's wording review independently of
+visual style edits; it uses the published JSON structure. See
+[translation tracks](translation-tracks.md) for a complete example and limits.

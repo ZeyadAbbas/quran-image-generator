@@ -42,6 +42,9 @@ ROLE_LABELS = {
     "quotes": "Independent quotation font",
     "markers": "Independent verse-number font",
     "panel": "Caption backplate",
+    "source_reference": "Verified source reference",
+    "edition_label": "Translation edition label",
+    "annotation": "Approved annotation",
 }
 CHOICES = {
     "direction": ("rtl", "ltr"),
@@ -709,6 +712,30 @@ class CaptionStudio:
             buttons, "Request metadata…", lambda: self._edit_metadata("request")
         )
         self._button(buttons, "Caption groups…", self._edit_groups)
+        self._button(buttons, "Translations and labels…", self._edit_instances)
+
+    def _edit_instances(self) -> None:
+        self._collect()
+        dialog = tk.Toplevel(self.window)
+        dialog.title("Independent translation tracks and labels")
+        ttk.Label(dialog, text="Each track has its own ID, pinned dataset/snapshot, exact binding revision, font and style.\nLabels use verified references or approved presentation text. Add active IDs to an ordered flow group.\nBinding overrides below apply only to the selected cue. Style editing does not approve translation wording.", wraplength=750).pack(padx=10, pady=10)
+        editor = tk.Text(dialog, width=100, height=26)
+        editor.pack(fill="both", expand=True)
+        value = {"translation_tracks": self.document.data.get("translation_tracks", []),
+                 "annotations": self.document.data.get("annotations", []),
+                 "track_bindings": self.document.data["cues"][self._cue_index].get("track_bindings", {})}
+        editor.insert("1.0", json.dumps(value, ensure_ascii=False, indent=2))
+
+        def save() -> None:
+            value = json.loads(editor.get("1.0", "end"))
+            if set(value) != {"translation_tracks", "annotations", "track_bindings"}:
+                raise ReferenceError("invalid_request", "Keep the three named collections")
+            self.document.set_caption_instances(value["translation_tracks"], value["annotations"], value["track_bindings"], self._cue_index)
+            self._changed()
+            dialog.destroy()
+
+        ttk.Button(dialog, text="Save tracks and labels", command=self._guard(save)).pack(side="left", padx=10, pady=10)
+        ttk.Button(dialog, text="Cancel", command=dialog.destroy).pack(side="left")
 
     def _edit_groups(self) -> None:
         self._collect()
@@ -1580,7 +1607,7 @@ class CaptionStudio:
                     lines.extend(cue.get("warnings", []))
                     for plan in cue.get("layers", []):
                         lines.append(
-                            f"  {ROLE_LABELS[plan['layer']['role']]}: {plan['status']}, size {plan['font_size']}, {len(plan['lines'])} lines, bounds {plan['bounds']}"
+                            f"  {plan['layer'].get('instance_id') or ROLE_LABELS[plan['layer']['role']]}: {plan['status']}, size {plan['font_size']}, {len(plan['lines'])} lines, bounds {plan['bounds']}"
                         )
                 self._text(self._diagnostics, "\n".join(lines), readonly=True)
                 if result.get("assets"):
