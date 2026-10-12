@@ -17,7 +17,12 @@ from wand.drawing import Drawing
 from wand.image import Image as WandImage
 
 from quran_image_generator import rendering
-from quran_image_generator.api import RenderRequest, capabilities, execute_request
+from quran_image_generator.api import (
+    RenderRequest,
+    capabilities,
+    execute_request,
+    runtime_identity,
+)
 from quran_image_generator.backends import using_backend
 from quran_image_generator.content import QuranDataClient
 from quran_image_generator.generator import build_generator
@@ -84,6 +89,10 @@ def test_caption_backend_is_explicit_and_cache_cannot_cross_backends(tmp_path, b
     cache = CaptionRenderCache()
     data = {**fixture_request(tmp_path), "render_backend": backend}
     first = execute_request(data, cache=cache).to_dict()
+    if backend == "imagemagick" and not runtime_identity()["native_raqm"]:
+        assert first["status"] == "failed"
+        assert first["cues"][0]["error"]["code"] == "missing_shaping"
+        return
     assert first["status"] == "complete"
     expected = "pillow_raqm" if backend == "pillow" else "wand_raqm"
     assert first["cues"][0]["layers"][0]["typography"]["backend"] == expected
@@ -91,6 +100,10 @@ def test_caption_backend_is_explicit_and_cache_cannot_cross_backends(tmp_path, b
         {**data, "render_backend": "imagemagick" if backend == "pillow" else "pillow"},
         cache=cache,
     ).to_dict()
+    if backend == "pillow" and not runtime_identity()["native_raqm"]:
+        assert changed["status"] == "failed"
+        assert changed["cues"][0]["error"]["code"] == "missing_shaping"
+        return
     assert changed["status"] == "complete"
     assert first["assets"][0]["asset_id"] != changed["assets"][0]["asset_id"]
     assert first["cues"][0]["arabic"] == changed["cues"][0]["arabic"]
@@ -303,6 +316,9 @@ def test_cached_plans_and_pngs_reused_but_inputs_and_output_still_verified(
 ):
     from quran_image_generator import api
 
+    if backend == "imagemagick" and not runtime_identity()["native_raqm"]:
+        pytest.skip("Native caption shaping needs an ImageMagick RAQM build")
+
     cache = CaptionRenderCache()
     data = {**fixture_request(tmp_path), "render_backend": backend}
     first = execute_request(data, cache=cache).to_dict()
@@ -374,6 +390,9 @@ def test_cached_group_panels_and_decorations_repaint_at_identical_positions(
     tmp_path, monkeypatch, backend
 ):
     from quran_image_generator import api
+
+    if backend == "imagemagick" and not runtime_identity()["native_raqm"]:
+        pytest.skip("Native caption shaping needs an ImageMagick RAQM build")
 
     data = group_request(tmp_path)
     data.update(render_backend=backend, quotations=True, verse_numbers=True)
@@ -472,7 +491,9 @@ def test_capability_descriptors_match_selected_backend():
     native = capabilities("imagemagick")
     pillow = capabilities("pillow")
     assert pillow["default_render_backend"] == "pillow"
-    assert native["style_contract"]["backend"]["active"] == "wand_raqm"
+    assert native["style_contract"]["backend"]["active"] == (
+        "wand_raqm" if runtime_identity()["native_raqm"] else "unavailable"
+    )
     assert pillow["style_contract"]["backend"]["active"] == "pillow_raqm"
     assert not native["features"]["font_features"]
     assert pillow["style_contract"]["fields"]["word_spacing"]["backend_support"][
