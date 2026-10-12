@@ -42,7 +42,12 @@ ASSET = obj(
     },
     ("path", "sha256", "license", "attribution"),
 )
-AXES = {"type": "object", "maxProperties": 16, "propertyNames": {"pattern": "^[A-Za-z0-9]{4}$"}, "additionalProperties": {"type": "number"}}
+AXES = {
+    "type": "object",
+    "maxProperties": 16,
+    "propertyNames": {"pattern": "^[A-Za-z0-9]{4}$"},
+    "additionalProperties": {"type": "number"},
+}
 FONT_FALLBACK = obj({**{k: v for k, v in ASSET["properties"].items() if k != "glyph"},
                      "font_face": {"type": "integer", "minimum": 0, "maximum": 31}, "variation_axes": AXES},
                     ("path", "sha256", "license", "attribution"))
@@ -61,7 +66,9 @@ PANEL = obj({
     "inset": {"enum": ["effects", "ink"], "default": "effects"},
     "region": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number", "minimum": 0, "maximum": 1}},
 })
-GROUP_PANEL = obj({**PANEL["properties"], "mode": {"enum": ["block"], "default": "block"}})
+GROUP_PANEL = obj(
+    {**PANEL["properties"], "mode": {"enum": ["block"], "default": "block"}}
+)
 GROUP = obj({"group_id": {"type": "string", "minLength": 1, "maxLength": 64}, "layers": {"type": "array", "items": TEXT, "minItems": 1, "maxItems": 16, "uniqueItems": True},
              "panel": GROUP_PANEL, "mode": {"enum": ["overlay", "flow"], "default": "overlay"},
              "region": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number", "minimum": 0, "maximum": 1}, "default": [0.05, 0.05, 0.95, 0.95]},
@@ -259,7 +266,9 @@ ANNOTATION_RESULT_PROPERTIES = {
     "track_id": {"anyOf": [{"type": "null"}, INSTANCE_ID]},
     "font": {"anyOf": [{"type": "null"}, ASSET]}, "enabled": {"type": "boolean"},
 }
-ANNOTATION_RESULT = obj(ANNOTATION_RESULT_PROPERTIES, tuple(ANNOTATION_RESULT_PROPERTIES))
+ANNOTATION_RESULT = obj(
+    ANNOTATION_RESULT_PROPERTIES, tuple(ANNOTATION_RESULT_PROPERTIES)
+)
 CUE = obj(
     {
         "cue_id": TEXT,
@@ -286,6 +295,7 @@ REQUEST_SCHEMA = {
         {
             "schema_version": {"const": 1},
             "request_id": TEXT,
+            "render_backend": {"enum": ["pillow", "imagemagick"], "default": "pillow"},
             "operation": {
                 "enum": [
                     "capabilities",
@@ -319,13 +329,18 @@ REQUEST_SCHEMA = {
                         "latin_title",
                         "logo",
                         "decorations",
-                        "quotes", "markers",
+                        "quotes",
+                        "markers",
                     )
                 },
                 "additionalProperties": False,
             },
             "translation_dataset": BINDING_DATASET,
-            "translation_tracks": {"type": "array", "maxItems": 8, "items": TRANSLATION_TRACK},
+            "translation_tracks": {
+                "type": "array",
+                "maxItems": 8,
+                "items": TRANSLATION_TRACK,
+            },
             "annotations": {"type": "array", "maxItems": 4, "items": ANNOTATION},
             "translation_resource": TEXT,
             "translation_language": TEXT,
@@ -356,7 +371,11 @@ REQUEST_SCHEMA = {
             "error_mode": {"enum": ["all_or_nothing", "per_cue"]},
             "require_approved_profile": {"type": "boolean"},
             "metadata": {"type": "object"},
-            "font_samples": {"type": "object", "maxProperties": 16, "additionalProperties": {"type": "string", "maxLength": 8000}},
+            "font_samples": {
+                "type": "object",
+                "maxProperties": 16,
+                "additionalProperties": {"type": "string", "maxLength": 8000},
+            },
             "caption_groups": {"type": "array", "maxItems": 8, "items": GROUP},
         },
         ("schema_version", "request_id", "operation"),
@@ -365,7 +384,9 @@ REQUEST_SCHEMA = {
         {
             "if": {
                 "properties": {
-                    "operation": {"enum": ["validate", "layout", "inspect", "render_batch"]}
+                    "operation": {
+                        "enum": ["validate", "layout", "inspect", "render_batch"]
+                    }
                 }
             },
             "then": {"required": ["source_corpus", "canvas", "cues"]},
@@ -374,11 +395,22 @@ REQUEST_SCHEMA = {
             "if": {"properties": {"operation": {"const": "render_batch"}}},
             "then": {"required": ["output_directory"]},
         },
-        {"if": {"properties": {"operation": {"const": "inspect_fonts"}}}, "then": {"required": ["assets"]}},
+        {
+            "if": {"properties": {"operation": {"const": "inspect_fonts"}}},
+            "then": {"required": ["assets"]},
+        },
         {
             "if": {"properties": {"operation": {"const": "prepare_translations"}}},
-            "then": {"required": ["source_corpus", "cues", "translation_resource",
-                                   "snapshot_directory", "source_license", "source_attribution"]},
+            "then": {
+                "required": [
+                    "source_corpus",
+                    "cues",
+                    "translation_resource",
+                    "snapshot_directory",
+                    "source_license",
+                    "source_attribution",
+                ]
+            },
         },
     ],
 }

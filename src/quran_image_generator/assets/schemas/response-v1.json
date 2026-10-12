@@ -1705,7 +1705,7 @@
                       ],
                       "x-applies-to": "text",
                       "x-constraints": [
-                        "requires native Wand-RAQM for nonzero spacing"
+                        "requires complex-text shaping in the selected render backend"
                       ]
                     },
                     "line_height": {

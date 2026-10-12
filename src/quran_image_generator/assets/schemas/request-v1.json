@@ -11,6 +11,13 @@
       "minLength": 1,
       "maxLength": 128
     },
+    "render_backend": {
+      "enum": [
+        "pillow",
+        "imagemagick"
+      ],
+      "default": "pillow"
+    },
     "operation": {
       "enum": [
         "capabilities",
@@ -768,7 +775,7 @@
                 ],
                 "x-applies-to": "text",
                 "x-constraints": [
-                  "requires native Wand-RAQM for nonzero spacing"
+                  "requires complex-text shaping in the selected render backend"
                 ]
               },
               "line_height": {
@@ -3557,7 +3564,7 @@
                 ],
                 "x-applies-to": "text",
                 "x-constraints": [
-                  "requires native Wand-RAQM for nonzero spacing"
+                  "requires complex-text shaping in the selected render backend"
                 ]
               },
               "line_height": {
@@ -5626,7 +5633,7 @@
                 ],
                 "x-applies-to": "text",
                 "x-constraints": [
-                  "requires native Wand-RAQM for nonzero spacing"
+                  "requires complex-text shaping in the selected render backend"
                 ]
               },
               "line_height": {

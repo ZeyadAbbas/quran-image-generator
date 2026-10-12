@@ -38,6 +38,7 @@ from .publishing import (
     PublishTarget,
     resolve_instagram_credentials,
 )
+from .render_cache import file_identity
 from .settings import (
     SETTING_SPEC_BY_KEY,
     SETTING_SPECS,
@@ -52,7 +53,8 @@ from .settings import (
 )
 
 _RENDERER_SETUP_MESSAGE = (
-    "Image rendering is unavailable. Install Wand and ImageMagick, then restart. "
+    "Image rendering is unavailable. Check Pillow/RAQM setup, or install Wand "
+    "and ImageMagick for the imagemagick backend, then restart. "
     "Configuration and Help remain available."
 )
 
@@ -102,6 +104,8 @@ class QuranImageGeneratorApp:
         self._loading_form = True
         self._resize_after_id: str | None = None
         self._preview_source_image: tk.PhotoImage | None = None
+        self._preview_file_key: tuple | None = None
+        self._preview_scale_key: tuple | None = None
         self._preview_display_image: tk.PhotoImage | None = None
         self._shown_preview_artifact: PreviewArtifact | None = None
         self._chapters: tuple[Chapter, ...] = ()
@@ -175,7 +179,7 @@ class QuranImageGeneratorApp:
         if renderer_error is None and configuration_error is None:
             self._catalog_after_id = self.root.after(80, self._initial_catalog_refresh)
         self._update_actions()
-        self._poll_after_id = self.root.after(100, self._poll_worker)
+        self._poll_after_id = self.root.after(25, self._poll_worker)
 
     def _initial_catalog_refresh(self) -> None:
         self._catalog_after_id = None
@@ -498,6 +502,10 @@ class QuranImageGeneratorApp:
         variable = self._variables[spec.key]
         if spec.value_type == "boolean":
             widget: Any = ttk.Checkbutton(frame, variable=variable)
+        elif spec.value_type == "choice":
+            widget = ttk.Combobox(
+                frame, textvariable=variable, values=spec.choices, state="readonly"
+            )
         elif spec.value_type == "integer":
             widget = ttk.Spinbox(
                 frame,
@@ -584,7 +592,7 @@ class QuranImageGeneratorApp:
             "access. Exact keys identify a translation reliably.\n\n"
             "Common errors\n"
             "Check that the range fits the selected chapter, paths exist, text fits "
-            "the canvas, ImageMagick is installed, and network access is available "
+            "the canvas, the selected rendering backend is ready, and network access is available "
             "when translations are selected. Generated files use the Output directory unless you "
             "choose another path in the Save dialog. Instagram credentials likewise "
             "stay in QIG_INSTAGRAM_USERNAME and QIG_INSTAGRAM_PASSWORD.\n\n"
@@ -1024,7 +1032,7 @@ class QuranImageGeneratorApp:
         for result in self._worker.poll():
             self._handle_worker_result(result)
         self._update_actions()
-        self._poll_after_id = self.root.after(100, self._poll_worker)
+        self._poll_after_id = self.root.after(25, self._poll_worker)
 
     def _handle_worker_result(self, result: WorkerResult) -> None:
         should_open = result.token.job_id in self._open_after_jobs
@@ -1174,7 +1182,10 @@ class QuranImageGeneratorApp:
 
     def _display_preview(self, artifact: PreviewArtifact) -> bool:
         try:
-            source = tk.PhotoImage(file=str(artifact.path))
+            key = artifact.sha256, file_identity(artifact.path)
+            source = self._preview_source_image
+            if source is None or key != getattr(self, "_preview_file_key", None):
+                source = tk.PhotoImage(file=str(artifact.path))
             available_width = max(1, self._preview_label.winfo_width() - 20)
             available_height = max(1, self._preview_label.winfo_height() - 20)
             factor = max(
@@ -1182,14 +1193,21 @@ class QuranImageGeneratorApp:
                 (source.width() + available_width - 1) // available_width,
                 (source.height() + available_height - 1) // available_height,
             )
-            displayed = source.subsample(factor, factor) if factor > 1 else source
-        except tk.TclError:
+            if self._preview_display_image is not None and (key, factor) == getattr(
+                self, "_preview_scale_key", None
+            ):
+                displayed = self._preview_display_image
+            else:
+                displayed = source.subsample(factor, factor) if factor > 1 else source
+        except (tk.TclError, OSError):
             self._status_var.set(
                 "The PNG was rendered, but this Tk installation could not display it."
             )
             return False
         self._preview_source_image = source
         self._preview_display_image = displayed
+        self._preview_file_key = key
+        self._preview_scale_key = key, factor
         self._preview_label.configure(image=displayed, text="")
         self._preview_info_var.set(
             f"Full resolution: {artifact.settings.resolution.width} × "

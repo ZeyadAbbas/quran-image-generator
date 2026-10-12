@@ -103,6 +103,9 @@ jobs:
             --output-dir "${clean_root}/rendered output"
           test -s "${clean_root}/rendered output/offline-smoke.png"
           "${clean_root}/venv/bin/python" \
+            "${GITHUB_WORKSPACE}/scripts/offline_render_smoke.py" \
+            --backend imagemagick --output-dir "${clean_root}/native output"
+          "${clean_root}/venv/bin/python" \
             "${GITHUB_WORKSPACE}/scripts/offline_caption_smoke.py" \
             --output-dir "${clean_root}/caption output"
           test -s "${clean_root}/caption output/caption-smoke-summary.json"
@@ -135,6 +138,12 @@ jobs:
           $taskNativeDirectory = (Get-ChildItem -LiteralPath $taskMagick -Filter magick.exe -Recurse | Select-Object -First 1).DirectoryName
           if (-not $taskNativeDirectory) { throw 'Native runtime executable missing' }
           "MAGICK_HOME=$taskNativeDirectory" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $taskFriDirectory = Join-Path $taskMagick 'pillow shaping'
+          New-Item -ItemType Directory -Path $taskFriDirectory -Force | Out-Null
+          $taskFriSource = Join-Path $taskNativeDirectory 'CORE_RL_fribidi_.dll'
+          $taskFriLibrary = Join-Path $taskFriDirectory 'fribidi.dll'
+          Copy-Item -LiteralPath $taskFriSource -Destination $taskFriLibrary
+          "PILLOW_FRIBIDI_DLL=$taskFriLibrary" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Test and build
         shell: pwsh
         run: |
@@ -154,6 +163,10 @@ jobs:
           & $taskPython -m pip install $taskWheel
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Set-Location -LiteralPath $taskCleanRoot
+          & $taskPython "$env:GITHUB_WORKSPACE\scripts\offline_render_smoke.py" --output-dir "$taskCleanRoot\still output"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $taskPython "$env:GITHUB_WORKSPACE\scripts\offline_render_smoke.py" --backend imagemagick --output-dir "$taskCleanRoot\native still output"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & $taskPython "$env:GITHUB_WORKSPACE\scripts\offline_caption_smoke.py" --output-dir "$taskCleanRoot\caption output"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (-not (Test-Path -LiteralPath "$taskCleanRoot\caption output\caption-smoke-summary.json")) { throw 'Caption smoke summary missing' }
@@ -192,5 +205,12 @@ jobs:
             quran-image-generator:smoke
           test -s "${output_dir}/offline-smoke.png"
           test -w "${output_dir}/offline-smoke.png"
+          docker run --rm --network none --read-only \
+            --tmpfs /tmp:rw,noexec,nosuid,size=16m \
+            --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp \
+            --mount "type=bind,src=${output_dir},dst=/output" \
+            quran-image-generator:smoke --backend imagemagick --output-dir /output/native
+          test -s "${output_dir}/native/offline-smoke.png"
           test "$(stat -c '%u:%g' "${output_dir}/offline-smoke.png")" = \
             "$(id -u):$(id -g)"

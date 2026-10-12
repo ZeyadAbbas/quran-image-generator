@@ -30,7 +30,10 @@ remain available. Unknown fields fail instead of being dropped.
 Pillow-RAQM and Wand-RAQM both implement the existing complete-line shaping
 contract. Discovery reports backend support for each field, including the
 [font-control](font-controls.md) and [spacing](caption-typography.md) limitations.
-An unavailable backend/option fails before PNG output.
+An unavailable backend/option fails before PNG output. Renderer 0.4.0 defaults
+to `render_backend: "pillow"`; choose `"imagemagick"` explicitly for native
+compatibility. `capabilities("imagemagick")` describes that backend's controls.
+See [backend setup and output differences](rendering-backends.md).
 
 `instance_defaults` and index-adjusted z-order metadata describe independent
 [translation and annotation instances](translation-tracks.md). Their own

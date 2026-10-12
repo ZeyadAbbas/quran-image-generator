@@ -38,6 +38,7 @@ SettingValueType = Literal[
     "path",
     "position",
     "translations",
+    "choice",
 ]
 SettingPathSemantics = Literal["none", "directory", "optional-file", "font-file"]
 
@@ -58,9 +59,22 @@ class SettingSpec:
     minimum: int | float | None = None
     maximum: int | float | None = None
     path_semantics: SettingPathSemantics = "none"
+    choices: tuple[str, ...] = ()
 
 
 SETTING_SPECS: tuple[SettingSpec, ...] = (
+    SettingSpec(
+        "render backend",
+        "render_backend",
+        "Render backend",
+        "Canvas",
+        "choice",
+        "pillow",
+        "Image and text rendering library.",
+        "Pillow is faster; imagemagick retains the previous native rendering style.",
+        "pillow or imagemagick",
+        choices=("pillow", "imagemagick"),
+    ),
     SettingSpec("output path", "output_path", "Output directory", "Passage & Output", "path", "outputs", "Directory used for generated PNG files.", "Changes where saved images are placed; relative paths are resolved beside the config file.", "Folder path", path_semantics="directory"),
     SettingSpec("resolution", "resolution", "Image resolution", "Canvas", "dimensions", "1080 x 1080", "Full-resolution canvas size.", "Sets preview/save dimensions; bg reads the selected background image's dimensions.", "WIDTH x HEIGHT, or bg when a background image is selected", minimum=1),
     SettingSpec("background image", "background_image", "Background image", "Canvas", "path", "", "Optional image drawn behind the text.", "Replaces the solid background while preserving the configured canvas size.", "Image file path, or blank", path_semantics="optional-file"),
@@ -224,6 +238,7 @@ class Settings:
     generate_random_verses: bool
     total_y_offset: int
     resolution_from_background: bool = False
+    render_backend: str = "pillow"
 
 
 def _is_blank(value: Any) -> bool:
@@ -498,15 +513,24 @@ def _parse_resolution(
             _add_issue(issues, field, "cannot be 'bg' without a valid background image")
             return Dimensions(1080, 1080)
         try:
-            from wand.exceptions import WandException
-            from wand.image import Image as WandImage
-        except ImportError:
-            _add_issue(issues, field, "requires Wand/ImageMagick when set to 'bg'")
-            return Dimensions(1080, 1080)
-        try:
-            with WandImage(filename=str(background_image)) as image:
-                width, height = image.width, image.height
-        except (OSError, WandException):
+            from PIL import Image
+
+            with Image.open(background_image) as image:
+                width, height = image.size
+        except OSError:
+            try:
+                from wand.image import Image as WandImage
+
+                with WandImage(filename=str(background_image)) as native:
+                    width, height = native.width, native.height
+            except Exception:
+                _add_issue(
+                    issues,
+                    field,
+                    f"could not read dimensions from {background_image}; optional formats such as SVG require ImageMagick",
+                )
+                return Dimensions(1080, 1080)
+        if width < 1 or height < 1:
             _add_issue(
                 issues, field, f"could not read dimensions from {background_image}"
             )
@@ -775,6 +799,15 @@ def settings_from_mapping(
     issues: list[ValidationIssue] = []
     _validate_top_level_keys(data, issues)
 
+    backend = _raw_value(data, "render backend")
+    if not isinstance(backend, str) or backend.strip().lower() not in (
+        "pillow",
+        "imagemagick",
+    ):
+        _add_issue(issues, "render backend", "must be pillow or imagemagick")
+        backend = "pillow"
+    backend = backend.strip().lower()
+
     output_path = _parse_output_path(data, base_directory, issues)
     background_image = _parse_optional_file(
         data, "background image", base_directory, issues
@@ -812,18 +845,12 @@ def settings_from_mapping(
     )
     translation_color = _parse_color(data, "translation color", issues)
     translation_x_position = _parse_position(data, "translation x position", issues)
-    translation_max_width = _parse_int(
-        data, "translation maximum width", issues
-    )
+    translation_max_width = _parse_int(data, "translation maximum width", issues)
     translation_language_spacing = _parse_int(
         data, "translation language spacing", issues
     )
-    translation_line_spacing = _parse_int(
-        data, "translation line spacing", issues
-    )
-    translation_word_spacing = _parse_int(
-        data, "translation word spacing", issues
-    )
+    translation_line_spacing = _parse_int(data, "translation line spacing", issues)
+    translation_word_spacing = _parse_int(data, "translation word spacing", issues)
     translation_letter_spacing = _parse_float(
         data, "translation letter spacing", issues
     )
@@ -834,13 +861,9 @@ def settings_from_mapping(
         str(DEFAULTS["verse number resolution"]),
         issues,
     )
-    verse_number_x_offset = _parse_int(
-        data, "verse number x offset", issues
-    )
+    verse_number_x_offset = _parse_int(data, "verse number x offset", issues)
     verse_number_y_offset = _parse_int(data, "verse number y offset", issues)
-    space_between_verses = _parse_int(
-        data, "space between verses", issues
-    )
+    space_between_verses = _parse_int(data, "space between verses", issues)
     generate_random_verses = _parse_bool(data, "generate random verses", issues)
     total_y_offset = _parse_int(data, "total y offset", issues)
 
@@ -891,6 +914,7 @@ def settings_from_mapping(
         generate_random_verses=generate_random_verses,
         total_y_offset=total_y_offset,
         resolution_from_background=resolution_from_background,
+        render_backend=backend,
     )
 
 

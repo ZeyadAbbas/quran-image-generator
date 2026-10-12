@@ -4,19 +4,51 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from io import BytesIO
 
 from PIL import Image, ImageDraw, ImageFont, features
 
+from .backends import require_pillow_shaping, selected_backend
 from .layout import TextStyle
+from .pillow_text import shaped_font
 from .references import ReferenceError
+from .render_cache import RenderCache, file_identity
+
+_bounds_cache: RenderCache[tuple, tuple[float, float, float, float]] = RenderCache(
+    8192, max_bytes=16 * 1024 * 1024
+)
+_spaces: RenderCache[tuple, tuple[int | None, int]] = RenderCache(64)
+
+
+def _natural_space(path: str, digest: str, size: int | float) -> float | None:
+    from fontTools.ttLib import TTFont
+
+    key = (digest,) if digest else file_identity(path)
+    cached = _spaces.get(key)
+    if cached is None:
+        with TTFont(path) as face:
+            glyph = (face.getBestCmap() or {}).get(32)
+            cached = (
+                face["hmtx"][glyph][0] if glyph else None,
+                face["head"].unitsPerEm,
+            )
+        _spaces.put(key, cached)
+    advance, units = cached
+    return None if advance is None else advance * size / units
 
 
 class ShapedFont:
     def __init__(
-        self, path: str, size: int | float, direction: str, horizontal_scale: float = 1,
-        *, word_spacing: float = 0, tracking: float = 0,
-        font_features: tuple[str, ...] = (), font_language: str = "",
+        self,
+        path: str,
+        size: int | float,
+        direction: str,
+        horizontal_scale: float = 1,
+        *,
+        word_spacing: float = 0,
+        tracking: float = 0,
+        font_features: tuple[str, ...] = (),
+        font_language: str = "",
+        font_sha256: str = "",
     ) -> None:
         if size > 512:
             raise ReferenceError(
@@ -24,6 +56,7 @@ class ShapedFont:
                 , details={"field": "font_size", "effective_size": size, "allowed": [1, 512]}
             )
         self.path, self.size, self.direction = path, size, direction
+        self.font_sha256 = font_sha256
         self.horizontal_scale = horizontal_scale
         self.word_spacing, self.tracking = word_spacing, tracking
         self.options: dict = {}
@@ -34,21 +67,30 @@ class ShapedFont:
         if tracking and font_features:
             raise ReferenceError("unsupported_shaping_option", "Explicit font features cannot be combined with grapheme tracking", details={"field": "font_features"})
         self.natural_space: float | None = None
-        if word_spacing:
-            from fontTools.ttLib import TTFont
-
-            with TTFont(path) as face:
-                glyph = (face.getBestCmap() or {}).get(32)
-                if glyph:
-                    self.natural_space = face["hmtx"][glyph][0] * size / face["head"].unitsPerEm
         self.backend = "pillow_raqm"
         self.pillow: ImageFont.FreeTypeFont | None = None
-        if features.check_feature("raqm") and not word_spacing:
-            self.pillow = ImageFont.truetype(
-                path, size, layout_engine=ImageFont.Layout.RAQM
+        backend = selected_backend()
+        if backend == "pillow" or (
+            backend == "auto" and features.check_feature("raqm") and not word_spacing
+        ):
+            require_pillow_shaping()
+            self.pillow = shaped_font(
+                path,
+                size,
+                direction=direction,
+                word_spacing=word_spacing,
+                sha256=font_sha256,
             )
         else:
-            from wand.version import MAGICK_VERSION_DELEGATES
+            try:
+                from wand.version import MAGICK_VERSION_DELEGATES
+            except (ImportError, OSError) as error:
+                raise ReferenceError(
+                    "missing_native_runtime",
+                    "ImageMagick rendering requires Wand and native ImageMagick "
+                    "libraries. Install them or select the pillow render backend.",
+                    details={"field": "render_backend", "backend": "imagemagick"},
+                ) from error
 
             if "raqm" not in MAGICK_VERSION_DELEGATES.split():
                 raise ReferenceError(
@@ -65,11 +107,32 @@ class ShapedFont:
             from .rendering import WandTextMeasurer
 
             self._measurer = WandTextMeasurer()
+            if word_spacing:
+                self.natural_space = _natural_space(path, font_sha256, size)
+        self._identity = (
+            self.backend,
+            font_sha256 or file_identity(path),
+            size,
+            direction,
+            word_spacing,
+            tracking,
+            tuple(font_features),
+            font_language,
+        )
 
     def _style(self) -> TextStyle:
-        return TextStyle(self.path, self.size, "#FFFFFF", 0, 8192, " ",
-                         "right_to_left" if self.direction == "rtl" else "left_to_right",
-                         self.word_spacing, self.natural_space)
+        return TextStyle(
+            self.path,
+            self.size,
+            "#FFFFFF",
+            0,
+            8192,
+            " ",
+            "right_to_left" if self.direction == "rtl" else "left_to_right",
+            self.word_spacing,
+            self.natural_space,
+            self.font_sha256,
+        )
 
     def advance(self, text: str) -> float:
         if self.pillow:
@@ -121,6 +184,15 @@ class ShapedFont:
         return result
 
     def _bbox_plain(self, text: str) -> tuple[float, float, float, float]:
+        key = self._identity, text
+        cached = _bounds_cache.get(key)
+        if cached is not None:
+            return cached
+        result = self._measure_bbox(text)
+        _bounds_cache.put(key, result, size=len(text) * 4 + 256)
+        return result
+
+    def _measure_bbox(self, text: str) -> tuple[float, float, float, float]:
         if self.pillow:
             return self.pillow.getbbox(text, anchor="ls", direction=self.direction, **self.options)
         style = self._style()
@@ -174,7 +246,14 @@ class ShapedFont:
     def _paint(
         self, image: Image.Image, text: str, x: float, y: float, color: str
     ) -> None:
-        runs = [(cluster, x + offset, y) for cluster, offset, _ in self._tracked_runs(text)] if self.tracking else [(text, x, y)]
+        runs = (
+            [
+                (cluster, x + offset, y)
+                for cluster, offset, _ in self._tracked_runs(text)
+            ]
+            if self.tracking
+            else [(text, x, y)]
+        )
         if self.pillow:
             draw = ImageDraw.Draw(image)
             for value, px, py in runs:
@@ -202,9 +281,10 @@ class ShapedFont:
                 if not value.isspace():
                     draw.text(round(px), round(py), value)
             draw(raster)
-            with Image.open(BytesIO(raster.make_blob("png"))) as rendered:
-                with rendered.convert("RGBA") as rgba:
-                    image.alpha_composite(rgba)
+            from .rendering import wand_rgba_image
+
+            with wand_rgba_image(raster) as rgba:
+                image.alpha_composite(rgba)
 
 
 class MixedMarkerFont:

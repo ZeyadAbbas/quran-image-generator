@@ -26,6 +26,7 @@ chosen for that example and are not necessarily the defaults below.
 
 | YAML key | Default | Accepted value and effect |
 | --- | --- | --- |
+| `render backend` | `pillow` | `pillow` for faster previews, or `imagemagick` for the previous native rendering style. |
 | `output path` | `outputs` | Output directory; relative to the config file. |
 | `resolution` | `1080 x 1080` | Positive `WIDTH x HEIGHT`, or `bg` to use a background image's dimensions. |
 | `background image` | `blank` | Existing image path, or blank for a solid background. |
@@ -59,6 +60,13 @@ chosen for that example and are not necessarily the defaults below.
 The canvas and maximum widths are validated independently. A valid value can
 still produce cramped content, so use the GUI preview to tune the selected
 passage and translations.
+
+The backend is also selectable in the GUI's Canvas tab. Pillow requires RAQM
+complex-text support; it never renders disconnected Arabic as a fallback.
+The backends retain the same source selection and fitting rules, but their text
+metrics, antialiasing and image resizing differ, so changing the backend can
+change line breaks and fitted sizes. See [rendering backends](rendering-backends.md)
+for setup, compatibility, spacing and cache behavior.
 
 ## Translations
 

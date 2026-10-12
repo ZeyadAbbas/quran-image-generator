@@ -47,15 +47,18 @@ canvas, typography, colors, spacing, verse markers, and translations.
 ## Requirements
 
 - Python 3.10 through 3.14.
-- [ImageMagick](https://imagemagick.org/script/download.php) and its native
-  libraries. See the [Wand installation guide](https://docs.wand-py.org/en/latest/guide/install.html).
+- Pillow with RAQM Arabic shaping (installed with the Python package). Windows
+  also needs a FriBiDi DLL; see [backend setup](docs/rendering-backends.md).
+- Optional [ImageMagick](https://imagemagick.org/script/download.php) for the
+  previous native output or SVG backgrounds. See the
+  [Wand installation guide](https://docs.wand-py.org/en/latest/guide/install.html).
 - [Tk](https://docs.python.org/3/library/tkinter.html) and a graphical display
   for the desktop app. The CLI itself does not require Tk.
 - Network access only when listing or using optional translations.
 
 ## Quick start: desktop app
 
-Install ImageMagick, then clone this repository:
+Clone this repository:
 
 ```sh
 git clone https://github.com/ZeyadAbbas/quran-image-generator.git
@@ -72,6 +75,7 @@ py -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e .
+# Complete the Windows FriBiDi setup in docs/rendering-backends.md first.
 quran-image-generator-gui
 ```
 
@@ -132,7 +136,7 @@ Arabic-only images. Translation material remains subject to
 
 ## Static caption layers and integration
 
-Renderer 0.3.x exposes a versioned static-caption Python/JSON API. It supports
+Renderer 0.4.0 exposes a versioned static-caption Python/JSON API. It supports
 verified partial source spans, reviewed offline English bindings, independent
 transparent title/caption/logo assets and isolated batches. Start with
 `quran-caption-render --capabilities` and `--preflight`; see
@@ -145,9 +149,14 @@ options, font identities, translation requirements and composition instructions.
 The completed [caption style-editor handoff](docs/caption-style-roadmap.md)
 covers typography, font inspection/axes, independent decorations, panels,
 joint caption layout and [translation tracks/labels](docs/translation-tracks.md)
-in renderer 0.3.13, schema 1. Capabilities report the exact native backend's
+in renderer 0.3.13 and later, schema 1. Capabilities report the selected backend's
 supported controls. QuranScribe owns its product editor, presets and video
 timeline; the renderer supplies verified static assets.
+
+Pillow is the default for faster previews. Select `render backend: imagemagick`
+in YAML, `render_backend` in caption JSON, or the GUI's backend control to retain
+native rendering. Text metrics, line breaks and pixels can differ between
+libraries; see [rendering backends and preview caches](docs/rendering-backends.md).
 
 ## Command line
 

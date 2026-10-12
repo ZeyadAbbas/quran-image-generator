@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from functools import lru_cache
 from typing import Any
 
 import jsonschema
@@ -9,13 +11,21 @@ import jsonschema
 from .references import ReferenceError
 
 
+@lru_cache(maxsize=64)
+def _validator(schema: str) -> Any:
+    return jsonschema.Draft202012Validator(json.loads(schema))
+
+
 def pointer(parts: Any) -> str:
     return "".join("/" + str(v).replace("~", "~0").replace("/", "~1") for v in parts)
 
 
-def schema_diagnostics(value: Any, schema: dict[str, Any], prefix: str = "") -> list[dict[str, Any]]:
+def schema_diagnostics(
+    value: Any, schema: dict[str, Any], prefix: str = ""
+) -> list[dict[str, Any]]:
     result = []
-    for error in jsonschema.Draft202012Validator(schema).iter_errors(value):
+    validator = _validator(json.dumps(schema, sort_keys=True, separators=(",", ":")))
+    for error in validator.iter_errors(value):
         path = prefix + pointer(error.absolute_path)
         if error.validator == "additionalProperties" and isinstance(error.instance, dict):
             known = error.schema.get("properties", {})
