@@ -104,6 +104,18 @@ def test_font_axis_json_survives_layer_switch_and_inspector(studio):
     dialog.destroy()
 
 
+def test_independent_element_color_controls_roundtrip(studio, monkeypatch):
+    from quran_image_generator import caption_gui
+
+    monkeypatch.setattr(caption_gui.colorchooser, "askcolor", lambda *a, **k: ((255, 215, 0), "#ffd700"))
+    studio._element_color("marker_style")
+    studio._apply_layer()
+    assert studio.document.styles("arabic")["marker_style"]["color"] == "#ffd700"
+    studio._change_layer("translation")
+    studio._change_layer("arabic")
+    assert json.loads(studio._styles["marker_style"].get())["color"] == "#ffd700"
+
+
 def test_close_during_render_cancels_without_touching_destroyed_widgets(
     studio, monkeypatch
 ):

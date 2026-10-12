@@ -21,7 +21,7 @@ from .scenes import caption_scene, checked_asset
 from .snapshots import SnapshotStore
 
 LAYER_ROLES = ("arabic", "translation", "arabic_title", "latin_title", "logo")
-ASSET_ROLES = (*LAYER_ROLES, "decorations")
+ASSET_ROLES = (*LAYER_ROLES, "decorations", "quotes", "markers")
 STYLE_FIELDS = style_schema()["properties"]
 
 
@@ -30,7 +30,7 @@ def parse_style_value(name: str, value: Any) -> Any:
     spec = STYLE_FIELDS[name]
     kind = spec.get("type")
     try:
-        if name in ("variation_axes", "font_features", "font_fallbacks"):
+        if kind == "object" or name in ("font_features", "font_fallbacks"):
             result = json.loads(str(value))
             from .diagnostics import validate_schema
 
@@ -94,8 +94,9 @@ class CaptionDocument:
         for asset in self.data.get("assets", {}).values():
             asset["path"] = str(self.resolve(asset["path"]))
         for style in self.data.get("profile", {}).get("styles", {}).values():
-            for fallback in style.get("font_fallbacks", []):
-                fallback["path"] = str(self.resolve(fallback["path"]))
+            for settings in (style, style.get("quotation_style", {}), style.get("marker_style", {})):
+                for fallback in settings.get("font_fallbacks", []):
+                    fallback["path"] = str(self.resolve(fallback["path"]))
         if "translation_snapshot" in self.data:
             pin = self.data["translation_snapshot"]
             pin["directory"] = str(self.resolve(pin["directory"]))

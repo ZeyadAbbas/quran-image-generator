@@ -39,6 +39,8 @@ ROLE_LABELS = {
     "latin_title": "Latin title",
     "logo": "Branding / logo",
     "decorations": "Quotation and number font",
+    "quotes": "Independent quotation font",
+    "markers": "Independent verse-number font",
 }
 CHOICES = {
     "direction": ("rtl", "ltr"),
@@ -511,6 +513,17 @@ class CaptionStudio:
         self._button(footer, "Apply layer", self._apply_layer)
         self._button(footer, "Import styles…", self._import_profile)
         self._button(footer, "Save styles…", self._export_profile)
+        self._button(footer, "Quotation color…", lambda: self._element_color("quotation_style"))
+        self._button(footer, "Verse-number color…", lambda: self._element_color("marker_style"))
+
+    def _element_color(self, name: str) -> None:
+        if self._layer != "arabic":
+            self._change_layer("arabic")
+        value = parse_style_value(name, self._styles[name].get())
+        chosen = colorchooser.askcolor(value.get("color", self._styles["color"].get()), parent=self.window)[1]
+        if chosen:
+            value["color"] = chosen
+            self._styles[name].set(json.dumps(value))
 
     def _build_assets(self) -> None:
         frame = self._frames["Fonts & Branding"]
@@ -778,7 +791,7 @@ class CaptionStudio:
         was_loading = self._loading
         self._loading = True
         for name, value in self.document.styles(self._layer).items():
-            formatted = json.dumps(value) if name in ("variation_axes", "font_features", "font_fallbacks") else ", ".join(str(v) for v in value) if isinstance(value, (list, tuple)) else value
+            formatted = json.dumps(value) if STYLE_FIELDS[name]["type"] == "object" or name in ("font_features", "font_fallbacks") else ", ".join(str(v) for v in value) if isinstance(value, (list, tuple)) else value
             self._styles[name].set(formatted)
         self._loading = was_loading
 
@@ -1168,9 +1181,11 @@ class CaptionStudio:
             cue = self.document.data["cues"][self._cue_index]
             if dataset and cue.get("translation_binding_id"):
                 sample = dataset.lookup(cue["translation_binding_id"], self.document.spans(self._cue_index), require_approved=False).text
-        default = str(asset_path("fonts", "quran_font.ttf")) if self._asset_role in ("arabic", "arabic_title") else str(asset_path("fonts", "multilingual_fonts", "am.ttf")) if self._asset_role in ("translation", "latin_title") else ""
+        default = str(asset_path("fonts", "quran_font.ttf")) if self._asset_role in ("arabic", "arabic_title", "quotes", "markers") else str(asset_path("fonts", "multilingual_fonts", "am.ttf")) if self._asset_role in ("translation", "latin_title") else ""
         path = self._vars["asset_path"].get().strip() or default
         style = {name: parse_style_value(name, var.get()) for name, var in self._styles.items()} if self._asset_role == self._layer else self.document.styles(self._asset_role) if self._asset_role in LAYER_ROLES else {}
+        if self._asset_role in ("quotes", "markers"):
+            style = self.document.styles("arabic").get("quotation_style" if self._asset_role == "quotes" else "marker_style", {})
         info = inspect_font(self.document.resolve(path), sha256=self._vars["asset_sha"].get() if self._vars["asset_path"].get().strip() else "",
                             text=sample, role=self._asset_role, font_face=style.get("font_face", 0), variation_axes=style.get("variation_axes", {}),
                             license=self._vars["asset_license"].get(), attribution=self._vars["asset_attribution"].get())

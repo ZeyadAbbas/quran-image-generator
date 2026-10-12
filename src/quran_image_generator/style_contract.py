@@ -22,6 +22,7 @@ ENUMS = {
     "direction": ["rtl", "ltr"], "fit": ["wrap", "shrink"],
     "baseline_anchor": ["first", "last"], "alignment": ["left", "center", "right"],
     "numeral_system": ["latin", "arabic_indic"],
+    "decoration_layout": ["legacy", "elements"], "marker_placement": ["adjacent", "after_quote"],
 }
 REFERENCE_FIELDS = {
     "font_size", "min_font_size", "outline_width", "shadow_offset", "shadow_blur",
@@ -45,6 +46,10 @@ DESCRIPTIONS = {
     "font_features": "JSON array of OpenType feature tags; required Arabic shaping cannot be disabled",
     "font_language": "Explicit BCP-47 shaping language; requires Pillow-RAQM",
     "font_fallbacks": "Ordered JSON array of pinned local fonts with license/attribution; whole-layer fallback preserves joins and marks",
+    "decoration_layout": "Legacy pixels or independently styled source-associated elements",
+    "quotation_style": "JSON element style; omitted fields inherit body choices",
+    "marker_style": "JSON true-ending marker style; omitted fields inherit body choices",
+    "marker_placement": "Adjacent to the real ending, or after the closing quote for the final ending",
 }
 
 
@@ -67,7 +72,7 @@ def field_metadata(name: str, spec: dict[str, Any], default: Any) -> dict[str, A
                          "normalized_canvas" if name in ("anchor", "region") else
                          "ratio" if name in ("opacity", "shadow_opacity", "suffix_scale", "horizontal_scale", "decoration_scale") else "unitless")
     result["x-scaling"] = "canvas_width/576" if name in REFERENCE_FIELDS else "none"
-    result["x-roles"] = (["arabic"] if name.startswith(("quote_", "marker_", "suffix_", "decoration_")) or name == "numeral_system"
+    result["x-roles"] = (["arabic"] if name.startswith(("quote_", "quotation_", "marker_", "suffix_", "decoration_")) or name == "numeral_system"
                          else ["arabic", "translation", "arabic_title", "latin_title", "logo"])
     result["x-applies-to"] = "layer" if name in ("enabled", "required", "opacity", "z_order", "anchor", "region", "sha256", "safe_margin") else "text"
     if name in ("min_font_size", "font_size"):

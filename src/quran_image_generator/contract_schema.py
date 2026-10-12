@@ -67,6 +67,7 @@ def style_schema() -> dict[str, Any]:
             "forced_breaks",
             "preferred_breaks",
             "resolved_font", "resolved_font_sha256", "font_info",
+            "marker_specs", "element_fonts",
         ):
             continue
         factory = field.default_factory
@@ -96,6 +97,13 @@ def style_schema() -> dict[str, Any]:
             properties[field.name] = {"type": "array", "maxItems": 4, "items": FONT_FALLBACK}
         elif field.name == "font_language":
             properties[field.name] = {"type": "string", "maxLength": 32, "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$"}
+        elif field.name in ("quotation_style", "marker_style"):
+            names = ("enabled", "color", "opacity", "outline_width", "outline_color", "shadow_offset", "shadow_blur", "shadow_color", "shadow_opacity",
+                     "font_face", "variation_axes", "font_features", "font_language", "font_fallbacks", "direction")
+            element = {name: {**properties[name], "x-default-source": "body"} for name in names}
+            element["offset"] = {"type": "array", "items": {"type": "number", "minimum": -32, "maximum": 32}, "minItems": 2, "maxItems": 2,
+                                 "default": [0, 0], "x-units": "reference_pixels", "x-scaling": "canvas_width/576"}
+            properties[field.name] = obj(element)
         properties[field.name] = field_metadata(field.name, properties[field.name], default)
     return obj(properties)
 
@@ -241,6 +249,7 @@ REQUEST_SCHEMA = {
                         "latin_title",
                         "logo",
                         "decorations",
+                        "quotes", "markers",
                     )
                 },
                 "additionalProperties": False,
@@ -354,6 +363,8 @@ LAYER_PROPERTIES = {
     "preferred_breaks": {"type": "array", "items": {"type": "integer"}, "maxItems": 128},
     "resolved_font": {"type": "string"}, "resolved_font_sha256": {"anyOf": [HASH, {"const": ""}]},
     "font_info": {"type": ["object", "null"]},
+    "marker_specs": {"type": "array", "items": {"type": "object"}, "maxItems": 32},
+    "element_fonts": {"type": "object"},
 }
 LAYER_PLAN = obj(
     {
@@ -385,6 +396,7 @@ LAYER_PLAN = obj(
                     "preferred_breaks",
                     "font_face", "variation_axes", "font_features", "font_language", "font_fallbacks",
                     "resolved_font", "resolved_font_sha256", "font_info",
+                    "decoration_layout", "quotation_style", "marker_style", "quote_open_enabled", "quote_close_enabled", "marker_placement", "marker_specs", "element_fonts",
                 )
             ),
         ),
@@ -428,6 +440,8 @@ LAYER_PLAN = obj(
         },
         "typography": {"type": ["object", "null"]},
         "font_info": {"type": ["object", "null"]},
+        "elements": {"type": "array", "items": {"type": "object"}, "maxItems": 128},
+        "glyph_bounds": PIXEL_BOX,
     },
     (
         "layer",

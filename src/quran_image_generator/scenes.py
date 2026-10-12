@@ -79,6 +79,14 @@ class Layer:
     resolved_font: str = ""
     resolved_font_sha256: str = ""
     font_info: dict[str, Any] | None = None
+    decoration_layout: str = "legacy"
+    quotation_style: dict[str, Any] = field(default_factory=dict)
+    marker_style: dict[str, Any] = field(default_factory=dict)
+    quote_open_enabled: bool = True
+    quote_close_enabled: bool = True
+    marker_placement: str = "adjacent"
+    marker_specs: tuple[dict[str, Any], ...] = ()
+    element_fonts: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
@@ -204,6 +212,8 @@ class LayerPlan:
     decoration_asset_sha256: str = ""
     typography: dict | None = None
     font_info: dict[str, Any] | None = None
+    elements: tuple[dict[str, Any], ...] = ()
+    glyph_bounds: tuple[int, int, int, int] | None = None
 
 
 def checked_asset(path: str, expected_hash: str = "") -> str:
@@ -336,7 +346,11 @@ def render_layer(
                     checked_asset(selected["path"], selected["sha256"])
             if layer.decoration_font:
                 checked_asset(layer.decoration_font, plan.decoration_asset_sha256)
-            if layer.image and plan.bounds:
+            if layer.decoration_layout == "elements":
+                from .decoration_elements import paint_elements
+
+                paint_elements(scene, plan, image)
+            elif layer.image and plan.bounds:
                 left, top, right, bottom = plan.bounds
                 with Image.open(layer.image) as original:
                     with original.convert("RGBA") as rgba:
@@ -403,7 +417,7 @@ def render_layer(
                             ) as outline:
                                 _color_mask(image, outline, layer.outline_color, 1)
                         _color_mask(image, mask, layer.color, 1)
-            if layer.opacity != 1:
+            if layer.opacity != 1 and layer.decoration_layout != "elements":
                 with image.getchannel("A") as alpha:
                     image.putalpha(alpha.point(lambda a: round(a * layer.opacity)))
         with image.getchannel("A") as alpha:

@@ -77,6 +77,10 @@ def within(bounds: tuple[int, int, int, int], allowed: tuple[int, ...]) -> bool:
 
 
 def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
+    if layer.decoration_layout == "elements":
+        from .decoration_elements import plan_elements
+
+        return plan_elements(scene, layer, digest)
     from .scenes import LayerPlan, check_glyphs, layer_font
 
     check_glyphs(layer)

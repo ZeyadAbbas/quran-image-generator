@@ -45,7 +45,7 @@ from .scenes import (
 from .snapshots import SnapshotStore, canonical_bytes
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.3.9"
+RENDERER_VERSION = "0.3.10"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -166,6 +166,7 @@ def capabilities() -> dict[str, Any]:
             "font_features": runtime_identity()["pillow_raqm"],
             "font_language": runtime_identity()["pillow_raqm"],
             "pinned_font_fallbacks": True,
+            "independent_decoration_elements": True,
             "outline_and_shadow": True,
             "reviewed_phrase_bindings": True,
             "offline_translation_snapshots": True,
@@ -208,7 +209,8 @@ def style_descriptor() -> dict[str, Any]:
         "request_defaults": {"titles": False, "quotations": False, "verse_numbers": False,
                              "cropped": False, "error_mode": "all_or_nothing",
                              "require_approved_profile": False, "deadline_seconds": 300},
-        "asset_roles": [*LAYER_ROLES, "decorations"],
+        "asset_roles": [*LAYER_ROLES, "decorations", "quotes", "markers"],
+        "element_layout": {"directions": ["rtl"], "representation": "combined_rgba_with_element_geometry"},
         "backend": {"active": backend,
                     "shaping": runtime["pillow_raqm"] or runtime["native_raqm"],
                     "font_features": runtime["pillow_raqm"], "font_language": runtime["pillow_raqm"],
@@ -339,6 +341,8 @@ def _prepare_cue(
             )
         warnings.append("profile_review_required")
     scene = profile.apply(scene)
+    if "quotes" in assets or "markers" in assets:
+        scene = replace(scene, layers=tuple(replace(layer, decoration_layout="elements") if layer.role == "arabic" else layer for layer in scene.layers))
     if "decorations" in assets:
         decoration = assets["decorations"]
         path = str(_local_path(decoration["path"], root))
@@ -390,6 +394,9 @@ def _prepare_cue(
             error.details["role"] = layer.role
             raise
     scene = replace(scene, layers=tuple(resolved_layers))
+    from .decoration_elements import prepare_element_fonts
+
+    scene = replace(scene, layers=tuple(prepare_element_fonts(layer, assets, root, font_workspace) for layer in scene.layers))
     plans = plan_scene(scene)
     entry = {
             "cue_id": cue["cue_id"],
@@ -398,7 +405,7 @@ def _prepare_cue(
             "source_spans": [asdict(span) for span in excerpt.spans],
             "translation": translation,
             "metadata": cue.get("metadata", {}),
-            "layers": [{**asdict(plan), "layer": {**asdict(plan.layer), "resolved_font": ""}} for plan in plans],
+            "layers": [{**asdict(plan), "layer": _public_layer(plan.layer)} for plan in plans],
             "asset_ids": [],
             "warnings": warnings,
         }
@@ -415,7 +422,20 @@ def _prepare_cue(
                                  for k, value in asdict(plan.layer).items() if k in REFERENCE_FIELDS},
              "fitted_font_size": plan.font_size}
             for plan in plans]}
+        for inspected in entry["inspection"]["layers"]:
+            original = styles.get(inspected["role"], {})
+            inspected["nested_origins"] = {name: {field: "explicit" if field in original.get(name, {}) else "body"
+                                                  for field in inspected["effective"].get(name, {})}
+                                           for name in ("quotation_style", "marker_style")}
     return entry, scene, plans
+
+
+def _public_layer(layer: Any) -> dict[str, Any]:
+    data = asdict(layer)
+    data["resolved_font"] = ""
+    for font in data.get("element_fonts", {}).values():
+        font["resolved_font"] = ""
+    return data
 
 
 def execute_request(
@@ -634,6 +654,8 @@ def _execute_request(
                         visual_plan["layer"]["image"] = ""
                         visual_plan["layer"]["decoration_font"] = ""
                         visual_plan["layer"]["resolved_font"] = ""
+                        for font in visual_plan["layer"].get("element_fonts", {}).values():
+                            font["resolved_font"] = ""
                         identity = {
                             "scene_size": [scene.width, scene.height],
                             "plan": visual_plan,
