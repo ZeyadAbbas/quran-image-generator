@@ -14,7 +14,15 @@ from PIL import Image, ImageFilter
 from .caption_fit import FitError, pixel_region, within
 from .font_controls import FontWorkspace
 from .references import ReferenceError
-from .scenes import Layer, LayerPlan, Scene, _color_mask, checked_asset, layer_font
+from .scenes import (
+    Layer,
+    LayerPlan,
+    Scene,
+    _color_mask,
+    checked_asset,
+    dimension_scale,
+    layer_font,
+)
 
 ELEMENT_FIELDS = ("enabled", "color", "opacity", "outline_width", "outline_color", "shadow_offset", "shadow_blur",
                   "shadow_color", "shadow_opacity", "font_face", "variation_axes", "font_features", "font_language",
@@ -180,7 +188,7 @@ def plan_elements(scene: Scene, layer: Layer, digest: str, *, preferred_size: fl
     items = _items(layer)
     if not items:
         raise ReferenceError("missing_asset", "Caption has no visible source text")
-    scale = scene.width / 576
+    scale = dimension_scale(scene, layer)
     allowed = pixel_region(scene, layer)
     margin = layer.safe_margin * scale
     width = allowed[2] - allowed[0] - 2 * margin
@@ -231,19 +239,35 @@ def plan_elements(scene: Scene, layer: Layer, digest: str, *, preferred_size: fl
                 ink_boxes.append(run["glyph_bounds"])
         envelope = _union(boxes)
         bounds = (math.floor(envelope[0] - margin), math.floor(envelope[1] - margin), math.ceil(envelope[2] + margin), math.ceil(envelope[3] + margin))
+        ink = _union(ink_boxes)
+        glyph_bounds = (int(ink[0]), int(ink[1]), int(ink[2]), int(ink[3]))
+        from .anchoring import anchor_offset
+
+        ax, ay = anchor_offset(scene, layer, glyph_bounds, bounds)
+        if ax or ay:
+            positioned = [(text, x + ax, y + ay) for text, x, y in positioned]
+            bounds = (bounds[0] + ax, bounds[1] + ay, bounds[2] + ax, bounds[3] + ay)
+            glyph_bounds = (glyph_bounds[0] + ax, glyph_bounds[1] + ay, glyph_bounds[2] + ax, glyph_bounds[3] + ay)
+            for item in elements:
+                item["x"], item["y"] = item["x"] + ax, item["y"] + ay
+                for name in ("bounds", "glyph_bounds"):
+                    b = item[name]
+                    item[name] = (b[0] + ax, b[1] + ay, b[2] + ax, b[3] + ay)
         last_bounds, last_lines = bounds, len(lines)
         collision = layer.line_height and any(measured[i - 1][1][3] > measured[i][1][1] + step for i in range(1, len(lines)))
         if len(lines) <= layer.max_lines and within(bounds, allowed) and not collision:
-            ink = _union(ink_boxes)
             info = copy.deepcopy(layer.font_info)
             if info:
                 effective = info["effective"]
                 effective["font_size_output_pixels"] = size
                 for metric in ("ascender", "descender", "line_gap"):
                     effective["metrics"][metric + "_pixels"] = effective["metrics"][metric] * size / effective["units_per_em"]
-            return LayerPlan(layer, tuple(positioned), bounds, size, digest, elements=tuple(elements), glyph_bounds=(int(ink[0]), int(ink[1]), int(ink[2]), int(ink[3])),
+            return LayerPlan(layer, tuple(positioned), bounds, size, digest, elements=tuple(elements), glyph_bounds=glyph_bounds,
                              decoration_asset_sha256=checked_asset(layer.decoration_font) if layer.decoration_font else "",
                              font_info=info,
+                             layout_info={"role": layer.role, "layer_id": layer.instance_id or layer.role, "preferred_font_size": preferred,
+                                          "effective_font_size": size, "shrink_pixels": preferred - size, "allowed": allowed,
+                                          "glyph_bounds": glyph_bounds, "effect_bounds": bounds, "line_count": len(lines), "scale": scale},
                              typography={"baseline_step": step, "baselines": [v[2] for v in positioned], "word_spacing_pixels": size * layer.word_spacing,
                                          "forced_breaks": layer.forced_breaks, "preferred_breaks": layer.preferred_breaks, "decoration_layout": "elements"})
     if layer.line_height and collision:
@@ -255,7 +279,7 @@ def plan_elements(scene: Scene, layer: Layer, digest: str, *, preferred_size: fl
 
 def paint_elements(scene: Scene, plan: LayerPlan, image: Image.Image) -> None:
     layer = plan.layer
-    scale = scene.width / 576
+    scale = dimension_scale(scene, layer)
     for category in ("body", "quotes", "markers"):
         runs = [v for v in plan.elements if ("quotes" if v["kind"].startswith("quote") else "markers" if v["kind"] == "marker" else "body") == category]
         if not runs:

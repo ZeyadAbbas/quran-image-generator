@@ -643,7 +643,7 @@
                       "minimum": 1,
                       "maximum": 256,
                       "x-units": "reference_pixels",
-                      "x-scaling": "canvas_width/576",
+                      "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                       "x-roles": [
                         "arabic",
                         "translation",
@@ -834,7 +834,7 @@
                       "minimum": 0,
                       "maximum": 8,
                       "x-units": "reference_pixels",
-                      "x-scaling": "canvas_width/576",
+                      "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                       "x-roles": [
                         "arabic",
                         "translation",
@@ -876,7 +876,7 @@
                       ],
                       "description": "Shadow offset",
                       "x-units": "reference_pixels",
-                      "x-scaling": "canvas_width/576",
+                      "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                       "x-roles": [
                         "arabic",
                         "translation",
@@ -893,7 +893,7 @@
                       "minimum": 0,
                       "maximum": 16,
                       "x-units": "reference_pixels",
-                      "x-scaling": "canvas_width/576",
+                      "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                       "x-roles": [
                         "arabic",
                         "translation",
@@ -957,7 +957,7 @@
                       "minimum": 1,
                       "maximum": 256,
                       "x-units": "reference_pixels",
-                      "x-scaling": "canvas_width/576",
+                      "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                       "x-roles": [
                         "arabic",
                         "translation",
@@ -994,7 +994,7 @@
                       "minimum": 0,
                       "maximum": 64,
                       "x-units": "reference_pixels",
-                      "x-scaling": "canvas_width/576",
+                      "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                       "x-roles": [
                         "arabic",
                         "translation",
@@ -1072,7 +1072,7 @@
                       "minimum": 0,
                       "maximum": 64,
                       "x-units": "reference_pixels",
-                      "x-scaling": "canvas_width/576",
+                      "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                       "x-roles": [
                         "arabic",
                         "translation",
@@ -1157,7 +1157,7 @@
                       "minimum": 0,
                       "maximum": 32,
                       "x-units": "reference_pixels",
-                      "x-scaling": "canvas_width/576",
+                      "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                       "x-roles": [
                         "arabic"
                       ],
@@ -1170,7 +1170,7 @@
                       "minimum": -32,
                       "maximum": 32,
                       "x-units": "reference_pixels",
-                      "x-scaling": "canvas_width/576",
+                      "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                       "x-roles": [
                         "arabic"
                       ],
@@ -1183,7 +1183,7 @@
                       "minimum": 0,
                       "maximum": 32,
                       "x-units": "reference_pixels",
-                      "x-scaling": "canvas_width/576",
+                      "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                       "x-roles": [
                         "arabic"
                       ],
@@ -1492,7 +1492,7 @@
                           "minimum": 0,
                           "maximum": 8,
                           "x-units": "reference_pixels",
-                          "x-scaling": "canvas_width/576",
+                          "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                           "x-roles": [
                             "arabic",
                             "translation",
@@ -1536,7 +1536,7 @@
                           ],
                           "description": "Shadow offset",
                           "x-units": "reference_pixels",
-                          "x-scaling": "canvas_width/576",
+                          "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                           "x-roles": [
                             "arabic",
                             "translation",
@@ -1554,7 +1554,7 @@
                           "minimum": 0,
                           "maximum": 16,
                           "x-units": "reference_pixels",
-                          "x-scaling": "canvas_width/576",
+                          "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                           "x-roles": [
                             "arabic",
                             "translation",
@@ -1854,7 +1854,7 @@
                           "minimum": 0,
                           "maximum": 8,
                           "x-units": "reference_pixels",
-                          "x-scaling": "canvas_width/576",
+                          "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                           "x-roles": [
                             "arabic",
                             "translation",
@@ -1898,7 +1898,7 @@
                           ],
                           "description": "Shadow offset",
                           "x-units": "reference_pixels",
-                          "x-scaling": "canvas_width/576",
+                          "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                           "x-roles": [
                             "arabic",
                             "translation",
@@ -1916,7 +1916,7 @@
                           "minimum": 0,
                           "maximum": 16,
                           "x-units": "reference_pixels",
-                          "x-scaling": "canvas_width/576",
+                          "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                           "x-roles": [
                             "arabic",
                             "translation",
@@ -2320,6 +2320,93 @@
                       ],
                       "x-applies-to": "text"
                     },
+                    "scale_basis": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "default": "width",
+                      "description": "Reference dimensions use width/576, short-side/576, or fixed output pixels",
+                      "enum": [
+                        "width",
+                        "short_side",
+                        "pixels"
+                      ],
+                      "x-units": "unitless",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
+                    "anchor_mode": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "default": "baseline",
+                      "description": "Legacy baseline, or glyph/decorated ink/effect-block top/middle/bottom",
+                      "enum": [
+                        "baseline",
+                        "ink_top",
+                        "ink_middle",
+                        "ink_bottom",
+                        "block_top",
+                        "block_middle",
+                        "block_bottom"
+                      ],
+                      "x-units": "unitless",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
+                    "anchor_space": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "default": "canvas",
+                      "description": "Normalized anchor in canvas or the caller's allowed region",
+                      "enum": [
+                        "canvas",
+                        "region"
+                      ],
+                      "x-units": "unitless",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
+                    "anchor_horizontal": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "default": "center",
+                      "description": "Reading start/center/end for ink/block anchor modes",
+                      "enum": [
+                        "start",
+                        "center",
+                        "end"
+                      ],
+                      "x-units": "unitless",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
                     "role": {
                       "type": "string",
                       "minLength": 1,
@@ -2593,6 +2680,12 @@
                     {
                       "const": ""
                     }
+                  ]
+                },
+                "layout_info": {
+                  "type": [
+                    "object",
+                    "null"
                   ]
                 }
               },

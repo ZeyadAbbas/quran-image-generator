@@ -52,6 +52,7 @@ Use **Apply layer** to commit, **Import styles…** to load a reusable profile, 
 | --- | --- |
 | `font_size`, `min_font_size` | Initial and minimum readable sizes; initial size allows fractions. |
 | `anchor`, `region` | Baseline x/y and left/top/right/bottom region, entered as comma-separated 0–1 fractions of the canvas. |
+| `anchor_mode`, `anchor_space`, `anchor_horizontal`, `scale_basis` | [Ink/block anchors and dimension basis](caption-groups.md); legacy baseline/width defaults remain available. |
 | `direction`, `alignment`, `baseline_anchor` | RTL/LTR shaping, left/center/right alignment, and first/last baseline placement. |
 | `fit`, `max_lines`, `line_spacing`, `safe_margin` | Wrap or bounded shrink, line limit, interline spacing and required inset. Overflow fails with diagnostic boxes. |
 | `horizontal_scale` | Horizontal scaling of the complete shaped line, preserving connected Arabic. |
