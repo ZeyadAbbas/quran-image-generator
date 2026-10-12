@@ -100,7 +100,7 @@
                 "minimum": 1,
                 "maximum": 256,
                 "x-units": "reference_pixels",
-                "x-scaling": "canvas_width/576",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                 "x-roles": [
                   "arabic",
                   "translation",
@@ -291,7 +291,7 @@
                 "minimum": 0,
                 "maximum": 8,
                 "x-units": "reference_pixels",
-                "x-scaling": "canvas_width/576",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                 "x-roles": [
                   "arabic",
                   "translation",
@@ -333,7 +333,7 @@
                 ],
                 "description": "Shadow offset",
                 "x-units": "reference_pixels",
-                "x-scaling": "canvas_width/576",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                 "x-roles": [
                   "arabic",
                   "translation",
@@ -350,7 +350,7 @@
                 "minimum": 0,
                 "maximum": 16,
                 "x-units": "reference_pixels",
-                "x-scaling": "canvas_width/576",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                 "x-roles": [
                   "arabic",
                   "translation",
@@ -414,7 +414,7 @@
                 "minimum": 1,
                 "maximum": 256,
                 "x-units": "reference_pixels",
-                "x-scaling": "canvas_width/576",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                 "x-roles": [
                   "arabic",
                   "translation",
@@ -451,7 +451,7 @@
                 "minimum": 0,
                 "maximum": 64,
                 "x-units": "reference_pixels",
-                "x-scaling": "canvas_width/576",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                 "x-roles": [
                   "arabic",
                   "translation",
@@ -529,7 +529,7 @@
                 "minimum": 0,
                 "maximum": 64,
                 "x-units": "reference_pixels",
-                "x-scaling": "canvas_width/576",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                 "x-roles": [
                   "arabic",
                   "translation",
@@ -614,7 +614,7 @@
                 "minimum": 0,
                 "maximum": 32,
                 "x-units": "reference_pixels",
-                "x-scaling": "canvas_width/576",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                 "x-roles": [
                   "arabic"
                 ],
@@ -627,7 +627,7 @@
                 "minimum": -32,
                 "maximum": 32,
                 "x-units": "reference_pixels",
-                "x-scaling": "canvas_width/576",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                 "x-roles": [
                   "arabic"
                 ],
@@ -640,7 +640,7 @@
                 "minimum": 0,
                 "maximum": 32,
                 "x-units": "reference_pixels",
-                "x-scaling": "canvas_width/576",
+                "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                 "x-roles": [
                   "arabic"
                 ],
@@ -949,7 +949,7 @@
                     "minimum": 0,
                     "maximum": 8,
                     "x-units": "reference_pixels",
-                    "x-scaling": "canvas_width/576",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                     "x-roles": [
                       "arabic",
                       "translation",
@@ -993,7 +993,7 @@
                     ],
                     "description": "Shadow offset",
                     "x-units": "reference_pixels",
-                    "x-scaling": "canvas_width/576",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                     "x-roles": [
                       "arabic",
                       "translation",
@@ -1011,7 +1011,7 @@
                     "minimum": 0,
                     "maximum": 16,
                     "x-units": "reference_pixels",
-                    "x-scaling": "canvas_width/576",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                     "x-roles": [
                       "arabic",
                       "translation",
@@ -1311,7 +1311,7 @@
                     "minimum": 0,
                     "maximum": 8,
                     "x-units": "reference_pixels",
-                    "x-scaling": "canvas_width/576",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                     "x-roles": [
                       "arabic",
                       "translation",
@@ -1355,7 +1355,7 @@
                     ],
                     "description": "Shadow offset",
                     "x-units": "reference_pixels",
-                    "x-scaling": "canvas_width/576",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                     "x-roles": [
                       "arabic",
                       "translation",
@@ -1373,7 +1373,7 @@
                     "minimum": 0,
                     "maximum": 16,
                     "x-units": "reference_pixels",
-                    "x-scaling": "canvas_width/576",
+                    "x-scaling": "scale_basis: width/576 (default), short_side/576, or pixels",
                     "x-roles": [
                       "arabic",
                       "translation",
@@ -1766,6 +1766,93 @@
                 "additionalProperties": false,
                 "default": {},
                 "description": "JSON backplate style with independent fill/alpha, padding, border, corners and shadow; empty object disables it",
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
+              },
+              "scale_basis": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "width",
+                "description": "Reference dimensions use width/576, short-side/576, or fixed output pixels",
+                "enum": [
+                  "width",
+                  "short_side",
+                  "pixels"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
+              },
+              "anchor_mode": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "baseline",
+                "description": "Legacy baseline, or glyph/decorated ink/effect-block top/middle/bottom",
+                "enum": [
+                  "baseline",
+                  "ink_top",
+                  "ink_middle",
+                  "ink_bottom",
+                  "block_top",
+                  "block_middle",
+                  "block_bottom"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
+              },
+              "anchor_space": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "canvas",
+                "description": "Normalized anchor in canvas or the caller's allowed region",
+                "enum": [
+                  "canvas",
+                  "region"
+                ],
+                "x-units": "unitless",
+                "x-scaling": "none",
+                "x-roles": [
+                  "arabic",
+                  "translation",
+                  "arabic_title",
+                  "latin_title",
+                  "logo"
+                ],
+                "x-applies-to": "text"
+              },
+              "anchor_horizontal": {
+                "type": "string",
+                "maxLength": 64,
+                "default": "center",
+                "description": "Reading start/center/end for ink/block anchor modes",
+                "enum": [
+                  "start",
+                  "center",
+                  "end"
+                ],
                 "x-units": "unitless",
                 "x-scaling": "none",
                 "x-roles": [
@@ -2627,9 +2714,101 @@
           },
           "mode": {
             "enum": [
-              "overlay"
+              "overlay",
+              "flow"
             ],
             "default": "overlay"
+          },
+          "region": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "default": [
+              0.05,
+              0.05,
+              0.95,
+              0.95
+            ]
+          },
+          "gap": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 64,
+            "default": 0.6
+          },
+          "padding": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 64
+            },
+            "default": [
+              0,
+              0
+            ]
+          },
+          "unit": {
+            "enum": [
+              "em",
+              "reference_pixels"
+            ],
+            "default": "em"
+          },
+          "scale_basis": {
+            "enum": [
+              "width",
+              "short_side",
+              "pixels"
+            ],
+            "default": "width"
+          },
+          "vertical_alignment": {
+            "enum": [
+              "top",
+              "middle",
+              "bottom"
+            ],
+            "default": "middle"
+          },
+          "horizontal_alignment": {
+            "enum": [
+              "left",
+              "center",
+              "right"
+            ],
+            "default": "center"
+          },
+          "fit": {
+            "enum": [
+              "wrap",
+              "shrink",
+              "fail"
+            ],
+            "default": "wrap"
+          },
+          "collision": {
+            "enum": [
+              "allow",
+              "reject"
+            ],
+            "default": "allow"
+          },
+          "size_ratios": {
+            "type": "object",
+            "maxProperties": 16,
+            "additionalProperties": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 8
+            }
           }
         },
         "required": [

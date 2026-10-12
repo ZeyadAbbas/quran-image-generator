@@ -41,7 +41,8 @@ layer, placed behind its children by z order. Each layout layer reports its
 rendered `asset_id`; fontless panel assets report an empty `font_sha256`.
 Panels plus text are bounded to 16 output layers and groups to 8. Group IDs are
 unique (1–64 characters); unknown member IDs fail. Ordinary group `overlay` mode
-does not reposition text. Rich group flow is a separate layout extension.
+does not reposition text. [Joint group flow](caption-groups.md) can position and
+fit children and the backplate together.
 
 Caption Studio exposes per-layer panel JSON controls and **Caption groups…**.
 Save/reload uses the public schema. Solid fill, border and panel shadow are

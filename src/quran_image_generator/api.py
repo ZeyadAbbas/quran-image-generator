@@ -45,7 +45,7 @@ from .scenes import (
 from .snapshots import SnapshotStore, canonical_bytes
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.3.11"
+RENDERER_VERSION = "0.3.12"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -170,6 +170,11 @@ def capabilities() -> dict[str, Any]:
             "caption_panels": True,
             "shared_group_backplates": True,
             "gradient_panels": False,
+            "ink_and_block_anchors": True,
+            "caption_group_flow": True,
+            "coordinated_group_fit": True,
+            "declared_collision_checks": True,
+            "dimension_scale_basis": True,
             "outline_and_shadow": True,
             "reviewed_phrase_bindings": True,
             "offline_translation_snapshots": True,
@@ -183,6 +188,7 @@ def capabilities() -> dict[str, Any]:
             "layers": 16,
             "canvas_pixels": 8_500_000,
             "tracked_graphemes_per_line": 512,
+            "group_fit_attempts": 257,
         },
         "alpha_mode": "straight",
         "color_space": "sRGB",
@@ -230,6 +236,25 @@ def inspect_request(request: RenderRequest | dict[str, Any], *, asset_root: Path
     data = request.to_dict() if isinstance(request, RenderRequest) else copy.deepcopy(request)
     data["operation"] = "inspect"
     return execute_request(data, asset_root=asset_root)
+
+
+def common_size_suggestion(response: RenderResponse | dict[str, Any]) -> dict[str, Any]:
+    """Suggest reference sizes from layout batches; callers replay to validate."""
+    data = response.to_dict() if isinstance(response, RenderResponse) else response
+    sizes: dict[str, float] = {}
+    failed = []
+    for cue in data["cues"]:
+        if cue["status"] == "failed":
+            failed.append(cue["cue_id"])
+            continue
+        for plan in cue.get("layers", []):
+            if plan["status"] != "ready" or not plan["font_size"]:
+                continue
+            scale = (plan.get("layout_info") or {}).get("scale", 1)
+            key = plan["layer"].get("instance_id") or plan["layer"]["role"]
+            size = plan["font_size"] / scale
+            sizes[key] = min(sizes.get(key, size), size)
+    return {"reference_sizes": sizes, "failed_cues": failed, "requires_revalidation": True}
 
 
 def error_record(error: ReferenceError) -> dict[str, Any]:
@@ -416,14 +441,15 @@ def _prepare_cue(
         from .style_contract import REFERENCE_FIELDS
 
         fields = style_schema()["properties"]
+        from .scenes import dimension_scale
         styles = profile_data["styles"]
         entry["inspection"] = {"scale": scene.width / 576, "layers": [
             {"role": plan.layer.role, "status": plan.status,
              "effective": {k: v for k, v in asdict(plan.layer).items() if k in fields},
              "origins": {k: "explicit" if k in styles.get(plan.layer.role, {}) else "default" for k in fields},
-             "resolved_pixels": {k: (tuple(v * scene.width / 576 for v in value) if isinstance(value, tuple) else value * scene.width / 576)
+             "resolved_pixels": {k: (tuple(v * dimension_scale(scene, plan.layer) for v in value) if isinstance(value, tuple) else value * dimension_scale(scene, plan.layer))
                                  for k, value in asdict(plan.layer).items() if k in REFERENCE_FIELDS},
-             "fitted_font_size": plan.font_size}
+             "fitted_font_size": plan.font_size, "scale": dimension_scale(scene, plan.layer), "layout": plan.layout_info}
             for plan in plans]}
         for inspected in entry["inspection"]["layers"]:
             original = styles.get(inspected["role"], {})
@@ -498,8 +524,9 @@ def _execute_request(
                 style = {**(default_styles(role) if role in LAYER_ROLES else {}), **data.get("profile", {}).get("styles", {}).get(role, {})}
                 validate_layer_style(Layer(role, **style), prefix="/profile/styles/" + role)
                 preferred = style.get("font_size", 30)
-                effective_size = max(1, round(preferred * data.get("canvas", {}).get("width", 576) / 576, 2)
-                                     if isinstance(preferred, float) else round(preferred * data.get("canvas", {}).get("width", 576) / 576))
+                canvas = data.get("canvas", {"width": 576, "height": 1024})
+                scale = 1 if style.get("scale_basis") == "pixels" else min(canvas.values()) / 576 if style.get("scale_basis") == "short_side" else canvas["width"] / 576
+                effective_size = max(1, round(preferred * scale, 2) if isinstance(preferred, float) else round(preferred * scale))
                 try:
                     inspections[role] = inspect_font(_local_path(asset["path"], root), sha256=asset["sha256"],
                         role=role, text=data.get("font_samples", {}).get(role, asset.get("glyph", "")), font_face=style.get("font_face", 0),

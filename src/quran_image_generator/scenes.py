@@ -90,6 +90,10 @@ class Layer:
     panel: dict[str, Any] = field(default_factory=dict)
     instance_id: str = ""
     kind: str = "text"
+    scale_basis: str = "width"
+    anchor_mode: str = "baseline"
+    anchor_space: str = "canvas"
+    anchor_horizontal: str = "center"
 
 
 @dataclass(frozen=True, slots=True)
@@ -222,6 +226,11 @@ class LayerPlan:
     glyph_bounds: tuple[int, int, int, int] | None = None
     panels: tuple[dict[str, Any], ...] = ()
     asset_id: str = ""
+    layout_info: dict[str, Any] | None = None
+
+
+def dimension_scale(scene: Scene, layer: Layer) -> float:
+    return 1 if layer.scale_basis == "pixels" else min(scene.width, scene.height) / 576 if layer.scale_basis == "short_side" else scene.width / 576
 
 
 def checked_asset(path: str, expected_hash: str = "") -> str:
@@ -296,6 +305,10 @@ def check_glyphs(layer: Layer) -> None:
 
 def plan_scene(scene: Scene) -> tuple[LayerPlan, ...]:
     scene.validate()
+    if any(group.get("mode", "overlay") == "flow" or group.get("collision", "allow") == "reject" for group in scene.groups):
+        from .group_layout import plan_group_scene
+
+        return plan_group_scene(scene)
     plans = []
     for layer in sorted(scene.layers, key=lambda item: item.z_order):
         if not layer.enabled or not layer.text and not layer.image:
@@ -328,6 +341,11 @@ def plan_scene(scene: Scene) -> tuple[LayerPlan, ...]:
                 round(layer.anchor[1] * scene.height - h / 2),
             )
             image_bounds = (image_x, image_y, image_x + w, image_y + h)
+            if layer.anchor_mode != "baseline":
+                from .anchoring import anchor_offset
+
+                ax, ay = anchor_offset(scene, layer, image_bounds, image_bounds)
+                image_bounds = (image_bounds[0] + ax, image_bounds[1] + ay, image_bounds[2] + ax, image_bounds[3] + ay)
             if not within(image_bounds, pixel_region(scene, layer)):
                 raise FitError(
                     layer.role, image_bounds, pixel_region(scene, layer), 0, 0
@@ -402,7 +420,7 @@ def render_layer(
                             plan.font_size * layer.decoration_scale,
                         ).paint(glyphs, text, x, y, "#FFFFFF")
                     with glyphs.getchannel("A") as mask:
-                        scale = scene.width / 576
+                        scale = dimension_scale(scene, layer)
                         if layer.shadow_opacity:
                             with (
                                 mask.filter(

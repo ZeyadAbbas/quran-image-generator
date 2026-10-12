@@ -63,7 +63,18 @@ PANEL = obj({
 })
 GROUP_PANEL = obj({**PANEL["properties"], "mode": {"enum": ["block"], "default": "block"}})
 GROUP = obj({"group_id": {"type": "string", "minLength": 1, "maxLength": 64}, "layers": {"type": "array", "items": TEXT, "minItems": 1, "maxItems": 16, "uniqueItems": True},
-             "panel": GROUP_PANEL, "mode": {"enum": ["overlay"], "default": "overlay"}}, ("group_id", "layers"))
+             "panel": GROUP_PANEL, "mode": {"enum": ["overlay", "flow"], "default": "overlay"},
+             "region": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number", "minimum": 0, "maximum": 1}, "default": [0.05, 0.05, 0.95, 0.95]},
+             "gap": {"type": "number", "minimum": 0, "maximum": 64, "default": 0.6},
+             "padding": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number", "minimum": 0, "maximum": 64}, "default": [0, 0]},
+             "unit": {"enum": ["em", "reference_pixels"], "default": "em"},
+             "scale_basis": {"enum": ["width", "short_side", "pixels"], "default": "width"},
+             "vertical_alignment": {"enum": ["top", "middle", "bottom"], "default": "middle"},
+             "horizontal_alignment": {"enum": ["left", "center", "right"], "default": "center"},
+             "fit": {"enum": ["wrap", "shrink", "fail"], "default": "wrap"},
+             "collision": {"enum": ["allow", "reject"], "default": "allow"},
+             "size_ratios": {"type": "object", "maxProperties": 16, "additionalProperties": {"type": "number", "exclusiveMinimum": 0, "maximum": 8}}},
+            ("group_id", "layers"))
 
 
 def style_schema() -> dict[str, Any]:
@@ -421,6 +432,7 @@ LAYER_PLAN = obj(
                     "resolved_font", "resolved_font_sha256", "font_info",
                     "decoration_layout", "quotation_style", "marker_style", "quote_open_enabled", "quote_close_enabled", "marker_placement", "marker_specs", "element_fonts",
                     "panel", "instance_id", "kind",
+                    "scale_basis", "anchor_mode", "anchor_space", "anchor_horizontal",
                 )
             ),
         ),
@@ -468,6 +480,7 @@ LAYER_PLAN = obj(
         "glyph_bounds": PIXEL_BOX,
         "panels": {"type": "array", "maxItems": 8, "items": {"type": "object"}},
         "asset_id": {"anyOf": [HASH, {"const": ""}]},
+        "layout_info": {"type": ["object", "null"]},
     },
     (
         "layer",

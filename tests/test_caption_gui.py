@@ -132,6 +132,19 @@ def test_panel_and_group_controls_save_the_public_request(studio):
     assert studio.document.request("layout").payload["profile"]["styles"]["arabic"]["panel"]["opacity"] == 0.6
 
 
+def test_native_ink_anchor_and_flow_group_roundtrip(studio, tmp_path):
+    studio._styles["anchor_mode"].set("ink_bottom")
+    studio._styles["anchor_space"].set("region")
+    studio._styles["scale_basis"].set("short_side")
+    studio._apply_layer()
+    studio.document.set_caption_groups([{"group_id": "caption", "mode": "flow", "layers": ["arabic"], "fit": "shrink", "region": [0.05, 0.1, 0.95, 0.92]}])
+    path = tmp_path / "group-request.json"
+    studio.document.save(path)
+    loaded = CaptionDocument.load(path)
+    assert loaded.request("layout").payload["caption_groups"][0]["mode"] == "flow"
+    assert loaded.styles("arabic")["anchor_mode"] == "ink_bottom"
+
+
 def test_close_during_render_cancels_without_touching_destroyed_widgets(
     studio, monkeypatch
 ):

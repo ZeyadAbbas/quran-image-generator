@@ -12,7 +12,7 @@ from .caption_fit import FitError, pixel_region, plan_text, within
 from .contract_schema import GROUP, PANEL
 from .diagnostics import validate_schema
 from .references import ReferenceError
-from .scenes import Layer, LayerPlan, Scene, _color_mask, layer_font
+from .scenes import Layer, LayerPlan, Scene, _color_mask, dimension_scale, layer_font
 
 
 def panel_style(value: dict[str, Any]) -> dict[str, Any]:
@@ -40,7 +40,7 @@ def line_bounds(scene: Scene, plan: LayerPlan, effects: bool = True) -> list[tup
     layer = plan.layer
     font = layer_font(layer, plan.font_size)
     boxes = []
-    scale = scene.width / 576
+    scale = dimension_scale(scene, layer)
     style = {"outline_width": layer.outline_width, "shadow_offset": layer.shadow_offset, "shadow_blur": layer.shadow_blur, "shadow_opacity": layer.shadow_opacity}
     for text, x, y in plan.lines:
         box = font.getbbox(text)
@@ -96,28 +96,40 @@ def add_panel(scene: Scene, plan: LayerPlan) -> LayerPlan:
         if region[0] >= region[2] or region[1] >= region[3]:
             raise ReferenceError("invalid_request", "Panel region requires ordered edges", details={"path": "/panel/region"})
         box = tuple(round(v * (scene.width if i % 2 == 0 else scene.height)) for i, v in enumerate(region))
-        geometry = panel_geometry(style, box, plan.font_size, scene.width / 576, padded=False)
+        geometry = panel_geometry(style, box, plan.font_size, dimension_scale(scene, layer), padded=False)
         px, py = geometry["padding_pixels"]
         inset = (math.ceil(box[0] + px), math.ceil(box[1] + py), math.floor(box[2] - px), math.floor(box[3] - py))
         if not within(union(boxes), inset):
             raise FitError(layer.role, union(boxes), inset, plan.font_size, len(plan.lines))
         panels = [geometry]
     else:
-        panels = [panel_geometry(style, box, plan.font_size, scene.width / 576) for box in (boxes if style["mode"] == "line" else [union(boxes)])]
+        panels = [panel_geometry(style, box, plan.font_size, dimension_scale(scene, layer)) for box in (boxes if style["mode"] == "line" else [union(boxes)])]
     bounds = union([plan.bounds, *[v["bounds"] for v in panels]])
+    candidate = replace(plan, bounds=bounds, panels=tuple(panels))
+    if layer.anchor_mode != "baseline" and candidate.glyph_bounds:
+        from .anchoring import anchor_offset, shift_plan
+
+        ax, ay = anchor_offset(scene, layer, candidate.glyph_bounds, bounds)
+        candidate = shift_plan(candidate, ax, ay)
+        assert candidate.bounds is not None
+        bounds = candidate.bounds
     if not within(bounds, pixel_region(scene, layer)):
         error = FitError(layer.role, bounds, pixel_region(scene, layer), plan.font_size, len(plan.lines))
         error.details.update(constraint="panel_envelope", path="/profile/styles/" + layer.role + "/panel")
         raise error
-    return replace(plan, bounds=bounds, panels=tuple(panels))
+    layout = dict(candidate.layout_info or {})
+    layout.update(block_bounds=bounds, panel_bounds=union([v["bounds"] for v in candidate.panels]))
+    return replace(candidate, layout_info=layout)
 
 
-def plan_panel_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
+def plan_panel_text(scene: Scene, layer: Layer, digest: str, *, preferred_size: float | None = None) -> LayerPlan:
     if not panel_style(layer.panel)["enabled"]:
-        return plan_text(scene, layer, digest)
-    scale = scene.width / 576
+        return plan_text(scene, layer, digest, preferred_size=preferred_size)
+    scale = dimension_scale(scene, layer)
     preferred = max(1, round(layer.font_size * scale, 2) if isinstance(layer.font_size, float) else round(layer.font_size * scale))
     minimum = max(1, round(layer.min_font_size * scale))
+    if preferred_size is not None:
+        preferred = preferred_size
     sizes = [max(minimum, preferred - n) for n in range(math.ceil(preferred - minimum) + 1)] if layer.fit == "shrink" else [preferred]
     for size in sizes:
         candidate = replace(layer, fit="wrap") if layer.fit == "shrink" else layer
@@ -160,7 +172,8 @@ def group_panel_plans(scene: Scene, plans: tuple[LayerPlan, ...]) -> tuple[Layer
         if style["mode"] != "block":
             raise ReferenceError("invalid_group", "Shared backplates use block mode", details={"group_id": group["group_id"], "path": f"/caption_groups/{index}/panel/mode"})
         em_size = next((p.font_size for p in active if p.font_size), 30 * scene.width / 576)
-        geometry = panel_geometry(style, union([p.bounds for p in active if p.bounds]), em_size, scene.width / 576)
+        reference_scale = dimension_scale(scene, replace(active[0].layer, scale_basis=group.get("scale_basis", "width")))
+        geometry = panel_geometry(style, union([p.bounds for p in active if p.bounds]), em_size, reference_scale)
         if not within(geometry["bounds"], (0, 0, scene.width, scene.height)):
             raise FitError("panel", geometry["bounds"], (0, 0, scene.width, scene.height), 0, 0)
         layer = Layer("panel", required=False, kind="panel", instance_id="group-panel:" + group["group_id"], panel=style,

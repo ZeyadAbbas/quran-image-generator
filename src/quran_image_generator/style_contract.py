@@ -23,6 +23,9 @@ ENUMS = {
     "baseline_anchor": ["first", "last"], "alignment": ["left", "center", "right"],
     "numeral_system": ["latin", "arabic_indic"],
     "decoration_layout": ["legacy", "elements"], "marker_placement": ["adjacent", "after_quote"],
+    "scale_basis": ["width", "short_side", "pixels"],
+    "anchor_mode": ["baseline", "ink_top", "ink_middle", "ink_bottom", "block_top", "block_middle", "block_bottom"],
+    "anchor_space": ["canvas", "region"], "anchor_horizontal": ["start", "center", "end"],
 }
 REFERENCE_FIELDS = {
     "font_size", "min_font_size", "outline_width", "shadow_offset", "shadow_blur",
@@ -51,6 +54,10 @@ DESCRIPTIONS = {
     "marker_style": "JSON true-ending marker style; omitted fields inherit body choices",
     "marker_placement": "Adjacent to the real ending, or after the closing quote for the final ending",
     "panel": "JSON backplate style with independent fill/alpha, padding, border, corners and shadow; empty object disables it",
+    "scale_basis": "Reference dimensions use width/576, short-side/576, or fixed output pixels",
+    "anchor_mode": "Legacy baseline, or glyph/decorated ink/effect-block top/middle/bottom",
+    "anchor_space": "Normalized anchor in canvas or the caller's allowed region",
+    "anchor_horizontal": "Reading start/center/end for ink/block anchor modes",
 }
 
 
@@ -72,7 +79,7 @@ def field_metadata(name: str, spec: dict[str, Any], default: Any) -> dict[str, A
     result["x-units"] = ("em" if name in ("word_spacing", "line_height", "tracking") else "reference_pixels" if name in REFERENCE_FIELDS else
                          "normalized_canvas" if name in ("anchor", "region") else
                          "ratio" if name in ("opacity", "shadow_opacity", "suffix_scale", "horizontal_scale", "decoration_scale") else "unitless")
-    result["x-scaling"] = "canvas_width/576" if name in REFERENCE_FIELDS else "none"
+    result["x-scaling"] = "scale_basis: width/576 (default), short_side/576, or pixels" if name in REFERENCE_FIELDS else "none"
     result["x-roles"] = (["arabic"] if name.startswith(("quote_", "quotation_", "marker_", "suffix_", "decoration_")) or name == "numeral_system"
                          else ["arabic", "translation", "arabic_title", "latin_title", "logo"])
     result["x-applies-to"] = "layer" if name in ("enabled", "required", "opacity", "z_order", "anchor", "region", "sha256", "safe_margin") else "text"

@@ -30,6 +30,9 @@ class FitError(ReferenceError):
             "allowed": allowed,
             "font_size": size,
             "line_count": line_count,
+            "constraint": "allowed_region_or_line_count",
+            "overflow": {"left": max(0, allowed[0] - bounds[0]), "top": max(0, allowed[1] - bounds[1]),
+                         "right": max(0, bounds[2] - allowed[2]), "bottom": max(0, bounds[3] - allowed[3])},
             "suggestions": [
                 "split_cue",
                 "enlarge_region",
@@ -108,7 +111,9 @@ def plan_text(scene: Scene, layer: Layer, digest: str, *, preferred_size: float 
             layer.decoration_font, layer.decoration_sha256
         )
         check_glyphs(decoration)
-    scale = scene.width / 576
+    from .scenes import dimension_scale
+
+    scale = dimension_scale(scene, layer)
     preferred = max(
         1,
         round(layer.font_size * scale, 2)
@@ -269,6 +274,17 @@ def plan_text(scene: Scene, layer: Layer, digest: str, *, preferred_size: float 
             math.ceil(max(b[2] for b in boxes) + padding + max(0, dx)),
             math.ceil(max(b[3] for b in boxes) + padding + max(0, dy)),
         )
+        glyph_bounds = (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
+        from .anchoring import anchor_offset
+
+        ax, ay = anchor_offset(scene, layer, glyph_bounds, bounds)
+        if ax or ay:
+            positioned = [(text, x + ax, y + ay) for text, x, y in positioned]
+            bounds = (bounds[0] + ax, bounds[1] + ay, bounds[2] + ax, bounds[3] + ay)
+            glyph_bounds = (glyph_bounds[0] + ax, glyph_bounds[1] + ay, glyph_bounds[2] + ax, glyph_bounds[3] + ay)
+            if suffix_position:
+                suffix_position = (suffix_position[0] + ax, suffix_position[1] + ay, suffix_position[2])
+            ornament_positions = [(text, x + ax, y + ay) for text, x, y in ornament_positions]
         last_bounds, last_count = bounds, len(lines)
         collisions = [(i - 1, i) for i in range(1, len(lines)) if boxes[i - 1][3] + padding > boxes[i][1] - padding] if layer.line_height else []
         if len(lines) <= layer.max_lines and within(bounds, allowed) and not collisions:
@@ -291,6 +307,11 @@ def plan_text(scene: Scene, layer: Layer, digest: str, *, preferred_size: float 
                 ornament_positions=tuple(ornament_positions),
                 decoration_asset_sha256=decoration_digest,
                 font_info=font_info,
+                glyph_bounds=glyph_bounds,
+                layout_info={"role": layer.role, "layer_id": layer.instance_id or layer.role, "constraint": "fit",
+                             "preferred_font_size": preferred, "effective_font_size": size, "shrink_pixels": preferred - size,
+                             "allowed": allowed, "glyph_bounds": glyph_bounds, "effect_bounds": bounds,
+                             "line_count": len(lines), "anchor_mode": layer.anchor_mode, "scale": scale},
                 typography={"word_spacing_em": layer.word_spacing, "word_spacing_pixels": size * layer.word_spacing,
                             "tracking_em": layer.tracking, "tracking_pixels": size * layer.tracking,
                             "baseline_step": step, "baselines": [v[2] for v in positioned],
