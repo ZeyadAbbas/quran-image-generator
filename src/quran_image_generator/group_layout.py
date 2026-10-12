@@ -138,6 +138,7 @@ def _flow(scene: Scene, group: dict[str, Any], members: list[Layer]) -> tuple[La
         return (*result, *omitted)
     raise ReferenceError("group_fit_failed", "Caption group cannot fit within per-role readable minima", details={
         "group_id": group["group_id"], "path": "/caption_groups", "minimum_factor": minimum_factor, "attempted_factors": len(factors),
+        "layer_id": active[0].instance_id or active[0].role,
         "preferred_sizes": preferred, "minimum_sizes": {layer.instance_id or layer.role: layer.min_font_size for layer in active},
         "suggestions": ["enlarge_group_region", "split_cue", "reduce_effects_or_padding"], **failure})
 
