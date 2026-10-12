@@ -65,6 +65,7 @@ Use **Apply layer** to commit, **Import styles…** to load a reusable profile, 
 | `decoration_layout`, `quotation_style`, `marker_style`, `quote_open_enabled`, `quote_close_enabled`, `marker_placement` | [Independent source-associated elements](decoration-elements.md), with separate fonts/colors/effects and truthful repeated endings. |
 | `sha256` | Optional required font fingerprint; selecting an asset updates this pin. |
 | `font_face`, `variation_axes`, `font_features`, `font_language`, `font_fallbacks` | Explicit faces/axes, supported shaping choices and pinned whole-layer fallback. Structured values use JSON; [font inspection](font-controls.md) provides valid choices and coverage. |
+| `panel` | Independent-alpha line/block/region backgrounds, padding, borders, corners and shadow; [panel and group guide](caption-panels.md). |
 
 Sizes, outlines, offsets, spacing and margins use reference pixels at a
 576-pixel-wide canvas and scale with canvas width. Normalized coordinates are

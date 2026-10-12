@@ -174,7 +174,7 @@ def _measure(layer: Layer, items: list[dict[str, Any]], size: float, scale: floa
     return runs, _union(boxes)
 
 
-def plan_elements(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
+def plan_elements(scene: Scene, layer: Layer, digest: str, *, preferred_size: float | None = None) -> LayerPlan:
     if layer.direction != "rtl":
         raise ReferenceError("unsupported_decoration_direction", "Source-associated Quran elements require RTL paragraph direction", details={"path": "/profile/styles/arabic/direction", "role": "arabic", "allowed": ["rtl"]})
     items = _items(layer)
@@ -185,6 +185,8 @@ def plan_elements(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
     margin = layer.safe_margin * scale
     width = allowed[2] - allowed[0] - 2 * margin
     preferred = max(1, round(layer.font_size * scale, 2) if isinstance(layer.font_size, float) else round(layer.font_size * scale))
+    if preferred_size is not None:
+        preferred = preferred_size
     minimum = max(1, round(layer.min_font_size * scale))
     sizes = [max(minimum, preferred - n) for n in range(math.ceil(preferred - minimum) + 1)] if layer.fit == "shrink" else [preferred]
     last_bounds, last_lines = (0, 0, 0, 0), 0

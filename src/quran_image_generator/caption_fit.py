@@ -76,11 +76,11 @@ def within(bounds: tuple[int, int, int, int], allowed: tuple[int, ...]) -> bool:
     )
 
 
-def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
+def plan_text(scene: Scene, layer: Layer, digest: str, *, preferred_size: float | None = None) -> LayerPlan:
     if layer.decoration_layout == "elements":
         from .decoration_elements import plan_elements
 
-        return plan_elements(scene, layer, digest)
+        return plan_elements(scene, layer, digest, preferred_size=preferred_size)
     from .scenes import LayerPlan, check_glyphs, layer_font
 
     check_glyphs(layer)
@@ -115,6 +115,8 @@ def plan_text(scene: Scene, layer: Layer, digest: str) -> LayerPlan:
         if isinstance(layer.font_size, float)
         else round(layer.font_size * scale),
     )
+    if preferred_size is not None:
+        preferred = preferred_size
     minimum = max(1, round(layer.min_font_size * scale))
     allowed = pixel_region(scene, layer)
     padding = math.ceil(

@@ -74,6 +74,7 @@ class BatchRequest:
     deadline_seconds: float = 300
     error_mode: str = "all_or_nothing"
     require_approved_profile: bool = False
+    caption_groups: tuple[dict[str, Any], ...] = ()
 
     def to_request(self) -> RenderRequest:
         payload = asdict(self)
