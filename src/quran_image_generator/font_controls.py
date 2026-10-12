@@ -16,6 +16,11 @@ from fontTools.ttLib import TTCollection, TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
 
 from .references import ReferenceError
+from .render_cache import RenderCache
+
+_materialized_fonts: RenderCache[str, bytes] = RenderCache(
+    64, max_bytes=32 * 1024 * 1024
+)
 
 
 def _face(path: str, index: int) -> TTFont:
@@ -158,28 +163,39 @@ class FontWorkspace:
         if self.temporary:
             self.temporary.cleanup()
 
-    def materialize(self, path: str, digest: str, face: int, axes: dict[str, float]) -> tuple[str, str]:
+    def materialize(
+        self, path: str, digest: str, face: int, axes: dict[str, float]
+    ) -> tuple[str, str]:
         if not axes and face == 0:
             with Path(path).open("rb") as stream:
                 if stream.read(4) != b"ttcf":
                     return path, digest
         from .snapshots import canonical_bytes
 
-        key = hashlib.sha256(canonical_bytes({"font": digest, "face": face, "axes": axes})).hexdigest()
+        key = hashlib.sha256(
+            canonical_bytes({"font": digest, "face": face, "axes": axes})
+        ).hexdigest()
         if key not in self.cache:
             if len(self.cache) >= 64:
                 raise ReferenceError("resource_limit", "At most 64 materialized font instances per job; split the batch")
-            with _face(path, face) as font:
-                values = _axes(font, axes)
-                instance = instantiateVariableFont(font, values, inplace=False) if axes else font
-                try:
-                    buffer = BytesIO()
-                    instance.recalcTimestamp = False
-                    instance.save(buffer)
-                    data = buffer.getvalue()
-                finally:
-                    if instance is not font:
-                        instance.close()
+            data = _materialized_fonts.get(key)
+            if data is None:
+                with _face(path, face) as font:
+                    values = _axes(font, axes)
+                    instance = (
+                        instantiateVariableFont(font, values, inplace=False)
+                        if axes
+                        else font
+                    )
+                    try:
+                        buffer = BytesIO()
+                        instance.recalcTimestamp = False
+                        instance.save(buffer)
+                        data = buffer.getvalue()
+                    finally:
+                        if instance is not font:
+                            instance.close()
+                _materialized_fonts.put(key, data, size=len(data))
             if len(data) > 32_000_000 or self.output_bytes + len(data) > 128_000_000:
                 raise ReferenceError("resource_limit", "Materialized font scratch budget exceeds 128 MB; split the batch")
             self.output_bytes += len(data)

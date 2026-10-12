@@ -2,6 +2,7 @@ import copy
 from pathlib import Path
 
 import pytest
+from image_helpers import rgba_pixels
 from PIL import Image
 from test_api import fixture_request
 from test_bindings import fixture_dataset
@@ -26,14 +27,14 @@ def test_panel_and_text_have_independent_alpha_and_transparent_exterior(tmp_path
     result = execute_request(panel_request(tmp_path)).to_dict()
     assert result["status"] == "complete", result
     with Image.open(path(result)) as im:
-        colors = set(im.convert("RGBA").get_flattened_data())
+        colors = set(rgba_pixels(im))
         assert (0, 0, 0, 153) in colors and (255, 255, 255, 255) in colors
         assert im.getpixel((0, 0))[3] == 0
     data = panel_request(tmp_path)
     data["profile"]["styles"]["arabic"]["opacity"] = 0.5
     result = execute_request(data).to_dict()
     with Image.open(path(result)) as im:
-        assert (0, 0, 0, 153) in set(im.convert("RGBA").get_flattened_data())
+        assert (0, 0, 0, 153) in set(rgba_pixels(im))
 
 
 def test_multiline_line_panels_differ_from_block_and_shrink_resolves_em(tmp_path):
@@ -118,7 +119,9 @@ def test_region_mode_and_empty_layers_do_not_create_accidental_panels(tmp_path):
     assert result["cues"][0]["layers"][0]["panels"] == []
 
 
-@pytest.mark.parametrize("invalid", [{"gradient": []}, {"opacity": 2}, {"padding": [-1, 0]}])
+@pytest.mark.parametrize(
+    "invalid", [{"gradient": []}, {"opacity": 2}, {"padding": [-1, 0]}]
+)
 def test_panel_fields_use_precise_shared_schema_diagnostics(tmp_path, invalid):
     data = panel_request(tmp_path)
     data["profile"]["styles"]["arabic"]["panel"] = invalid

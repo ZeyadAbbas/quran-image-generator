@@ -2,6 +2,7 @@ import copy
 from pathlib import Path
 
 import pytest
+from image_helpers import rgba_pixels
 from PIL import Image
 from test_api import fixture_request
 
@@ -38,14 +39,18 @@ def test_actual_white_body_gold_numbers_and_blue_quotes_are_independent(tmp_path
     before = execute_request(data).to_dict()
     assert before["status"] == "complete", before
     with Image.open(image_path(before)) as image:
-        colors = set(image.convert("RGBA").get_flattened_data())
+        colors = set(rgba_pixels(image))
         assert {(255, 255, 255, 255), (255, 215, 0, 255), (0, 204, 255, 255)} <= colors
     data["profile"]["styles"]["arabic"]["marker_style"]["color"] = "#FF0000"
     after = execute_request(data).to_dict()
     with Image.open(image_path(before)) as a, Image.open(image_path(after)) as b:
         a, b = a.convert("RGBA"), b.convert("RGBA")
-        white_a = bytes(pixel[3] if pixel[:3] == (255, 255, 255) else 0 for pixel in a.get_flattened_data())
-        white_b = bytes(pixel[3] if pixel[:3] == (255, 255, 255) else 0 for pixel in b.get_flattened_data())
+        white_a = bytes(
+            pixel[3] if pixel[:3] == (255, 255, 255) else 0 for pixel in rgba_pixels(a)
+        )
+        white_b = bytes(
+            pixel[3] if pixel[:3] == (255, 255, 255) else 0 for pixel in rgba_pixels(b)
+        )
         assert white_a == white_b
     assert before["cues"][0]["arabic"] == after["cues"][0]["arabic"]
     assert before["cues"][0]["source_spans"] == after["cues"][0]["source_spans"]

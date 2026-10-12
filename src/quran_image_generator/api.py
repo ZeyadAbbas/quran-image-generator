@@ -34,6 +34,7 @@ from .references import (
     ReferenceError,
     SourceSpan,
 )
+from .render_cache import CaptionRenderCache
 from .scenes import (
     LayerPlan,
     Scene,
@@ -54,7 +55,7 @@ from .translation_tracks import (
 )
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.3.13"
+RENDERER_VERSION = "0.4.0"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -77,6 +78,7 @@ class RenderRequest:
         if len(canonical_bytes(value)) > MAX_REQUEST_BYTES:
             raise ReferenceError("invalid_request", "Request exceeds 8 MB")
         validate_schema(value, REQUEST_SCHEMA)
+        value.setdefault("render_backend", "pillow")
         if "cues" in value and len({cue["cue_id"] for cue in value["cues"]}) != len(
             value["cues"]
         ):
@@ -113,6 +115,8 @@ class RenderResponse:
 
 
 def runtime_identity() -> dict[str, Any]:
+    from .backends import FRIBIDI_SHA256
+
     native = "unavailable"
     native_raqm = False
     try:
@@ -128,10 +132,21 @@ def runtime_identity() -> dict[str, Any]:
         "imagemagick": native,
         "native_raqm": native_raqm,
         "fonttools": fontTools.__version__,
+        "pillow_freetype": features.version_module("freetype2"),
+        "pillow_raqm_version": features.version_feature("raqm")
+        if features.check_feature("raqm")
+        else None,
+        "pillow_harfbuzz": features.version_feature("harfbuzz")
+        if features.check_feature("harfbuzz")
+        else None,
+        "pillow_fribidi": features.version_feature("fribidi")
+        if features.check_feature("fribidi")
+        else None,
+        "pillow_fribidi_sha256": FRIBIDI_SHA256,
     }
 
 
-def capabilities() -> dict[str, Any]:
+def capabilities(backend: str = "pillow") -> dict[str, Any]:
     return {
         "schema_versions": [1],
         "operations": [
@@ -146,6 +161,9 @@ def capabilities() -> dict[str, Any]:
             "prepare_translations",
         ],
         "renderer_version": RENDERER_VERSION,
+        "render_backends": ["pillow", "imagemagick"],
+        "default_render_backend": "pillow",
+        "selected_render_backend": backend,
         "mapping_revision": MAPPING_REVISION,
         "mapping_sha256": BRIDGE_SHA256,
         "source_corpus": asdict(CorpusIdentity()),
@@ -156,9 +174,19 @@ def capabilities() -> dict[str, Any]:
         },
         "profiles": [{"id": "plain", "revision": "1", "approval": "approved"}],
         "custom_profiles": True,
-        "layer_roles": ["arabic", "translation", "arabic_title", "latin_title", "logo", "panel", "source_reference", "edition_label", "annotation"],
+        "layer_roles": [
+            "arabic",
+            "translation",
+            "arabic_title",
+            "latin_title",
+            "logo",
+            "panel",
+            "source_reference",
+            "edition_label",
+            "annotation",
+        ],
         "style_fields": sorted(style_schema()["properties"]),
-        "style_contract": style_descriptor(),
+        "style_contract": style_descriptor(backend),
         "features": {
             "transparent_layers": True,
             "independent_titles_and_branding": True,
@@ -166,15 +194,17 @@ def capabilities() -> dict[str, Any]:
             "separate_decoration_font": True,
             "fractional_font_sizes": True,
             "whole_line_horizontal_scale": True,
-            "word_spacing": runtime_identity()["native_raqm"],
+            "word_spacing": runtime_identity()[
+                "pillow_raqm" if backend == "pillow" else "native_raqm"
+            ],
             "fixed_line_height": True,
             "latin_grapheme_tracking": True,
             "source_line_breaks": True,
             "font_inspection": True,
             "font_collection_faces": True,
             "variation_axes": True,
-            "font_features": runtime_identity()["pillow_raqm"],
-            "font_language": runtime_identity()["pillow_raqm"],
+            "font_features": backend == "pillow" and runtime_identity()["pillow_raqm"],
+            "font_language": backend == "pillow" and runtime_identity()["pillow_raqm"],
             "pinned_font_fallbacks": True,
             "independent_decoration_elements": True,
             "caption_panels": True,
@@ -213,16 +243,19 @@ def capabilities() -> dict[str, Any]:
     }
 
 
-def style_descriptor() -> dict[str, Any]:
+def style_descriptor(backend: str = "pillow") -> dict[str, Any]:
     """Versioned defaults, constraints and units suitable for generated controls."""
     from .caption_editor import LAYER_ROLES, default_styles
 
     runtime = runtime_identity()
-    backend = "pillow_raqm" if runtime["pillow_raqm"] else "wand_raqm" if runtime["native_raqm"] else "unavailable"
+    active = (
+        ("pillow_raqm" if runtime["pillow_raqm"] else "unavailable")
+        if backend == "pillow"
+        else ("wand_raqm" if runtime["native_raqm"] else "unavailable")
+    )
     fields = copy.deepcopy(style_schema()["properties"])
     for spec in fields.values():
         spec["backend_support"] = {"pillow_raqm": True, "wand_raqm": True}
-    fields["word_spacing"]["backend_support"] = {"pillow_raqm": False, "wand_raqm": True}
     for name in ("font_features", "font_language"):
         fields[name]["backend_support"] = {"pillow_raqm": True, "wand_raqm": False}
     return {
@@ -231,24 +264,57 @@ def style_descriptor() -> dict[str, Any]:
         "fields": fields,
         "role_defaults": {role: default_styles(role) for role in LAYER_ROLES},
         "instance_defaults": {
-            "translation": {**default_styles("translation"), "anchor": [0.5, 0.5], "region": [0.05, 0.05, 0.95, 0.95]},
-            "annotation": {**default_styles("translation"), "font_size": 12, "z_order": 10, "anchor": [0.5, 0.5], "region": [0.05, 0.05, 0.95, 0.95]},
+            "translation": {
+                **default_styles("translation"),
+                "anchor": [0.5, 0.5],
+                "region": [0.05, 0.05, 0.95, 0.95],
+            },
+            "annotation": {
+                **default_styles("translation"),
+                "font_size": 12,
+                "z_order": 10,
+                "anchor": [0.5, 0.5],
+                "region": [0.05, 0.05, 0.95, 0.95],
+            },
         },
         "instance_index_adjusted_defaults": ["z_order"],
         "request_schema": REQUEST_SCHEMA,
-        "request_defaults": {"titles": False, "quotations": False, "verse_numbers": False,
-                             "cropped": False, "error_mode": "all_or_nothing",
-                             "require_approved_profile": False, "deadline_seconds": 300},
+        "request_defaults": {
+            "render_backend": "pillow",
+            "titles": False,
+            "quotations": False,
+            "verse_numbers": False,
+            "cropped": False,
+            "error_mode": "all_or_nothing",
+            "require_approved_profile": False,
+            "deadline_seconds": 300,
+        },
         "asset_roles": [*LAYER_ROLES, "decorations", "quotes", "markers"],
-        "element_layout": {"directions": ["rtl"], "representation": "combined_rgba_with_element_geometry"},
-        "backend": {"active": backend,
-                    "shaping": runtime["pillow_raqm"] or runtime["native_raqm"],
-                    "font_features": runtime["pillow_raqm"], "font_language": runtime["pillow_raqm"],
-                    "variation_axes": True, "font_fallbacks": True, "fallback_policy": "whole_layer",
-                    "word_spacing": runtime["native_raqm"], "tracking_scripts": ["Latin LTR"]},
-        "constraints": ["min_font_size <= font_size", "region left < right; top < bottom",
-                        "opaque RGB colors with separate alpha", "effective font size <= 512 output pixels",
-                        "custom profiles require provenance", "unavailable fields fail; no settings are discarded"],
+        "element_layout": {
+            "directions": ["rtl"],
+            "representation": "combined_rgba_with_element_geometry",
+        },
+        "backend": {
+            "active": active,
+            "shaping": active != "unavailable",
+            "font_features": backend == "pillow" and runtime["pillow_raqm"],
+            "font_language": backend == "pillow" and runtime["pillow_raqm"],
+            "variation_axes": True,
+            "font_fallbacks": True,
+            "fallback_policy": "whole_layer",
+            "word_spacing": runtime[
+                "pillow_raqm" if backend == "pillow" else "native_raqm"
+            ],
+            "tracking_scripts": ["Latin LTR"],
+        },
+        "constraints": [
+            "min_font_size <= font_size",
+            "region left < right; top < bottom",
+            "opaque RGB colors with separate alpha",
+            "effective font size <= 512 output pixels",
+            "custom profiles require provenance",
+            "unavailable fields fail; no settings are discarded",
+        ],
     }
 
 
@@ -315,6 +381,7 @@ def _prepare_cue(
     dataset: BindingDataset | None,
     font_workspace: FontWorkspace,
     tracks: tuple[PreparedTrack, ...] = (),
+    cache: CaptionRenderCache | None = None,
 ) -> tuple[dict[str, Any], Scene, tuple[LayerPlan, ...]]:
     spans = tuple(SourceSpan(**span) for span in cue["spans"])
     policy = cue.get("translation_policy", "none")
@@ -368,6 +435,7 @@ def _prepare_cue(
         title_surah=cue.get("title_surah"),
         logo_glyph=assets.get("logo", {}).get("glyph", ""),
     )
+    scene = replace(scene, render_backend=data["render_backend"])
     profile_data = data.get(
         "profile",
         {
@@ -391,12 +459,24 @@ def _prepare_cue(
             )
         warnings.append("profile_review_required")
     scene = profile.apply(scene)
-    track_layers, track_records, track_warnings = resolve_tracks(tracks, cue, excerpt, root)
-    annotation_layers, annotation_records = resolve_annotations(data, excerpt, track_records, root)
+    track_layers, track_records, track_warnings = resolve_tracks(
+        tracks, cue, excerpt, root
+    )
+    annotation_layers, annotation_records = resolve_annotations(
+        data, excerpt, track_records, root
+    )
     warnings.extend(track_warnings)
     scene = replace(scene, layers=(*scene.layers, *track_layers, *annotation_layers))
-    instance_specs = {item["track_id"]: ("translation_tracks", index, item) for index, item in enumerate(data.get("translation_tracks", []))}
-    instance_specs.update({item["annotation_id"]: ("annotations", index, item) for index, item in enumerate(data.get("annotations", []))})
+    instance_specs = {
+        item["track_id"]: ("translation_tracks", index, item)
+        for index, item in enumerate(data.get("translation_tracks", []))
+    }
+    instance_specs.update(
+        {
+            item["annotation_id"]: ("annotations", index, item)
+            for index, item in enumerate(data.get("annotations", []))
+        }
+    )
     if "quotes" in assets or "markers" in assets:
         scene = replace(scene, layers=tuple(replace(layer, decoration_layout="elements") if layer.role == "arabic" else layer for layer in scene.layers))
     if "decorations" in assets:
@@ -457,12 +537,52 @@ def _prepare_cue(
                 field = error.details.get("field") or error.details.get("path", "").split("/")[-1] or "font"
                 error.details["path"] = f"/{collection}/{index}/style/" + field + error.details.get("path_suffix", "")
             raise
-    scene = replace(scene, layers=tuple(resolved_layers), groups=tuple(data.get("caption_groups", ())))
+    scene = replace(
+        scene,
+        layers=tuple(resolved_layers),
+        groups=tuple(data.get("caption_groups", ())),
+    )
     from .decoration_elements import prepare_element_fonts
 
-    scene = replace(scene, layers=tuple(prepare_element_fonts(layer, assets, root, font_workspace) for layer in scene.layers))
+    scene = replace(
+        scene,
+        layers=tuple(
+            prepare_element_fonts(layer, assets, root, font_workspace)
+            for layer in scene.layers
+        ),
+    )
     enforce_instance_layout(scene)
-    plans = plan_scene(scene)
+    scene_key = asdict(scene)
+    for layer_data in scene_key["layers"]:
+        layer_data["resolved_font"] = ""
+        for font_data in layer_data.get("element_fonts", {}).values():
+            font_data["resolved_font"] = ""
+    plan_key = hashlib.sha256(canonical_bytes(scene_key)).hexdigest()
+    cached_plans = cache.plans.get(plan_key) if cache else None
+    if cached_plans is not None:
+        # Input hashes, bindings and coverage were checked above on this request.
+        # Rebind job-local font paths; no expired scratch file enters a cached plan.
+        scene.validate()
+        current = {layer.instance_id or layer.role: layer for layer in scene.layers}
+        plans = tuple(
+            plan
+            if plan.layer.kind == "panel"
+            else replace(
+                plan,
+                layer=current.get(
+                    plan.layer.instance_id or plan.layer.role, plan.layer
+                ),
+            )
+            for plan in cached_plans
+        )
+    else:
+        plans = plan_scene(scene)
+        if cache is not None:
+            cache.plans.put(
+                plan_key,
+                plans,
+                size=len(canonical_bytes({"plans": [asdict(plan) for plan in plans]})),
+            )
     check_instance_collisions(plans)
     entry = {
             "cue_id": cue["cue_id"],
@@ -516,17 +636,30 @@ def execute_request(
     progress: Callable[[BatchProgress], None] | None = None,
     cancelled: Callable[[], bool] | None = None,
     deadline_seconds: float | None = None,
+    cache: CaptionRenderCache | None = None,
 ) -> RenderResponse:
     """Execute one batch in one process; paths are rooted explicitly, no viewer/UI."""
     with FontWorkspace() as font_workspace:
-        return _execute_request(request, asset_root=asset_root, progress=progress, cancelled=cancelled,
-                                deadline_seconds=deadline_seconds, font_workspace=font_workspace)
+        return _execute_request(
+            request,
+            asset_root=asset_root,
+            progress=progress,
+            cancelled=cancelled,
+            deadline_seconds=deadline_seconds,
+            font_workspace=font_workspace,
+            cache=cache,
+        )
 
 
 def _execute_request(
-    request: RenderRequest | dict[str, Any], *, asset_root: Path | None,
-    progress: Callable[[BatchProgress], None] | None, cancelled: Callable[[], bool] | None,
-    deadline_seconds: float | None, font_workspace: FontWorkspace,
+    request: RenderRequest | dict[str, Any],
+    *,
+    asset_root: Path | None,
+    progress: Callable[[BatchProgress], None] | None,
+    cancelled: Callable[[], bool] | None,
+    deadline_seconds: float | None,
+    font_workspace: FontWorkspace,
+    cache: CaptionRenderCache | None,
 ) -> RenderResponse:
     raw = request.payload if isinstance(request, RenderRequest) else request
     candidate = raw.get("request_id") if isinstance(raw, dict) else None
@@ -549,7 +682,7 @@ def _execute_request(
             "metadata": data.get("metadata", {}),
         }
         if data["operation"] == "capabilities":
-            result["capabilities"] = capabilities()
+            result["capabilities"] = capabilities(data["render_backend"])
             return RenderResponse(result)
         root = (asset_root or Path.cwd()).resolve()
         if data["operation"] == "inspect_fonts":
@@ -624,7 +757,9 @@ def _execute_request(
             progress,
         )
         control.checkpoint("layout", 0, len(data["cues"]))
-        tracks = prepare_tracks(data, root, lambda index: control.checkpoint("layout", 0, len(data["cues"])))
+        tracks = prepare_tracks(
+            data, root, lambda index: control.checkpoint("layout", 0, len(data["cues"]))
+        )
         prepared = []
         layout_cache: OrderedDict[str, Any] = OrderedDict()
         for index, cue in enumerate(data["cues"]):
@@ -643,7 +778,9 @@ def _execute_request(
                     )
                     layout_cache.move_to_end(key)
                 else:
-                    entry, scene, plans = _prepare_cue(data, cue, root, dataset, font_workspace, tracks)
+                    entry, scene, plans = _prepare_cue(
+                        data, cue, root, dataset, font_workspace, tracks, cache
+                    )
                     layout_cache[key] = (copy.deepcopy(entry), scene, plans)
                     if len(layout_cache) > 256:
                         layout_cache.popitem(last=False)
@@ -710,7 +847,7 @@ def _execute_request(
             return RenderResponse(result)
         output = _local_path(data["output_directory"], root)
         output.mkdir(parents=True, exist_ok=True)
-        cache = (
+        disk_cache = (
             AssetCache(_local_path(data["asset_cache_directory"], root))
             if data.get("asset_cache_directory")
             else None
@@ -766,7 +903,20 @@ def _execute_request(
                                     "Batch exceeds 512 unique assets; split the job",
                                 )
                             path = staging / f"{asset_id}.png"
-                            asset = cache.restore(asset_id, path) if cache else None
+                            remembered = (
+                                cache.assets.get(asset_id)
+                                if cache and disk_cache is None
+                                else None
+                            )
+                            if remembered is not None:
+                                raw_png, asset = remembered
+                                path.write_bytes(raw_png)
+                            else:
+                                asset = (
+                                    disk_cache.restore(asset_id, path)
+                                    if disk_cache
+                                    else None
+                                )
                             if asset is None:
                                 asset = render_layer(
                                     scene,
@@ -774,8 +924,13 @@ def _execute_request(
                                     path,
                                     cropped=data.get("cropped", False),
                                 )
-                                if cache:
-                                    cache.store(asset_id, path, asset)
+                                if disk_cache:
+                                    disk_cache.store(asset_id, path, asset)
+                            if cache is not None and remembered is None:
+                                raw_png = path.read_bytes()
+                                cache.assets.put(
+                                    asset_id, (raw_png, asset), size=len(raw_png)
+                                )
                             output_bytes += path.stat().st_size
                             if output_bytes > 512_000_000:
                                 raise ReferenceError(

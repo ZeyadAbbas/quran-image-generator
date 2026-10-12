@@ -8,6 +8,7 @@ from typing import Any
 
 from PIL import Image
 
+from .backends import require_pillow_shaping, using_backend
 from .bindings import BindingDataset
 from .content import _load_bundled_corpus
 from .references import CorpusIdentity, ReferenceError, bridge_data
@@ -20,12 +21,15 @@ def preflight(data: dict[str, Any], root: Path) -> dict[str, Any]:
     from .api import _local_path, runtime_identity
 
     runtime = runtime_identity()
-    if runtime["imagemagick"] == "unavailable":
+    backend = data.get("render_backend", "pillow")
+    if backend == "imagemagick" and runtime["imagemagick"] == "unavailable":
         raise ReferenceError(
             "missing_native_runtime",
             "Install ImageMagick native libraries; on Windows set MAGICK_HOME to the DLL directory, on Linux install imagemagick/libmagickwand",
         )
-    if not runtime["pillow_raqm"] and not runtime["native_raqm"]:
+    if backend == "pillow":
+        require_pillow_shaping()
+    elif not runtime["native_raqm"]:
         raise ReferenceError(
             "missing_shaping",
             "Use a Pillow or ImageMagick build with RAQM/Harfbuzz Arabic shaping",
@@ -35,6 +39,7 @@ def preflight(data: dict[str, Any], root: Path) -> dict[str, Any]:
     bridge_data()
     checks: dict[str, Any] = {
         "native_runtime": runtime,
+        "render_backend": backend,
         "corpus": "verified",
         "mapping": "verified",
         "assets": {},
@@ -73,7 +78,8 @@ def preflight(data: dict[str, Any], root: Path) -> dict[str, Any]:
                 direction="rtl" if role in ("arabic", "arabic_title") else "ltr",
             )
             check_glyphs(layer)
-            left, top, right, bottom = layer_font(layer, 30).getbbox(sample)
+            with using_backend(backend):
+                left, top, right, bottom = layer_font(layer, 30).getbbox(sample)
             if right <= left or bottom <= top:
                 raise ReferenceError(
                     "missing_glyph",

@@ -33,8 +33,8 @@ annotation and group collections are currently exposed through JSON dialogs.
 
 ### Gate controls against the installed backend
 
-- Nonzero extra word spacing requires native Wand/RAQM. Font feature/language
-  overrides require Pillow/RAQM. Discovery states availability and incompatible
+- In renderer 0.4.0, extra word spacing supports both selected backends. Font
+  feature/language overrides require Pillow/RAQM. Discovery states availability and incompatible
   combinations fail explicitly; do not show unsupported controls as working.
 - Independent Quran decoration layout currently supports RTL paragraph flow.
   Safe nonzero tracking supports LTR Latin graphemes only. Whole-layer fallback

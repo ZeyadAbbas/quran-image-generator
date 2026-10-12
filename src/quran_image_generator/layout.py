@@ -21,6 +21,7 @@ class TextStyle:
     direction: str = "undefined"
     additional_word_spacing: float = 0
     native_space_advance: float | None = None
+    font_sha256: str = ""
 
 
 @dataclass(frozen=True, slots=True)

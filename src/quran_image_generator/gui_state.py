@@ -38,6 +38,7 @@ from .models import (
     validate_generation_request,
 )
 from .publishing import Publisher, PublishingError, PublishTarget
+from .references import ReferenceError
 from .settings import Settings, SettingsValidationError
 
 README_URL = "https://github.com/ZeyadAbbas/quran-image-generator#readme"
@@ -374,6 +375,7 @@ def safe_error_message(error: BaseException) -> str:
         SettingsValidationError,
         PublishingError,
         StalePreviewError,
+        ReferenceError,
     )
     if isinstance(error, safe_types):
         return str(error)
@@ -560,6 +562,8 @@ class PreviewWorkflow:
                     "translation resolution returned incomplete resources"
                 )
             self._resources[selector_key] = resources
+            if len(self._resources) > 32:
+                self._resources.pop(next(iter(self._resources)))
             return runtime_settings
         return replace(
             settings,
@@ -600,6 +604,8 @@ class PreviewWorkflow:
                 raise RuntimeError("the renderer did not produce a preview")
             if fetched_passage:
                 self._passages[content_key] = passage
+                if len(self._passages) > 64:
+                    self._passages.pop(next(iter(self._passages)))
             return PreviewArtifact(
                 revision=snapshot.token.revision,
                 request=snapshot.request,

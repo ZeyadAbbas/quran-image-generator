@@ -1,6 +1,6 @@
 # Independent QuranScribe handoff
 
-Install renderer **0.3.x**, schema **1** in a separate environment. The integrated
+Install renderer **0.4.0**, schema **1** in a separate environment. The integrated
 baseline release tag is `v0.3.3`; translation preparation requires 0.3.4 or later;
 canonical word positions without spelling approval require 0.3.6
 (a pinned merged commit or built wheel is supported).
@@ -34,16 +34,16 @@ quran-caption-render --preflight
 quran-caption-render --request "/absolute/inputs/arabic-batch.json"
 ```
 
-The built package requires Python 3.10–3.14. Linux needs ImageMagick native
-libraries (`imagemagick`/`libmagickwand`), while a Pillow wheel supplies RAQM.
-Windows needs the ImageMagick DLL build; set `MAGICK_HOME` to its actual installation
-directory before starting the chosen renderer process. If Pillow lacks RAQM, the
-native ImageMagick build must include it. Preflight reports the exact runtime,
+The built package requires Python 3.10–3.14. Renderer 0.4.0 defaults to Pillow
+with RAQM. Windows also needs a FriBiDi DLL; see [backend setup](rendering-backends.md).
+For prior native pixels, select `render_backend: "imagemagick"` and install the
+ImageMagick RAQM build (`imagemagick`/`libmagickwand` on Linux; DLL build and
+`MAGICK_HOME` on Windows). Preflight reports the selected backend and exact runtime,
 verified corpus/mapping, font/glyph availability, pinned translation readiness
 and output writability with actionable errors. It never asks for credentials.
 
 `--preflight --request file.json` checks the actual requested cue/layout settings;
-plain `--preflight` checks bundled/native readiness. A missing/changed creator
+plain `--preflight` checks bundled/default-backend readiness. A missing/changed creator
 font or offline translation miss fails before video export. Export has no network
 fallback. [Caption Studio](caption-studio.md) exposes the same generic caption
 options in the GUI and loads/saves ordinary request JSON. The still-image editor

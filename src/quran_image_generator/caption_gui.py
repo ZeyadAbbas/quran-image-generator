@@ -30,6 +30,7 @@ from .caption_editor import (
 from .gui_state import JobToken, SingleWorker
 from .profiles import export_profile, import_profile
 from .references import ReferenceError, SourceSpan
+from .render_cache import CaptionRenderCache, RenderCache, file_identity
 from .snapshots import SnapshotStore, prepare_quranenc_snapshot
 
 ROLE_LABELS = {
@@ -83,6 +84,14 @@ class CaptionStudio:
         )
         self._worker = SingleWorker()
         self._temporary = tempfile.TemporaryDirectory(prefix="qig-caption-studio-")
+        self._render_cache = CaptionRenderCache()
+        self._composites: RenderCache[tuple, Image.Image] = RenderCache(
+            32, dispose=lambda im: im.close()
+        )
+        self._backgrounds: RenderCache[tuple, Image.Image] = RenderCache(
+            8, dispose=lambda im: im.close()
+        )
+        self._preview_after_id: str | None = None
         self._revision = 0
         self._job = 0
         self._closed = False
@@ -108,7 +117,7 @@ class CaptionStudio:
         self._build()
         self._fill()
         self._loading = False
-        self._poll_id = window.after(100, self._poll)
+        self._poll_id = window.after(25, self._poll)
 
     def _var(self, name: str, default: Any = "", *, boolean: bool = False) -> Any:
         var = (
@@ -252,7 +261,7 @@ class CaptionStudio:
             preview, text="Transparent caption preview", anchor="center"
         )
         self._preview.grid(row=0, column=0, sticky="nsew")
-        self._preview.bind("<Configure>", lambda _e: self._show_preview())
+        self._preview.bind("<Configure>", self._schedule_preview)
         self._diagnostics = tk.Text(preview, height=10, wrap="word", state="disabled")
         self._diagnostics.grid(row=1, column=0, sticky="ew", pady=5)
         ttk.Label(
@@ -640,6 +649,14 @@ class CaptionStudio:
 
     def _build_canvas(self) -> None:
         frame = self._frames["Canvas & Export"]
+        self._entry(
+            frame,
+            0,
+            "Render backend",
+            "render_backend",
+            "pillow",
+            choices=("pillow", "imagemagick"),
+        )
         for row, label, name, default, choices in (
             (0, "Canvas width", "width", 576, ()),
             (1, "Canvas height", "height", 1024, ()),
@@ -672,7 +689,7 @@ class CaptionStudio:
             ),
             (11, "Preview background image", "preview_image", "", ()),
         ):
-            self._entry(frame, row, label, name, default, choices=choices)
+            self._entry(frame, row + 1, label, name, default, choices=choices)
         for row, name, label, default in (
             (12, "titles", "Include titles", False),
             (13, "quotations", "Include quotation ornaments", False),
@@ -693,9 +710,9 @@ class CaptionStudio:
         ):
             ttk.Checkbutton(
                 frame, text=label, variable=self._var(name, default, boolean=True)
-            ).grid(row=row, column=0, columnspan=2, sticky="w", pady=3)
+            ).grid(row=row + 1, column=0, columnspan=2, sticky="w", pady=3)
         buttons = ttk.Frame(frame)
-        buttons.grid(row=18, column=0, columnspan=2, sticky="w")
+        buttons.grid(row=19, column=0, columnspan=2, sticky="w")
         self._button(
             buttons, "Choose output…", lambda: self._browse_folder("output_directory")
         )
@@ -760,6 +777,7 @@ class CaptionStudio:
         for name in ("width", "height"):
             self._vars[name].set(data["canvas"][name])
         for name in (
+            "render_backend",
             "output_directory",
             "asset_cache_directory",
             "deadline_seconds",
@@ -774,9 +792,11 @@ class CaptionStudio:
             default = (
                 False
                 if isinstance(self._vars[name], tk.BooleanVar)
-                else {"deadline_seconds": 300, "error_mode": "all_or_nothing"}.get(
-                    name, ""
-                )
+                else {
+                    "render_backend": "pillow",
+                    "deadline_seconds": 300,
+                    "error_mode": "all_or_nothing",
+                }.get(name, "")
             )
             self._vars[name].set(data.get(name, default))
         profile = self.document.profile()
@@ -1038,6 +1058,7 @@ class CaptionStudio:
             name: int(self._vars[name].get()) for name in ("width", "height")
         }
         for name in (
+            "render_backend",
             "request_id",
             "error_mode",
             "titles",
@@ -1526,6 +1547,7 @@ class CaptionStudio:
         progress_queue = self._progress
         shutdown = self._shutdown
         temporary = self._temporary
+        render_cache = self._render_cache
 
         def operation(cancel: Any) -> dict[str, Any]:
             try:
@@ -1533,6 +1555,7 @@ class CaptionStudio:
                     payload,
                     asset_root=asset_root,
                     cancelled=cancel.is_set,
+                    cache=render_cache,
                     progress=lambda value: progress_queue.put(
                         (job_id, revision, value)
                     ),
@@ -1623,16 +1646,24 @@ class CaptionStudio:
                         else ""
                     )
                 )
-        self._poll_id = self.window.after(100, self._poll)
+        self._poll_id = self.window.after(25, self._poll)
 
     def _background(self, size: tuple[int, int]) -> Image.Image:
         choice = self._vars["preview_background"].get()
+        path = str(self._vars["preview_image"].get())
+        key = choice, size, file_identity(path) if choice == "Image" else None
+        cached = self._backgrounds.get(key)
+        if cached is not None:
+            return cached.copy()
         if choice == "Image":
-            with Image.open(str(self._vars["preview_image"].get())) as opened:
+            with Image.open(path) as opened:
                 background: Image.Image = opened.convert("RGBA").resize(
                     size, Image.Resampling.LANCZOS
                 )
-                return background
+                self._backgrounds.put(
+                    key, background, size=background.width * background.height * 4
+                )
+                return background.copy()
         color = "#202124" if choice == "Dark" else "#FAFAFA"
         image = Image.new("RGBA", size, color)
         if choice == "Checkerboard":
@@ -1641,7 +1672,19 @@ class CaptionStudio:
                 for x in range(0, size[0], 24):
                     if (x // 24 + y // 24) % 2:
                         draw.rectangle((x, y, x + 23, y + 23), fill="#C8C8C8")
-        return image
+        self._backgrounds.put(key, image, size=image.width * image.height * 4)
+        return image.copy()
+
+    def _schedule_preview(self, _event: Any = None) -> None:
+        if self._closed:
+            return
+        if self._preview_after_id is not None:
+            self.window.after_cancel(self._preview_after_id)
+        self._preview_after_id = self.window.after(40, self._resize_preview)
+
+    def _resize_preview(self) -> None:
+        self._preview_after_id = None
+        self._show_preview()
 
     def _show_preview(self) -> None:
         if self._response is None or self._closed:
@@ -1652,7 +1695,27 @@ class CaptionStudio:
             size = tuple(
                 self.document.data["canvas"][name] for name in ("width", "height")
             )
-            caption = compose_caption(self._response, self._cue_index, size)
+            cue = self._response["cues"][self._cue_index]
+            records = {asset["asset_id"]: asset for asset in self._response["assets"]}
+            key = (
+                size,
+                tuple(
+                    (
+                        key,
+                        records[key]["sha256"],
+                        file_identity(
+                            Path(self._response["job_directory"]) / records[key]["path"]
+                        ),
+                    )
+                    for key in cue["asset_ids"]
+                ),
+            )
+            caption = self._composites.get(key)
+            if caption is None:
+                caption = compose_caption(self._response, self._cue_index, size)
+                self._composites.put(
+                    key, caption, size=caption.width * caption.height * 4
+                )
             backdrop = self._background(size)
             backdrop.alpha_composite(caption)
             backdrop.thumbnail(
@@ -1703,6 +1766,11 @@ class CaptionStudio:
         self._shutdown.set()
         if self._poll_id:
             self.window.after_cancel(self._poll_id)
+        if self._preview_after_id:
+            self.window.after_cancel(self._preview_after_id)
+        self._composites.clear()
+        self._backgrounds.clear()
+        self._render_cache.clear()
         busy = self._worker.busy
         self._worker.close()
         if not busy:

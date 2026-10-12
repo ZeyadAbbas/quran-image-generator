@@ -108,12 +108,15 @@ class QuranImageGenerator:
         if not passage.verses:
             return GenerationResult(path=None, passage=passage)
 
-        image_layout = self._layout_builder(passage, settings, self._measurer)
+        measurer = (
+            self._measurer.for_backend(settings.render_backend)
+            if hasattr(self._measurer, "for_backend")
+            else self._measurer
+        )
+        image_layout = self._layout_builder(passage, settings, measurer)
         if destination is None:
             destination = default_output_path(passage, settings.output_path)
-        rendered_path = Path(
-            self._renderer.render(image_layout, settings, destination)
-        )
+        rendered_path = Path(self._renderer.render(image_layout, settings, destination))
         return GenerationResult(path=rendered_path, passage=passage)
 
     def generate(
@@ -131,6 +134,11 @@ class QuranImageGenerator:
             self._image_opener(result.path)
         return result
 
+    def close(self) -> None:
+        close = getattr(self._renderer, "close", None)
+        if close:
+            close()
+
 
 # Private aliases retained for older callers and tests while public helpers are used
 # by both front ends.
@@ -144,11 +152,13 @@ def build_generator(
     """Construct the concrete command-line application without doing I/O."""
 
     from .content import QuranDataClient
-    from .rendering import WandImageRenderer, WandTextMeasurer
+    from .rendering_backends import BackendMeasurer, BackendRenderer
 
     return QuranImageGenerator(
         settings=settings,
-        content_client=(QuranDataClient() if content_client is None else content_client),
-        measurer=WandTextMeasurer(),
-        renderer=WandImageRenderer(),
+        content_client=(
+            QuranDataClient() if content_client is None else content_client
+        ),
+        measurer=BackendMeasurer(),
+        renderer=BackendRenderer(),
     )

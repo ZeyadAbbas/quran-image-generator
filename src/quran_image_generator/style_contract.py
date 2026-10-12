@@ -79,17 +79,41 @@ def field_metadata(name: str, spec: dict[str, Any], default: Any) -> dict[str, A
     result["x-units"] = ("em" if name in ("word_spacing", "line_height", "tracking") else "reference_pixels" if name in REFERENCE_FIELDS else
                          "normalized_canvas" if name in ("anchor", "region") else
                          "ratio" if name in ("opacity", "shadow_opacity", "suffix_scale", "horizontal_scale", "decoration_scale") else "unitless")
-    result["x-scaling"] = "scale_basis: width/576 (default), short_side/576, or pixels" if name in REFERENCE_FIELDS else "none"
+    result["x-scaling"] = (
+        "scale_basis: width/576 (default), short_side/576, or pixels"
+        if name in REFERENCE_FIELDS
+        else "none"
+    )
     result["x-roles"] = (["arabic"] if name.startswith(("quote_", "quotation_", "marker_", "suffix_", "decoration_")) or name == "numeral_system"
                          else ["arabic", "translation", "arabic_title", "latin_title", "logo", "source_reference", "edition_label", "annotation"])
-    result["x-applies-to"] = "layer" if name in ("enabled", "required", "opacity", "z_order", "anchor", "region", "sha256", "safe_margin") else "text"
+    result["x-applies-to"] = (
+        "layer"
+        if name
+        in (
+            "enabled",
+            "required",
+            "opacity",
+            "z_order",
+            "anchor",
+            "region",
+            "sha256",
+            "safe_margin",
+        )
+        else "text"
+    )
     if name in ("min_font_size", "font_size"):
         result["x-constraints"] = ["min_font_size <= font_size after resolving omitted defaults"]
     if name == "region":
         result["x-constraints"] = ["left < right", "top < bottom"]
     if name in ("word_spacing", "tracking"):
-        result["x-constraints"] = (["requires native Wand-RAQM for nonzero spacing"] if name == "word_spacing" else
-                                  ["nonzero tracking supports LTR Latin graphemes only", "combining marks remain attached"])
+        result["x-constraints"] = (
+            ["requires complex-text shaping in the selected render backend"]
+            if name == "word_spacing"
+            else [
+                "nonzero tracking supports LTR Latin graphemes only",
+                "combining marks remain attached",
+            ]
+        )
     return result
 
 

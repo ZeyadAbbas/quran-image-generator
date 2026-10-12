@@ -39,6 +39,10 @@ than rendering partial translations.
 
 ## ImageMagick or Wand cannot start
 
+Pillow is the default in 0.4.0. A `missing_shaping` error on Windows requires
+the FriBiDi setup in [rendering backends](rendering-backends.md). ImageMagick is
+required when explicitly selected, or for optional SVG backgrounds.
+
 The Python `Wand` package is only the binding; native ImageMagick libraries must
 also be installed and discoverable. Follow the
 [Wand installation guide](https://docs.wand-py.org/en/latest/guide/install.html)

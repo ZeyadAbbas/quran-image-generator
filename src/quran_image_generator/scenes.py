@@ -6,6 +6,7 @@ import hashlib
 import math
 import unicodedata
 from dataclasses import dataclass, field, replace
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -13,9 +14,11 @@ from fontTools.ttLib import TTFont
 from PIL import Image, ImageColor, ImageFilter
 
 from .asset_records import OverlayAsset
+from .backends import using_backend
 from .content import QuranDataClient
 from .excerpts import Excerpt
 from .references import ReferenceError
+from .render_cache import file_identity
 from .resources import asset_path
 from .shaping import MixedMarkerFont, ShapedFont
 
@@ -102,8 +105,15 @@ class Scene:
     height: int
     layers: tuple[Layer, ...]
     groups: tuple[dict[str, Any], ...] = ()
+    render_backend: str = "pillow"
 
     def validate(self) -> None:
+        if self.render_backend not in ("pillow", "imagemagick"):
+            raise ReferenceError(
+                "invalid_request",
+                "Render backend must be pillow or imagemagick",
+                details={"field": "render_backend"},
+            )
         if (
             any(
                 type(v) is not int or not 16 <= v <= 4096
@@ -251,9 +261,17 @@ def layer_font(layer: Layer, size: int | float) -> ShapedFont | MixedMarkerFont:
     try:
         if (layer.variation_axes or layer.font_face or layer.font_fallbacks or layer.font_features or layer.font_language) and not layer.resolved_font:
             raise ReferenceError("unresolved_font", "Prepare advanced scene fonts inside a FontWorkspace before planning")
-        primary = ShapedFont(layer.resolved_font or layer.font, size, layer.direction, layer.horizontal_scale,
-                             word_spacing=layer.word_spacing * size, tracking=layer.tracking * size,
-                             font_features=layer.font_features, font_language=layer.font_language)
+        primary = ShapedFont(
+            layer.resolved_font or layer.font,
+            size,
+            layer.direction,
+            layer.horizontal_scale,
+            word_spacing=layer.word_spacing * size,
+            tracking=layer.tracking * size,
+            font_features=layer.font_features,
+            font_language=layer.font_language,
+            font_sha256=layer.resolved_font_sha256 or layer.sha256,
+        )
         if layer.inline_markers and layer.decoration_font:
             return MixedMarkerFont(
                 primary,
@@ -261,6 +279,7 @@ def layer_font(layer: Layer, size: int | float) -> ShapedFont | MixedMarkerFont:
                     layer.decoration_font,
                     max(1, round(size * layer.suffix_scale)),
                     "rtl",
+                    font_sha256=layer.decoration_sha256,
                 ),
                 layer.inline_markers,
                 layer.suffix_offset * size / layer.font_size,
@@ -276,23 +295,33 @@ def layer_font(layer: Layer, size: int | float) -> ShapedFont | MixedMarkerFont:
         raise
 
 
+@lru_cache(maxsize=32)
+def _font_codepoints(path: str, identity: tuple) -> frozenset[int]:
+    with TTFont(path) as font:
+        return frozenset(
+            point
+            for point, glyph in (font.getBestCmap() or {}).items()
+            if glyph != ".notdef"
+        )
+
+
 def check_glyphs(layer: Layer) -> None:
     try:
-        with TTFont(layer.resolved_font or layer.font) as font:
-            cmap = font.getBestCmap() or {}
-            text = layer.text
-            if layer.decoration_font:
-                for marker in layer.inline_markers:
-                    text = text.replace(marker, "")
-            missing = sorted(
-                {
-                    ord(c)
-                    for c in text + ("" if layer.decoration_font else layer.suffix)
-                    if not c.isspace()
-                    and unicodedata.category(c) != "Cf"
-                    and (ord(c) not in cmap or cmap[ord(c)] == ".notdef")
-                }
-            )
+        path = layer.resolved_font or layer.font
+        points = _font_codepoints(path, file_identity(path))
+        text = layer.text
+        if layer.decoration_font:
+            for marker in layer.inline_markers:
+                text = text.replace(marker, "")
+        missing = sorted(
+            {
+                ord(c)
+                for c in text + ("" if layer.decoration_font else layer.suffix)
+                if not c.isspace()
+                and unicodedata.category(c) != "Cf"
+                and ord(c) not in points
+            }
+        )
     except (OSError, ValueError) as error:
         raise ReferenceError("missing_font", "Required font is invalid") from error
     if missing:
@@ -304,6 +333,11 @@ def check_glyphs(layer: Layer) -> None:
 
 
 def plan_scene(scene: Scene) -> tuple[LayerPlan, ...]:
+    with using_backend(scene.render_backend):
+        return _plan_scene(scene)
+
+
+def _plan_scene(scene: Scene) -> tuple[LayerPlan, ...]:
     scene.validate()
     if any(group.get("mode", "overlay") == "flow" or group.get("collision", "allow") == "reject" for group in scene.groups):
         from .group_layout import plan_group_scene
@@ -369,6 +403,13 @@ def plan_scene(scene: Scene) -> tuple[LayerPlan, ...]:
 
 
 def render_layer(
+    scene: Scene, plan: LayerPlan, destination: Path, *, cropped: bool = False
+) -> OverlayAsset:
+    with using_backend(scene.render_backend):
+        return _render_layer(scene, plan, destination, cropped=cropped)
+
+
+def _render_layer(
     scene: Scene, plan: LayerPlan, destination: Path, *, cropped: bool = False
 ) -> OverlayAsset:
     with Image.new("RGBA", (scene.width, scene.height), (0, 0, 0, 0)) as image:

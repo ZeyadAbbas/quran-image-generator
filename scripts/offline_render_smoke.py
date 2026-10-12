@@ -6,19 +6,19 @@ import argparse
 from collections.abc import Sequence
 from pathlib import Path
 
-from wand.image import Image
+from PIL import Image
 
 from quran_image_generator.content import QuranDataClient
 from quran_image_generator.layout import build_layout
 from quran_image_generator.models import GenerationRequest
-from quran_image_generator.rendering import WandImageRenderer, WandTextMeasurer
+from quran_image_generator.rendering_backends import BackendMeasurer, BackendRenderer
 from quran_image_generator.resources import asset_path
 from quran_image_generator.settings import Dimensions, Settings
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
-def _settings(output_directory: Path) -> Settings:
+def _settings(output_directory: Path, backend: str = "pillow") -> Settings:
     return Settings(
         source_path=output_directory / "smoke-config.yaml",
         output_path=output_directory,
@@ -50,23 +50,28 @@ def _settings(output_directory: Path) -> Settings:
         space_between_verses=20,
         generate_random_verses=False,
         total_y_offset=0,
+        render_backend=backend,
     )
 
 
-def render_smoke(output_directory: Path) -> Path:
+def render_smoke(output_directory: Path, backend: str = "pillow") -> Path:
     """Render and validate a real PNG from the installed bundled corpus."""
 
     output_directory.mkdir(parents=True, exist_ok=True)
     passage = QuranDataClient().fetch_passage(GenerationRequest(1, 1, 1), ())
-    settings = _settings(output_directory)
-    layout = build_layout(passage, settings, WandTextMeasurer())
+    settings = _settings(output_directory, backend)
+    layout = build_layout(passage, settings, BackendMeasurer().for_backend(backend))
     destination = output_directory / "offline-smoke.png"
-    WandImageRenderer().render(layout, settings, destination)
+    renderer = BackendRenderer()
+    try:
+        renderer.render(layout, settings, destination)
+    finally:
+        renderer.close()
 
     if destination.read_bytes()[: len(PNG_SIGNATURE)] != PNG_SIGNATURE:
         raise RuntimeError(f"renderer did not create a PNG: {destination}")
-    with Image(filename=str(destination)) as image:
-        if image.format != "PNG" or (image.width, image.height) != (640, 420):
+    with Image.open(destination) as image:
+        if image.format != "PNG" or image.size != (640, 420):
             raise RuntimeError(
                 "rendered image has unexpected format or dimensions: "
                 f"{image.format} {image.width}x{image.height}"
@@ -77,9 +82,12 @@ def render_smoke(output_directory: Path) -> Path:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", required=True, type=Path)
+    parser.add_argument(
+        "--backend", choices=("pillow", "imagemagick"), default="pillow"
+    )
     args = parser.parse_args(argv)
-    rendered = render_smoke(args.output_dir.resolve())
-    print(f"Offline render smoke passed: {rendered}")
+    rendered = render_smoke(args.output_dir.resolve(), args.backend)
+    print(f"Offline render smoke passed ({args.backend}): {rendered}")
     return 0
 
 

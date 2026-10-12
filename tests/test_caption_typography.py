@@ -36,7 +36,6 @@ def test_native_arabic_spacing_retains_glyph_masks():
 
 
 @pytest.mark.parametrize("width,height", [(576, 1024), (1080, 1920)])
-@pytest.mark.skipif(not runtime_identity()["native_raqm"], reason="Nonzero spacing advertises native RAQM requirement")
 def test_spacing_wrap_shrink_and_pixels_fit_envelope(tmp_path, width, height):
     font = str(asset_path("fonts", "quran_font.ttf"))
     excerpt = select_excerpt(ExcerptRequest("a", (SourceSpan(1, 1, 1, 4),)))
@@ -127,9 +126,7 @@ def test_zero_typography_is_pixel_identical_and_identity_changes(tmp_path):
     assert old["assets"][0]["sha256"] == zero["assets"][0]["sha256"]
     data["profile"]["styles"]["arabic"]["word_spacing"] = 0.2
     changed = execute_request(data).to_dict()
-    if not runtime_identity()["native_raqm"]:
-        assert changed["cues"][0]["error"]["code"] == "unsupported_shaping_option"
-        return
+    assert changed["status"] == "complete", changed
     assert changed["assets"][0]["asset_id"] != zero["assets"][0]["asset_id"]
     assert Path(changed["job_directory"]).is_dir()
 

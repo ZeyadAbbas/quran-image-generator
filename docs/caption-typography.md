@@ -1,7 +1,7 @@
 # Caption typography (renderer 0.3.8, schema 1)
 
 These opt-in controls do not change the Quran corpus, source hashes, phrase
-bindings or legacy pixels. All appear in effective-style inspection and native
+bindings. All appear in effective-style inspection and native
 Caption Studio controls and participate in immutable asset identities.
 
 | Style | Units and behavior |
@@ -10,12 +10,12 @@ Caption Studio controls and participate in immutable asset identities.
 | `line_height` | Baseline-to-baseline em, 0–4. Zero retains ink height plus `line_spacing`; nonzero overrides it and reports overlapping ink/effect envelopes as `line_height_collision`. |
 | `tracking` | Additional em between LTR Latin graphemes, 0–1. Combining marks stay with their base. Optional cross-grapheme kerning/ligatures are disabled. Connected scripts, unsupported symbols and leading combining marks fail with `unsupported_tracking`. |
 
-Nonzero word spacing uses complete-line native Wand-RAQM shaping and the font's
-natural space advance, plus the requested additional em. Measurement and painting
-use exactly the same advance. Discovery reports native support. A Pillow-only
-installation receives `unsupported_shaping_option` before output; where native
-RAQM exists, the selected layer's `typography.backend` explicitly reports Wand.
-Other controls use either existing backend. A tracked line is bounded to 512
+Renderer 0.4.0 supports nonzero word spacing in both selected backends. Pillow
+adjusts space-glyph advances in an in-memory font while shaping each complete
+line; ImageMagick uses its native interword-spacing control. Measurement and
+painting use the same font/advance. The layer's `typography.backend` reports the
+selected library; see [backend setup and output differences](rendering-backends.md).
+A tracked line is bounded to 512
 graphemes. No artificial spaces are inserted into verified text.
 
 A cue may add `line_breaks`, for example:

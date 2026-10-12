@@ -6,6 +6,7 @@
 # Quran content needs no account, key, or secret.
 
 'output path': outputs
+'render backend': pillow
 'resolution': '1080 x 1080'
 'background image': ''
 'background color': '#101820'

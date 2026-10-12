@@ -1,6 +1,6 @@
 # Pinned font controls (renderer 0.3.9, schema 1)
 
-Ordinary local font selectors and all legacy defaults keep their pixels. Advanced
+Ordinary local font selectors retain their existing validation rules. Advanced
 options are opt-in layer styles, available in Python, JSON and Caption Studio:
 
 | Field | Contract |
@@ -39,8 +39,8 @@ metrics; actual glyph/effect envelopes still come from layout.
 The complete caption `inspect`/layout results additionally identify every font
 actually used. Missing coverage, wrong face, unknown/out-of-range axes, changed
 bytes and unsupported backend choices have stable diagnostic codes and field
-paths. Font features/language on Wand and their combination with native word
-spacing fail explicitly. Explicit font features cannot accompany grapheme
+paths. Font features/language on ImageMagick fail explicitly; Pillow supports
+these alongside word spacing in 0.4.0. Explicit font features cannot accompany grapheme
 tracking, which deliberately disables cross-grapheme discretionary shaping.
 
 For direct scene planning with advanced options, keep the prepared fonts alive:
