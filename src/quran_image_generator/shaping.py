@@ -89,7 +89,7 @@ class ShapedFont:
                     "missing_native_runtime",
                     "ImageMagick rendering requires Wand and native ImageMagick "
                     "libraries. Install them or select the pillow render backend.",
-                    details={"field": "render_backend", "backend": "imagemagick"},
+                    details={"field": "render_backend", "path": "/render_backend", "backend": "imagemagick"},
                 ) from error
 
             if "raqm" not in MAGICK_VERSION_DELEGATES.split():

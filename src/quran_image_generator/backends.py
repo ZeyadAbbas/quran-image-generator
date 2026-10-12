@@ -81,5 +81,5 @@ def require_pillow_shaping() -> None:
             "fribidi.dll beside the virtual environment's Python executable or set "
             "PILLOW_FRIBIDI_DLL before starting Python. Alternatively select the "
             "imagemagick render backend.",
-            details={"field": "render_backend", "backend": "pillow"},
+            details={"field": "render_backend", "path": "/render_backend", "backend": "pillow"},
         )

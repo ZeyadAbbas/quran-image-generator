@@ -151,6 +151,7 @@ payload.update(operation='render_batch',render_backend='imagemagick')
 missing = execute_request(payload).to_dict()
 assert missing['status']=='failed',missing
 assert missing['cues'][0]['error']['code']=='missing_native_runtime',missing
+assert missing['cues'][0]['error']['details']['path']=='/render_backend',missing
 generator.close()
 print('pillow-only passed')
 """
@@ -178,6 +179,7 @@ def test_missing_pillow_shaping_is_actionable_and_never_falls_back(
     response = execute_request(fixture_request(tmp_path)).to_dict()
     assert response["status"] == "failed"
     assert response["cues"][0]["error"]["code"] == "missing_shaping"
+    assert response["cues"][0]["error"]["details"]["path"] == "/render_backend"
     assert backends.selected_backend() == "auto"
 
 
