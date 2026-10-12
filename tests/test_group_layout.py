@@ -39,6 +39,19 @@ def group_request(tmp_path):
     return data
 
 
+def test_optional_visible_flow_child_still_must_fit(tmp_path):
+    data = group_request(tmp_path)
+    data["operation"] = "layout"
+    data["caption_groups"][0].update(region=[0.25, 0.2, 0.75, 0.8], fit="wrap")
+    data["caption_groups"][0].pop("panel")
+    data["profile"] = {"id": "plain", "revision": "1", "approval": "approved", "provenance": {},
+                       "styles": {"translation": {"required": False, "font_size": 100, "max_lines": 1}, "arabic": {"font_size": 15}}}
+    result = execute_request(data).to_dict()
+    assert result["status"] == "failed", result
+    assert result["cues"][0]["error"]["code"] == "group_fit_failed"
+    assert result["cues"][0]["error"]["details"]["layer_id"] == "translation"
+
+
 def test_joint_flow_has_real_gap_panel_bounds_and_hidden_slots_reclaimed(tmp_path):
     data = group_request(tmp_path)
     result = execute_request(data).to_dict()

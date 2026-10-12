@@ -100,6 +100,14 @@ class CaptionDocument:
         if "translation_snapshot" in self.data:
             pin = self.data["translation_snapshot"]
             pin["directory"] = str(self.resolve(pin["directory"]))
+        for collection in ("translation_tracks", "annotations"):
+            for item in self.data.get(collection, []):
+                if "font" in item:
+                    item["font"]["path"] = str(self.resolve(item["font"]["path"]))
+                if "snapshot" in item:
+                    item["snapshot"]["directory"] = str(self.resolve(item["snapshot"]["directory"]))
+                for fallback in item.get("style", {}).get("font_fallbacks", []):
+                    fallback["path"] = str(self.resolve(fallback["path"]))
 
     def resolve(self, value: str) -> Path:
         path = Path(value).expanduser()
@@ -221,6 +229,16 @@ class CaptionDocument:
         if len({group["group_id"] for group in groups}) != len(groups):
             raise ReferenceError("invalid_group", "Caption group IDs must be unique")
         self.data["caption_groups"] = copy.deepcopy(groups)
+
+    def set_caption_instances(self, tracks: list[dict[str, Any]], annotations: list[dict[str, Any]],
+                              bindings: dict[str, Any], cue_index: int) -> None:
+        candidate = copy.deepcopy(self.data)
+        candidate["translation_tracks"] = tracks
+        candidate["annotations"] = annotations
+        candidate["cues"][cue_index]["track_bindings"] = bindings
+        # Re-root pins just as when opening a saved request. No wording approval changes.
+        normalized = CaptionDocument(candidate, root=self.root)
+        self.data = normalized.data
 
     @staticmethod
     def word_count(surah: int, ayah: int) -> int:

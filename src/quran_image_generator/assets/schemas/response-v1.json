@@ -625,6 +625,400 @@
               }
             ]
           },
+          "translation_tracks": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "object",
+              "properties": {
+                "track_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+                },
+                "language": {
+                  "type": "string",
+                  "maxLength": 32,
+                  "pattern": "^([A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*)?$",
+                  "default": ""
+                },
+                "status": {
+                  "enum": [
+                    "ready",
+                    "disabled",
+                    "omitted_optional",
+                    "needs_review"
+                  ]
+                },
+                "source": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "provider": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "resource": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "version": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "translator": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "license": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "attribution": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "direction": {
+                          "enum": [
+                            "ltr",
+                            "rtl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "provider",
+                        "resource",
+                        "version",
+                        "translator",
+                        "license",
+                        "attribution",
+                        "direction"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "binding": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "binding_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "revision": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "spans": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "surah": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 114
+                              },
+                              "ayah": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 286
+                              },
+                              "word_start": {
+                                "type": "integer",
+                                "minimum": 1
+                              },
+                              "word_end": {
+                                "type": "integer",
+                                "minimum": 1
+                              }
+                            },
+                            "required": [
+                              "surah",
+                              "ayah",
+                              "word_start",
+                              "word_end"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "minItems": 1,
+                          "maxItems": 32
+                        },
+                        "arabic_sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "source_text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100000
+                        },
+                        "source_text_sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "source_identity_sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "segments": {
+                          "type": "array",
+                          "minItems": 1,
+                          "maxItems": 32,
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 8000
+                          }
+                        },
+                        "review_status": {
+                          "enum": [
+                            "approved",
+                            "needs_review"
+                          ]
+                        },
+                        "reviewer": {
+                          "type": "string",
+                          "maxLength": 512
+                        },
+                        "edited": {
+                          "type": "boolean"
+                        },
+                        "mapping_revision": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        }
+                      },
+                      "required": [
+                        "binding_id",
+                        "revision",
+                        "spans",
+                        "arabic_sha256",
+                        "source_text",
+                        "source_text_sha256",
+                        "source_identity_sha256",
+                        "segments",
+                        "review_status",
+                        "reviewer",
+                        "edited",
+                        "mapping_revision"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "font": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "license": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "attribution": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "glyph": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "sha256",
+                        "license",
+                        "attribution"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "metadata": {
+                  "type": "object"
+                },
+                "policy": {
+                  "enum": [
+                    "none",
+                    "review",
+                    "required"
+                  ],
+                  "default": "required"
+                },
+                "snapshot": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "directory": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "directory",
+                        "sha256"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "displayed": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "track_id",
+                "language",
+                "status",
+                "source",
+                "binding",
+                "font",
+                "metadata",
+                "policy",
+                "snapshot",
+                "displayed"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "annotations": {
+            "type": "array",
+            "maxItems": 4,
+            "items": {
+              "type": "object",
+              "properties": {
+                "annotation_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+                },
+                "kind": {
+                  "enum": [
+                    "source_reference",
+                    "edition_label",
+                    "annotation"
+                  ]
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "approved": {
+                  "type": "boolean"
+                },
+                "track_id": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64,
+                      "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+                    }
+                  ]
+                },
+                "font": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "license": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "attribution": {
+                          "type": "string",
+                          "maxLength": 4096
+                        },
+                        "glyph": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "sha256",
+                        "license",
+                        "attribution"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "annotation_id",
+                "kind",
+                "text",
+                "approved",
+                "track_id",
+                "font",
+                "enabled"
+              ],
+              "additionalProperties": false
+            }
+          },
           "metadata": {
             "type": "object"
           },
@@ -649,7 +1043,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text",
                       "x-constraints": [
@@ -677,7 +1074,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "layer"
                     },
@@ -704,7 +1104,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "layer",
                       "x-constraints": [
@@ -728,7 +1131,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -745,7 +1151,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -762,7 +1171,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "layer"
                     },
@@ -777,7 +1189,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "layer"
                     },
@@ -792,7 +1207,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "layer"
                     },
@@ -807,7 +1225,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "layer"
                     },
@@ -823,7 +1244,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "layer"
                     },
@@ -840,7 +1264,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -857,7 +1284,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -882,7 +1312,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -899,7 +1332,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -916,7 +1352,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -933,7 +1372,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -963,7 +1405,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text",
                       "x-constraints": [
@@ -983,7 +1428,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1000,7 +1448,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1020,7 +1471,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1040,7 +1494,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1061,7 +1518,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1078,7 +1538,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "layer"
                     },
@@ -1202,7 +1665,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1232,7 +1698,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text",
                       "x-constraints": [
@@ -1252,7 +1721,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1269,7 +1741,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text",
                       "x-constraints": [
@@ -1290,7 +1765,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1312,7 +1790,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1333,7 +1814,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1350,7 +1834,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1410,7 +1897,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -1444,7 +1934,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "layer",
                           "x-default-source": "body"
@@ -1462,7 +1955,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1480,7 +1976,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "layer",
                           "x-default-source": "body"
@@ -1498,7 +1997,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1516,7 +2018,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1542,7 +2047,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1560,7 +2068,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1578,7 +2089,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1596,7 +2110,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1614,7 +2131,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1637,7 +2157,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1659,7 +2182,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1677,7 +2203,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1738,7 +2267,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1759,7 +2291,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1806,7 +2341,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "layer",
                           "x-default-source": "body"
@@ -1824,7 +2362,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1842,7 +2383,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "layer",
                           "x-default-source": "body"
@@ -1860,7 +2404,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1878,7 +2425,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1904,7 +2454,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1922,7 +2475,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1940,7 +2496,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1958,7 +2517,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1976,7 +2538,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -1999,7 +2564,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -2021,7 +2589,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -2039,7 +2610,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -2100,7 +2674,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -2121,7 +2698,10 @@
                             "translation",
                             "arabic_title",
                             "latin_title",
-                            "logo"
+                            "logo",
+                            "source_reference",
+                            "edition_label",
+                            "annotation"
                           ],
                           "x-applies-to": "text",
                           "x-default-source": "body"
@@ -2316,7 +2896,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -2337,7 +2920,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -2362,7 +2948,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -2382,7 +2971,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -2403,7 +2995,10 @@
                         "translation",
                         "arabic_title",
                         "latin_title",
-                        "logo"
+                        "logo",
+                        "source_reference",
+                        "edition_label",
+                        "annotation"
                       ],
                       "x-applies-to": "text"
                     },
@@ -2804,6 +3399,14 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          },
+          "instance_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
             }
           },
           "persistent": {

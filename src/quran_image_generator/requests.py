@@ -33,6 +33,40 @@ class TranslationSnapshot:
 
 
 @dataclass(frozen=True, slots=True)
+class TrackBindingRef:
+    binding_id: str
+    revision: str
+
+
+@dataclass(frozen=True, slots=True)
+class TranslationTrack:
+    track_id: str
+    language: str = ""
+    enabled: bool = True
+    translation_policy: str = "required"
+    preview_unreviewed_translation: bool = False
+    dataset: BindingDataset | None = None
+    snapshot: TranslationSnapshot | None = None
+    binding: TrackBindingRef | None = None
+    font: AssetSelector | None = None
+    style: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class Annotation:
+    annotation_id: str
+    kind: str = "source_reference"
+    format: str = "words"
+    text: str | None = None
+    track_id: str | None = None
+    approved: bool = False
+    enabled: bool = True
+    font: AssetSelector | None = None
+    style: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
 class CueRequest:
     cue_id: str
     spans: tuple[SourceSpan, ...]
@@ -44,6 +78,7 @@ class CueRequest:
     latin_title: str | None = None
     preview_unreviewed_translation: bool = False
     line_breaks: tuple[LineBreakHint, ...] = ()
+    track_bindings: dict[str, TrackBindingRef] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,6 +110,8 @@ class BatchRequest:
     error_mode: str = "all_or_nothing"
     require_approved_profile: bool = False
     caption_groups: tuple[dict[str, Any], ...] = ()
+    translation_tracks: tuple[TranslationTrack, ...] = ()
+    annotations: tuple[Annotation, ...] = ()
 
     def to_request(self) -> RenderRequest:
         payload = asdict(self)
@@ -100,4 +137,14 @@ class BatchRequest:
         for asset in payload["assets"].values():
             if asset["glyph"] is None:
                 del asset["glyph"]
+        for collection in ("translation_tracks", "annotations"):
+            if not payload[collection]:
+                del payload[collection]
+                continue
+            for item in payload[collection]:
+                for key in tuple(item):
+                    if item[key] is None:
+                        del item[key]
+                if "font" in item and item["font"].get("glyph") is None:
+                    item["font"].pop("glyph", None)
         return RenderRequest.from_dict(payload)
