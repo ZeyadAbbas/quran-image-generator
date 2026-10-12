@@ -4,8 +4,26 @@ Install renderer **0.3.x**, schema **1** in a separate environment. The integrat
 baseline release tag is `v0.3.3`; translation preparation requires 0.3.4 or later;
 canonical word positions without spelling approval require 0.3.6
 (a pinned merged commit or built wheel is supported).
+The completed style-editor primitives and independent translation tracks require
+0.3.13 or later; use an immutable reviewed commit or inspected wheel for those
+features. The older `v0.3.3` example below installs only the historical baseline.
 There is no claim of PyPI publication. Pick the executable/environment
 explicitly, check `--capabilities`, and reject incompatible schema/renderer versions.
+
+For the new editor, the verified 0.3.13 implementation is pinned to merged commit
+`cea800389be79bed8f9703bcde9d81cbe2206ba3`. Install that immutable source and
+negotiate capabilities (a later upgrade requires its own validation):
+
+```sh
+python -m venv renderer-env
+# Activate renderer-env using the platform's normal venv activation.
+python -m pip install "git+https://github.com/ZeyadAbbas/quran-image-generator.git@cea800389be79bed8f9703bcde9d81cbe2206ba3"
+quran-caption-render --capabilities
+quran-caption-render --preflight --request "/absolute/inputs/translation-tracks.json"
+```
+
+The [style-editor handoff](caption-style-roadmap.md) lists delivered controls,
+native backend restrictions and the production integration sequence.
 
 ```
 python -m venv renderer-env
@@ -35,7 +53,9 @@ Copyable fixtures under `examples/captions` cover Arabic-only/repeats, partial
 ayahs, basmala, persistent titles, reviewed English imports, offline snapshots and
 layout-only requests. Translation examples are explicitly authored test fixtures,
 not identification/approval of the creator's translator. Use the creator's actual
-reviewed dataset and source notice for production. Original fonts/logo paths and
+reviewed dataset and source notice for production. The
+[multi-track fixture](../examples/captions/translation-tracks.json) also keeps
+two identical-text editions separate by provenance. Original fonts/logo paths and
 licenses must be supplied; no substitute logo is claimed as approved.
 
 `examples/caption_client.py` uses only installed public imports and negotiates

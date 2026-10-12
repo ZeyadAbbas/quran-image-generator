@@ -142,6 +142,13 @@ not install a QuranScribe preset or change its still-image defaults. The
 [sample-video handoff](docs/quranscribe-handoff.md) provides measured request
 options, font identities, translation requirements and composition instructions.
 
+The completed [caption style-editor handoff](docs/caption-style-roadmap.md)
+covers typography, font inspection/axes, independent decorations, panels,
+joint caption layout and [translation tracks/labels](docs/translation-tracks.md)
+in renderer 0.3.13, schema 1. Capabilities report the exact native backend's
+supported controls. QuranScribe owns its product editor, presets and video
+timeline; the renderer supplies verified static assets.
+
 ## Command line
 
 Run the CLI as either `quran-image-generator` or
