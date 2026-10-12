@@ -1,9 +1,13 @@
 # QuranScribe handoff: request the sample-video composition
 
-Use **quran-image-generator v0.3.5**, **JSON schema 1**. Install the renderer in
+Use a reviewed **quran-image-generator 0.3.13** commit or wheel, **JSON schema 1**. Install the renderer in
 its own environment as described in [integration-install.md](integration-install.md).
 QuranScribe requests static transparent layers, then controls every occurrence's
 timing, fades and video composition. Preserve the input frames and audio.
+
+The measured request below originated with the 0.3.5 audit. Its existing options
+remain supported. For the completed style-editor capabilities, backend gates
+and consumer responsibilities, see the [current handoff](caption-style-roadmap.md).
 
 The renderer has general capabilities, with a plain default. No QuranScribe
 mode, creator preset name, default translator or sample-specific app setting is

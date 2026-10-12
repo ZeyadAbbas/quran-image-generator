@@ -57,6 +57,13 @@ without any credential setup. Never put Instagram credentials in YAML.
 9. Cancel the save-before-close prompt once and verify the editor stays open.
    Close during a render after saving or discarding the request; check prompt
    completion, cancellation and worker shutdown.
+10. Load `translation-tracks.json`. In **Translations and labels…**, change one
+    instance's color/visibility and the selected cue's binding revision. Keep
+    another edition's wording review unchanged. Use **Caption groups…** to
+    reorder instance IDs; hidden content must reclaim space. Preview/export and
+    save/reopen the request; compare machine-adapter PNG checksums. A stale
+    revision must identify the cue/track; unsupported font/backend controls and
+    overlapping/unfittable groups must fail visibly.
 
 CI exercises native controls under Xvfb on Linux and native Tk on Windows, and
 also runs an installed Caption Studio smoke outside the source checkout.
