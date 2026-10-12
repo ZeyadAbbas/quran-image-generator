@@ -16,12 +16,12 @@ def apply_break_hints(excerpt: Excerpt, scene: Scene, hints: list[dict[str, Any]
     if not hints:
         return scene
     layer = next(v for v in scene.layers if v.role == "arabic")
-    cursor = len(layer.quote_open) + 1 if quotations and not layer.decoration_font else 0
+    cursor = len(layer.quote_open) + 1 if quotations and not layer.decoration_font and layer.decoration_layout != "elements" else 0
     starts, ends = [], []
     for span in excerpt.spans:
         starts.append(cursor)
         cursor += len(span.text)
-        if len(excerpt.spans) > 1 and verse_numbers and span.ends_ayah and span.source.surah:
+        if layer.decoration_layout != "elements" and len(excerpt.spans) > 1 and verse_numbers and span.ends_ayah and span.source.surah:
             number = str(span.source.ayah)
             if layer.numeral_system == "arabic_indic":
                 number = number.translate(str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩"))

@@ -21,6 +21,7 @@ class ShapedFont:
         if size > 512:
             raise ReferenceError(
                 "resource_limit", "Effective font size exceeds 512 pixels"
+                , details={"field": "font_size", "effective_size": size, "allowed": [1, 512]}
             )
         self.path, self.size, self.direction = path, size, direction
         self.horizontal_scale = horizontal_scale

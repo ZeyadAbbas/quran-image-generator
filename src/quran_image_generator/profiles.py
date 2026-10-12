@@ -89,6 +89,21 @@ def decorate_excerpt(
             number = number.translate(digits)
         return arabic.marker_prefix + number + arabic.marker_suffix
 
+    if (arabic.decoration_layout == "elements" or arabic.quotation_style or arabic.marker_style
+            or not arabic.quote_open_enabled or not arabic.quote_close_enabled or arabic.marker_placement != "adjacent"):
+        specs = []
+        offset = 0
+        for occurrence, span in enumerate(excerpt.spans):
+            offset += len(span.text)
+            if verse_numbers and span.ends_ayah and span.source.surah:
+                specs.append({"id": f"marker:{occurrence}", "occurrence": occurrence, "character_end": offset,
+                              "surah": span.source.surah, "ayah": span.source.ayah, "source_word": span.source.word_end,
+                              "text": marker(span.source.ayah)})
+            offset += 1
+        return replace(scene, layers=tuple(replace(layer, text=excerpt.text, suffix="", inline_markers=(),
+                                                   decoration_layout="elements", ornaments=quotations, marker_specs=tuple(specs))
+                                          if layer.role == "arabic" else layer for layer in scene.layers))
+
     # Multiple ayah endings stay with their individual source spans.
     if len(excerpt.spans) > 1 and verse_numbers:
         text = " ".join(
