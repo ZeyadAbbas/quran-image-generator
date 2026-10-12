@@ -214,6 +214,14 @@ class CaptionDocument:
         self.validate_line_breaks(index, hints)
         self.data["cues"][index]["line_breaks"] = copy.deepcopy(hints)
 
+    def set_caption_groups(self, groups: list[dict[str, Any]]) -> None:
+        candidate = copy.deepcopy(self.data)
+        candidate["caption_groups"] = groups
+        RenderRequest.from_dict(candidate)
+        if len({group["group_id"] for group in groups}) != len(groups):
+            raise ReferenceError("invalid_group", "Caption group IDs must be unique")
+        self.data["caption_groups"] = copy.deepcopy(groups)
+
     @staticmethod
     def word_count(surah: int, ayah: int) -> int:
         if (surah, ayah) == (0, 0):

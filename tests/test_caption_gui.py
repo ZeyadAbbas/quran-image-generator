@@ -116,6 +116,22 @@ def test_independent_element_color_controls_roundtrip(studio, monkeypatch):
     assert json.loads(studio._styles["marker_style"].get())["color"] == "#ffd700"
 
 
+def test_panel_and_group_controls_save_the_public_request(studio):
+    import tkinter as tk
+    from tkinter import ttk
+
+    studio._styles["panel"].set('{"opacity":0.6,"padding":[0.5,0.35]}')
+    studio._apply_layer()
+    studio._edit_groups()
+    dialog = next(c for c in studio.window.winfo_children() if isinstance(c, tk.Toplevel))
+    editor = next(c for c in dialog.winfo_children() if isinstance(c, tk.Text))
+    editor.delete("1.0", "end")
+    editor.insert("1.0", '[{"group_id":"caption","layers":["arabic"],"panel":{"opacity":0.5}}]')
+    next(c for c in dialog.winfo_children() if isinstance(c, ttk.Button) and c.cget("text") == "Save groups").invoke()
+    assert studio.document.data["caption_groups"][0]["group_id"] == "caption"
+    assert studio.document.request("layout").payload["profile"]["styles"]["arabic"]["panel"]["opacity"] == 0.6
+
+
 def test_close_during_render_cancels_without_touching_destroyed_widgets(
     studio, monkeypatch
 ):

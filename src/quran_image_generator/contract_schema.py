@@ -46,6 +46,24 @@ AXES = {"type": "object", "maxProperties": 16, "propertyNames": {"pattern": "^[A
 FONT_FALLBACK = obj({**{k: v for k, v in ASSET["properties"].items() if k != "glyph"},
                      "font_face": {"type": "integer", "minimum": 0, "maximum": 31}, "variation_axes": AXES},
                     ("path", "sha256", "license", "attribution"))
+PANEL = obj({
+    "enabled": {"type": "boolean", "default": True}, "mode": {"enum": ["block", "line", "region"], "default": "block"},
+    "color": {"type": "string", "maxLength": 64, "default": "#000000"}, "opacity": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.6},
+    "padding": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number", "minimum": 0, "maximum": 64}, "default": [0.5, 0.35]},
+    "unit": {"enum": ["em", "reference_pixels"], "default": "em"},
+    "corner_radius": {"type": "number", "minimum": 0, "maximum": 64, "default": 0.25},
+    "border_width": {"type": "number", "minimum": 0, "maximum": 16, "default": 0},
+    "border_color": {"type": "string", "maxLength": 64, "default": "#000000"},
+    "shadow_offset": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number", "minimum": -32, "maximum": 32}, "default": [0, 0]},
+    "shadow_blur": {"type": "number", "minimum": 0, "maximum": 16, "default": 0},
+    "shadow_color": {"type": "string", "maxLength": 64, "default": "#000000"},
+    "shadow_opacity": {"type": "number", "minimum": 0, "maximum": 1, "default": 0},
+    "inset": {"enum": ["effects", "ink"], "default": "effects"},
+    "region": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number", "minimum": 0, "maximum": 1}},
+})
+GROUP_PANEL = obj({**PANEL["properties"], "mode": {"enum": ["block"], "default": "block"}})
+GROUP = obj({"group_id": {"type": "string", "minLength": 1, "maxLength": 64}, "layers": {"type": "array", "items": TEXT, "minItems": 1, "maxItems": 16, "uniqueItems": True},
+             "panel": GROUP_PANEL, "mode": {"enum": ["overlay"], "default": "overlay"}}, ("group_id", "layers"))
 
 
 def style_schema() -> dict[str, Any]:
@@ -68,6 +86,7 @@ def style_schema() -> dict[str, Any]:
             "preferred_breaks",
             "resolved_font", "resolved_font_sha256", "font_info",
             "marker_specs", "element_fonts",
+            "instance_id", "kind",
         ):
             continue
         factory = field.default_factory
@@ -104,6 +123,8 @@ def style_schema() -> dict[str, Any]:
             element["offset"] = {"type": "array", "items": {"type": "number", "minimum": -32, "maximum": 32}, "minItems": 2, "maxItems": 2,
                                  "default": [0, 0], "x-units": "reference_pixels", "x-scaling": "canvas_width/576"}
             properties[field.name] = obj(element)
+        elif field.name == "panel":
+            properties[field.name] = PANEL
         properties[field.name] = field_metadata(field.name, properties[field.name], default)
     return obj(properties)
 
@@ -285,6 +306,7 @@ REQUEST_SCHEMA = {
             "require_approved_profile": {"type": "boolean"},
             "metadata": {"type": "object"},
             "font_samples": {"type": "object", "maxProperties": 16, "additionalProperties": {"type": "string", "maxLength": 8000}},
+            "caption_groups": {"type": "array", "maxItems": 8, "items": GROUP},
         },
         ("schema_version", "request_id", "operation"),
     ),
@@ -365,6 +387,7 @@ LAYER_PROPERTIES = {
     "font_info": {"type": ["object", "null"]},
     "marker_specs": {"type": "array", "items": {"type": "object"}, "maxItems": 32},
     "element_fonts": {"type": "object"},
+    "instance_id": {"type": "string", "maxLength": 128}, "kind": {"enum": ["text", "panel"]},
 }
 LAYER_PLAN = obj(
     {
@@ -397,6 +420,7 @@ LAYER_PLAN = obj(
                     "font_face", "variation_axes", "font_features", "font_language", "font_fallbacks",
                     "resolved_font", "resolved_font_sha256", "font_info",
                     "decoration_layout", "quotation_style", "marker_style", "quote_open_enabled", "quote_close_enabled", "marker_placement", "marker_specs", "element_fonts",
+                    "panel", "instance_id", "kind",
                 )
             ),
         ),
@@ -442,6 +466,8 @@ LAYER_PLAN = obj(
         "font_info": {"type": ["object", "null"]},
         "elements": {"type": "array", "items": {"type": "object"}, "maxItems": 128},
         "glyph_bounds": PIXEL_BOX,
+        "panels": {"type": "array", "maxItems": 8, "items": {"type": "object"}},
+        "asset_id": {"anyOf": [HASH, {"const": ""}]},
     },
     (
         "layer",
@@ -527,7 +553,7 @@ RESPONSE_SCHEMA = {
                         "persistent": {"type": "boolean"},
                         "effect_bounds": PIXEL_BOX,
                         "anchor": POINT,
-                        "font_sha256": HASH,
+                        "font_sha256": {"anyOf": [HASH, {"const": ""}]},
                     },
                     (
                         "asset_id",

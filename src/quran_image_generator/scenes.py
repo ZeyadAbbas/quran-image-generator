@@ -87,6 +87,9 @@ class Layer:
     marker_placement: str = "adjacent"
     marker_specs: tuple[dict[str, Any], ...] = ()
     element_fonts: dict[str, Any] = field(default_factory=dict)
+    panel: dict[str, Any] = field(default_factory=dict)
+    instance_id: str = ""
+    kind: str = "text"
 
 
 @dataclass(frozen=True, slots=True)
@@ -94,6 +97,7 @@ class Scene:
     width: int
     height: int
     layers: tuple[Layer, ...]
+    groups: tuple[dict[str, Any], ...] = ()
 
     def validate(self) -> None:
         if (
@@ -107,7 +111,7 @@ class Scene:
                 "invalid_request",
                 "Canvas must be 16..4096 pixels with at most 8.5 million pixels",
             )
-        if len(self.layers) > 16 or len({item.role for item in self.layers}) != len(
+        if len(self.layers) > 16 or len({item.instance_id or item.role for item in self.layers}) != len(
             self.layers
         ):
             raise ReferenceError(
@@ -117,6 +121,8 @@ class Scene:
             from .style_contract import validate_layer_style
 
             validate_layer_style(layer)
+            if layer.image and layer.panel and layer.panel.get("enabled", True):
+                raise ReferenceError("invalid_request", "Caption panels require text content", details={"path": "/profile/styles/" + layer.role + "/panel", "role": layer.role})
             if (
                 layer.numeral_system not in ("latin", "arabic_indic")
                 or not 0 <= layer.suffix_spacing <= 32
@@ -214,6 +220,8 @@ class LayerPlan:
     font_info: dict[str, Any] | None = None
     elements: tuple[dict[str, Any], ...] = ()
     glyph_bounds: tuple[int, int, int, int] | None = None
+    panels: tuple[dict[str, Any], ...] = ()
+    asset_id: str = ""
 
 
 def checked_asset(path: str, expected_hash: str = "") -> str:
@@ -327,8 +335,13 @@ def plan_scene(scene: Scene) -> tuple[LayerPlan, ...]:
             plans.append(LayerPlan(layer, (), image_bounds, 0, digest))
             continue
         from .caption_fit import plan_text
+        from .panels import plan_panel_text
 
-        plans.append(plan_text(scene, layer, digest))
+        plans.append(plan_panel_text(scene, layer, digest) if layer.panel else plan_text(scene, layer, digest))
+    if scene.groups:
+        from .panels import group_panel_plans
+
+        plans = list(group_panel_plans(scene, tuple(plans)))
     return tuple(plans)
 
 
@@ -337,7 +350,7 @@ def render_layer(
 ) -> OverlayAsset:
     with Image.new("RGBA", (scene.width, scene.height), (0, 0, 0, 0)) as image:
         layer = plan.layer
-        if plan.status == "ready":
+        if plan.status == "ready" and layer.kind != "panel":
             checked_asset(layer.image or layer.font, plan.asset_sha256)
             if layer.resolved_font:
                 checked_asset(layer.resolved_font, layer.resolved_font_sha256)
@@ -420,6 +433,13 @@ def render_layer(
             if layer.opacity != 1 and layer.decoration_layout != "elements":
                 with image.getchannel("A") as alpha:
                     image.putalpha(alpha.point(lambda a: round(a * layer.opacity)))
+        if plan.panels:
+            from .panels import paint_panels
+
+            with Image.new("RGBA", image.size) as backplate:
+                paint_panels(plan, backplate)
+                backplate.alpha_composite(image)
+                image.paste(backplate)
         with image.getchannel("A") as alpha:
             bounds = alpha.getbbox()
         offset = (0, 0)

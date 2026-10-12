@@ -50,6 +50,7 @@ DESCRIPTIONS = {
     "quotation_style": "JSON element style; omitted fields inherit body choices",
     "marker_style": "JSON true-ending marker style; omitted fields inherit body choices",
     "marker_placement": "Adjacent to the real ending, or after the closing quote for the final ending",
+    "panel": "JSON backplate style with independent fill/alpha, padding, border, corners and shadow; empty object disables it",
 }
 
 

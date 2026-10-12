@@ -45,7 +45,7 @@ from .scenes import (
 from .snapshots import SnapshotStore, canonical_bytes
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.3.10"
+RENDERER_VERSION = "0.3.11"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -146,7 +146,7 @@ def capabilities() -> dict[str, Any]:
         },
         "profiles": [{"id": "plain", "revision": "1", "approval": "approved"}],
         "custom_profiles": True,
-        "layer_roles": ["arabic", "translation", "arabic_title", "latin_title", "logo"],
+        "layer_roles": ["arabic", "translation", "arabic_title", "latin_title", "logo", "panel"],
         "style_fields": sorted(style_schema()["properties"]),
         "style_contract": style_descriptor(),
         "features": {
@@ -167,6 +167,9 @@ def capabilities() -> dict[str, Any]:
             "font_language": runtime_identity()["pillow_raqm"],
             "pinned_font_fallbacks": True,
             "independent_decoration_elements": True,
+            "caption_panels": True,
+            "shared_group_backplates": True,
+            "gradient_panels": False,
             "outline_and_shadow": True,
             "reviewed_phrase_bindings": True,
             "offline_translation_snapshots": True,
@@ -393,7 +396,7 @@ def _prepare_cue(
             error.details = getattr(error, "details", {})
             error.details["role"] = layer.role
             raise
-    scene = replace(scene, layers=tuple(resolved_layers))
+    scene = replace(scene, layers=tuple(resolved_layers), groups=tuple(data.get("caption_groups", ())))
     from .decoration_elements import prepare_element_fonts
 
     scene = replace(scene, layers=tuple(prepare_element_fonts(layer, assets, root, font_workspace) for layer in scene.layers))
@@ -640,7 +643,7 @@ def _execute_request(
             for index, (entry, scene, plans) in enumerate(prepared):
                 control.checkpoint("render", index, len(prepared), entry["cue_id"])
                 try:
-                    for plan in plans:
+                    for plan_index, plan in enumerate(plans):
                         control.checkpoint(
                             "render", index, len(prepared), entry["cue_id"]
                         )
@@ -705,6 +708,7 @@ def _execute_request(
                                 "font_sha256": plan.asset_sha256,
                             }
                         entry["asset_ids"].append(asset_id)
+                        entry["layers"][plan_index]["asset_id"] = asset_id
                 except Exception as error:
                     if isinstance(error, ReferenceError) and error.code in (
                         "cancelled",
@@ -756,7 +760,7 @@ def _execute_request(
                 (plan.layer.image or plan.layer.font, plan.asset_sha256)
                 for _, _, plans in prepared
                 for plan in plans
-                if plan.status == "ready"
+                if plan.status == "ready" and plan.layer.kind != "panel"
             }
             inputs.update(
                 (plan.layer.decoration_font, plan.decoration_asset_sha256)

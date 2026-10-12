@@ -2192,6 +2192,134 @@
                       ],
                       "x-applies-to": "text"
                     },
+                    "panel": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean",
+                          "default": true
+                        },
+                        "mode": {
+                          "enum": [
+                            "block",
+                            "line",
+                            "region"
+                          ],
+                          "default": "block"
+                        },
+                        "color": {
+                          "type": "string",
+                          "maxLength": 64,
+                          "default": "#000000"
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1,
+                          "default": 0.6
+                        },
+                        "padding": {
+                          "type": "array",
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "items": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 64
+                          },
+                          "default": [
+                            0.5,
+                            0.35
+                          ]
+                        },
+                        "unit": {
+                          "enum": [
+                            "em",
+                            "reference_pixels"
+                          ],
+                          "default": "em"
+                        },
+                        "corner_radius": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 64,
+                          "default": 0.25
+                        },
+                        "border_width": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 16,
+                          "default": 0
+                        },
+                        "border_color": {
+                          "type": "string",
+                          "maxLength": 64,
+                          "default": "#000000"
+                        },
+                        "shadow_offset": {
+                          "type": "array",
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "items": {
+                            "type": "number",
+                            "minimum": -32,
+                            "maximum": 32
+                          },
+                          "default": [
+                            0,
+                            0
+                          ]
+                        },
+                        "shadow_blur": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 16,
+                          "default": 0
+                        },
+                        "shadow_color": {
+                          "type": "string",
+                          "maxLength": 64,
+                          "default": "#000000"
+                        },
+                        "shadow_opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1,
+                          "default": 0
+                        },
+                        "inset": {
+                          "enum": [
+                            "effects",
+                            "ink"
+                          ],
+                          "default": "effects"
+                        },
+                        "region": {
+                          "type": "array",
+                          "minItems": 4,
+                          "maxItems": 4,
+                          "items": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false,
+                      "default": {},
+                      "description": "JSON backplate style with independent fill/alpha, padding, border, corners and shadow; empty object disables it",
+                      "x-units": "unitless",
+                      "x-scaling": "none",
+                      "x-roles": [
+                        "arabic",
+                        "translation",
+                        "arabic_title",
+                        "latin_title",
+                        "logo"
+                      ],
+                      "x-applies-to": "text"
+                    },
                     "role": {
                       "type": "string",
                       "minLength": 1,
@@ -2279,6 +2407,16 @@
                     },
                     "element_fonts": {
                       "type": "object"
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "kind": {
+                      "enum": [
+                        "text",
+                        "panel"
+                      ]
                     }
                   },
                   "required": [
@@ -2438,6 +2576,24 @@
                   },
                   "minItems": 4,
                   "maxItems": 4
+                },
+                "panels": {
+                  "type": "array",
+                  "maxItems": 8,
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "asset_id": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    {
+                      "const": ""
+                    }
+                  ]
                 }
               },
               "required": [
@@ -2580,8 +2736,15 @@
             "maxItems": 2
           },
           "font_sha256": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "const": ""
+              }
+            ]
           }
         },
         "required": [

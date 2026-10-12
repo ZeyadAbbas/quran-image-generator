@@ -41,6 +41,7 @@ ROLE_LABELS = {
     "decorations": "Quotation and number font",
     "quotes": "Independent quotation font",
     "markers": "Independent verse-number font",
+    "panel": "Caption backplate",
 }
 CHOICES = {
     "direction": ("rtl", "ltr"),
@@ -707,6 +708,24 @@ class CaptionStudio:
         self._button(
             buttons, "Request metadata…", lambda: self._edit_metadata("request")
         )
+        self._button(buttons, "Caption groups…", self._edit_groups)
+
+    def _edit_groups(self) -> None:
+        self._collect()
+        dialog = tk.Toplevel(self.window)
+        dialog.title("Caption groups and shared backplates")
+        ttk.Label(dialog, text="List ordered layer IDs and an optional shared panel. Missing/hidden optional layers leave no empty space.\nExample: [{\"group_id\":\"caption\",\"layers\":[\"arabic\",\"translation\"],\"panel\":{\"opacity\":0.6}}]", wraplength=650).pack(padx=10, pady=10)
+        editor = tk.Text(dialog, width=85, height=16)
+        editor.pack(fill="both", expand=True)
+        editor.insert("1.0", json.dumps(self.document.data.get("caption_groups", []), ensure_ascii=False, indent=2))
+
+        def save() -> None:
+            self.document.set_caption_groups(json.loads(editor.get("1.0", "end")))
+            self._changed()
+            dialog.destroy()
+
+        ttk.Button(dialog, text="Save groups", command=self._guard(save)).pack(side="left", padx=10, pady=10)
+        ttk.Button(dialog, text="Cancel", command=dialog.destroy).pack(side="left")
 
     def _fill(self) -> None:
         self._loading = True
