@@ -153,8 +153,10 @@ reference has no central caption at 16s); do not hide them with phrase captions.
 Honor `z_order`. Preview and MP4 must use the same assets, placement and timeline.
 
 QuranScribe owns intervals, silence gaps, fades, chapter transitions and encoding.
-Keep exported phrases static with no word highlighting. GUI word highlighting
-remains a separate transcript-review concern. Do not render onto the already
+The measured reference phrases remain static by default. Renderer 0.5.0 adds
+opt-in [source-word emphasis states](word-emphasis.md) over their unchanged
+layout; QuranScribe owns timed selections and fades. GUI transcript highlighting
+remains separate from these renderer assets. Do not render onto the already
 burned-in sample videos: compare separate source crops with blank/synthetic
 composites. The six-video style comparison and regression workflow are documented
 in [caption-regressions.md](caption-regressions.md).

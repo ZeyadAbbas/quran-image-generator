@@ -79,6 +79,7 @@ class CueRequest:
     preview_unreviewed_translation: bool = False
     line_breaks: tuple[LineBreakHint, ...] = ()
     track_bindings: dict[str, TrackBindingRef] = field(default_factory=dict)
+    word_states: tuple[WordState, ...] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,6 +87,20 @@ class LineBreakHint:
     span_occurrence: int
     source_word: int
     mode: str = "forced"
+
+
+@dataclass(frozen=True, slots=True)
+class WordSelection:
+    span_occurrence: int
+    source_word: int
+    weight: float
+
+
+@dataclass(frozen=True, slots=True)
+class WordState:
+    state_id: str
+    default_weight: float = 1
+    words: tuple[WordSelection, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -112,6 +127,7 @@ class BatchRequest:
     caption_groups: tuple[dict[str, Any], ...] = ()
     translation_tracks: tuple[TranslationTrack, ...] = ()
     annotations: tuple[Annotation, ...] = ()
+    word_emphasis: dict[str, Any] | None = None
 
     def to_request(self) -> RenderRequest:
         payload = asdict(self)
@@ -122,6 +138,7 @@ class BatchRequest:
             "translation_dataset",
             "translation_snapshot",
             "asset_cache_directory",
+            "word_emphasis",
         ):
             if payload[key] is None:
                 del payload[key]
@@ -131,6 +148,7 @@ class BatchRequest:
                 "title_surah",
                 "arabic_title",
                 "latin_title",
+                "word_states",
             ):
                 if cue[key] is None:
                     del cue[key]

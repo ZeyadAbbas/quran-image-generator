@@ -9,7 +9,8 @@ ordinary request fields. Invalid fields and unknown layer roles fail explicitly.
 All asset hashes and profile bytes belong in export reproducibility metadata.
 
 Fields control white fill, opacity, outline width/color, shadow offset/blur/color
-and shadow opacity independently. No word highlighting or text box is introduced.
+and shadow opacity independently. Source-word emphasis is a separate opt-in
+[request configuration](word-emphasis.md), rather than a hidden profile preset.
 Effects use actual glyph alpha, preserve fractional edges, and are included in
 the conservative fit envelope. Dimensions scale from a 576-pixel reference width.
 Font cmap coverage is validated before shaping; missing glyphs fail explicitly.

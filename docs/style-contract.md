@@ -35,6 +35,11 @@ to `render_backend: "pillow"`; choose `"imagemagick"` explicitly for native
 compatibility. `capabilities("imagemagick")` describes that backend's controls.
 See [backend setup and output differences](rendering-backends.md).
 
+Renderer 0.5.0 adds opt-in [word emphasis](word-emphasis.md). The exact contract,
+selector/configuration schemas, default paint, atomic policy and limits are in
+`word_emphasis` on capabilities and the style descriptor. Pillow RAQM supports
+renderer-painted selection states; ImageMagick explicitly rejects the option.
+
 `instance_defaults` and index-adjusted z-order metadata describe independent
 [translation and annotation instances](translation-tracks.md). Their own
 styles/fonts do not inherit a legacy translation role's overrides. `inspect`

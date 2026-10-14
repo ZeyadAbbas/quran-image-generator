@@ -403,14 +403,16 @@ def _plan_scene(scene: Scene) -> tuple[LayerPlan, ...]:
 
 
 def render_layer(
-    scene: Scene, plan: LayerPlan, destination: Path, *, cropped: bool = False
+    scene: Scene, plan: LayerPlan, destination: Path, *, cropped: bool = False,
+    word_paint: Any | None = None,
 ) -> OverlayAsset:
     with using_backend(scene.render_backend):
-        return _render_layer(scene, plan, destination, cropped=cropped)
+        return _render_layer(scene, plan, destination, cropped=cropped, word_paint=word_paint)
 
 
 def _render_layer(
-    scene: Scene, plan: LayerPlan, destination: Path, *, cropped: bool = False
+    scene: Scene, plan: LayerPlan, destination: Path, *, cropped: bool = False,
+    word_paint: Any | None = None,
 ) -> OverlayAsset:
     with Image.new("RGBA", (scene.width, scene.height), (0, 0, 0, 0)) as image:
         layer = plan.layer
@@ -426,7 +428,7 @@ def _render_layer(
             if layer.decoration_layout == "elements":
                 from .decoration_elements import paint_elements
 
-                paint_elements(scene, plan, image)
+                paint_elements(scene, plan, image, word_paint=word_paint)
             elif layer.image and plan.bounds:
                 left, top, right, bottom = plan.bounds
                 with Image.open(layer.image) as original:
@@ -466,6 +468,8 @@ def _render_layer(
                             plan.font_size * layer.decoration_scale,
                         ).paint(glyphs, text, x, y, "#FFFFFF")
                     with glyphs.getchannel("A") as mask:
+                        if word_paint is not None:
+                            word_paint.paint_backgrounds(image)
                         scale = dimension_scale(scene, layer)
                         if layer.shadow_opacity:
                             with (
@@ -493,7 +497,10 @@ def _render_layer(
                                 ImageFilter.MaxFilter(2 * stroke + 1)
                             ) as outline:
                                 _color_mask(image, outline, layer.outline_color, 1)
-                        _color_mask(image, mask, layer.color, 1)
+                        if word_paint is None:
+                            _color_mask(image, mask, layer.color, 1)
+                        else:
+                            word_paint.paint_fill(image, mask, layer.color, 1)
             if layer.opacity != 1 and layer.decoration_layout != "elements":
                 with image.getchannel("A") as alpha:
                     image.putalpha(alpha.point(lambda a: round(a * layer.opacity)))

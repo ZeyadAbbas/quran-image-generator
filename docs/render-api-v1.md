@@ -1,4 +1,4 @@
-# Static caption API v1 (renderer 0.3.x)
+# Static caption API v1 (renderer 0.5.0)
 
 The [style contract](style-contract.md) defines machine-readable constraints and
 the output-free `inspect` operation alongside the existing schema-1 operations.
@@ -7,6 +7,12 @@ Public imports: `quran_image_generator.api` (`RenderRequest`, `RenderResponse`,
 `execute_request`, `capabilities`), `quran_image_generator.requests` (`Canvas`,
 `CueRequest`, `BatchRequest`, `AssetSelector`, `TranslationSnapshot`), and the documented references, bindings, snapshots
 and profiles modules. Private layout/content helpers are not consumer APIs.
+
+Opt-in [source-word emphasis](word-emphasis.md) adds `word_emphasis`, per-cue
+`word_states`, typed `WordState`/`WordSelection` requests, and public
+`word_emphasis.compose_word_state` / `interpolate_word_states` helpers. These
+publish selection-state variants over one immutable layout; timing remains the
+consumer's responsibility. The schemas remain backward-compatible version 1.
 
 Published UTF-8 JSON schemas ship in `assets/schemas`: `request-v1.json`,
 `response-v1.json`, `bindings-v1.json`. Python and CLI use the same schema and

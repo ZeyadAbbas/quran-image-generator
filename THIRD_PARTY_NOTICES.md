@@ -1,5 +1,13 @@
 # Third-party notices
 
+## Test-only Arabic fonts
+
+The source checkout includes unmodified Scheherazade New (SIL International) and
+Noto Naskh Arabic fixtures under SIL Open Font License 1.1. Their full original
+notices/licenses and pinned source/checksums are in
+[`tests/fixtures/fonts`](tests/fixtures/fonts/README.md). They are not installed
+as runtime defaults or automatic fallbacks.
+
 ## Tanzil Quran text and metadata
 
 The bundled Arabic Quran text is the Tanzil Uthmani text, version 1.1, and the

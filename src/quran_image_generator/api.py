@@ -11,6 +11,7 @@ import uuid
 from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, replace
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -53,9 +54,11 @@ from .translation_tracks import (
     resolve_tracks,
     validate_instances,
 )
+from .word_emphasis import PreparedWords, prepare_words, render_word_states
+from .word_emphasis import descriptor as word_descriptor
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.4.0"
+RENDERER_VERSION = "0.5.0"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -238,7 +241,8 @@ def capabilities(backend: str = "pillow") -> dict[str, Any]:
         },
         "alpha_mode": "straight",
         "color_space": "sRGB",
-        "word_highlighting": False,
+        "word_highlighting": backend == "pillow" and runtime_identity()["pillow_raqm"],
+        "word_emphasis": word_descriptor(backend, runtime_identity()["pillow_raqm"]),
         "runtime": runtime_identity(),
     }
 
@@ -259,6 +263,7 @@ def style_descriptor(backend: str = "pillow") -> dict[str, Any]:
     for name in ("font_features", "font_language"):
         fields[name]["backend_support"] = {"pillow_raqm": True, "wand_raqm": False}
     return {
+        "word_emphasis": word_descriptor(backend, runtime["pillow_raqm"]),
         "descriptor_version": 1,
         "schema_version": 1,
         "fields": fields,
@@ -761,12 +766,16 @@ def _execute_request(
             data, root, lambda index: control.checkpoint("layout", 0, len(data["cues"]))
         )
         prepared = []
+        word_jobs: dict[str, PreparedWords] = {}
+        word_mask_bytes = 0
         layout_cache: OrderedDict[str, Any] = OrderedDict()
         for index, cue in enumerate(data["cues"]):
             control.checkpoint("layout", index, len(data["cues"]), cue["cue_id"])
             try:
+                if "word_emphasis" in data and data.get("render_backend", "pillow") != "pillow":
+                    raise ReferenceError("unsupported_word_emphasis_backend", "Layout-stable word emphasis currently requires Pillow RAQM", details={"path": "/word_emphasis", "backend": data["render_backend"]})
                 cue_identity = {
-                    k: v for k, v in cue.items() if k not in ("cue_id", "metadata")
+                    k: v for k, v in cue.items() if k not in ("cue_id", "metadata", "word_states")
                 }
                 key = hashlib.sha256(canonical_bytes(cue_identity)).hexdigest()
                 if key in layout_cache:
@@ -784,14 +793,49 @@ def _execute_request(
                     layout_cache[key] = (copy.deepcopy(entry), scene, plans)
                     if len(layout_cache) > 256:
                         layout_cache.popitem(last=False)
+                if "word_states" in cue and "word_emphasis" not in data:
+                    raise ReferenceError(
+                        "invalid_word_selection", "Word states require word_emphasis configuration",
+                        details={"path": "/word_emphasis"},
+                    )
+                if "word_emphasis" in data:
+                    excerpt = select_excerpt(ExcerptRequest(
+                        cue["cue_id"], tuple(SourceSpan(**span) for span in cue["spans"]),
+                    ))
+                    word_job = prepare_words(
+                        excerpt, scene, plans,
+                        {**data["word_emphasis"], "_quotations": data.get("quotations", False),
+                         "_verse_numbers": data.get("verse_numbers", False)}, runtime_identity(),
+                        partial(control.checkpoint, "layout", index, len(data["cues"]), cue["cue_id"]),
+                    )
+                    word_mask_bytes += sum(
+                        len(part.alpha) for unit in word_job.units for part in unit.parts
+                    )
+                    if word_mask_bytes > 128 * 1024 * 1024:
+                        raise ReferenceError(
+                            "resource_limit", "Batch word masks exceed 128 MiB; split the job",
+                            details={"path": "/word_emphasis"},
+                        )
+                    states = word_job.states(cue.get("word_states"))
+                    entry["word_emphasis"] = {
+                        **word_job.metadata(), "canvas": [scene.width, scene.height],
+                        "states": [{"state_id": state_id, "asset_ids": [], "weights": [
+                            {"unit_id": f"word:{i}", "weight": weight}
+                            for i, weight in enumerate(weights)]} for state_id, weights in states],
+                    }
+                    word_jobs[cue["cue_id"]] = word_job
                 prepared.append((entry, scene, plans))
                 result["cues"].append(entry)
             except ReferenceError as error:
+                if error.code in ("cancelled", "deadline_exceeded"):
+                    raise
                 details = getattr(error, "details", {})
                 details["cue_id"] = cue["cue_id"]
                 if "field" in details and "path" not in details and "role" in details:
                     details["path"] = "/profile/styles/" + details["role"] + "/" + details["field"] + details.get("path_suffix", "")
                 if details.get("path", "").startswith("/line_breaks/"):
+                    details["path"] = f"/cues/{index}" + details["path"]
+                if details.get("path", "").startswith("/word_states/"):
                     details["path"] = f"/cues/{index}" + details["path"]
                 if details.get("path", "").startswith("/track_bindings/"):
                     details["path"] = f"/cues/{index}" + details["path"]
@@ -951,12 +995,19 @@ def _execute_request(
                                 shared[asset_id]["instance_ids"] = [plan.layer.instance_id]
                         entry["asset_ids"].append(asset_id)
                         entry["layers"][plan_index]["asset_id"] = asset_id
+                    if entry["cue_id"] in word_jobs:
+                        output_bytes += render_word_states(word_jobs[entry["cue_id"]], entry, shared, staging,
+                            data.get("cropped", False), disk_cache, cache, output_bytes,
+                            partial(control.checkpoint, "render", index, len(prepared), entry["cue_id"]))
                 except Exception as error:
                     if isinstance(error, ReferenceError) and error.code in (
                         "cancelled",
                         "deadline_exceeded",
                     ):
                         raise
+                    # A failed state may already have inserted reusable assets.
+                    # Keep subsequent per-cue resource accounting exact too.
+                    output_bytes = sum((staging / record["path"]).stat().st_size for record in shared.values())
                     failure = (
                         error
                         if isinstance(error, ReferenceError)
@@ -970,10 +1021,13 @@ def _execute_request(
                     entry.update(
                         status="failed", asset_ids=[], error=error_record(failure)
                     )
+                    for state in entry.get("word_emphasis", {}).get("states", []):
+                        state["asset_ids"] = []
                     if data.get("error_mode", "all_or_nothing") == "all_or_nothing":
                         result.update(status="failed", assets=[])
                         return RenderResponse(result)
-            used = {key for entry in result["cues"] for key in entry["asset_ids"]}
+            used = {key for entry in result["cues"] for key in [*entry["asset_ids"],
+                    *(asset_id for state in entry.get("word_emphasis", {}).get("states", []) for asset_id in state["asset_ids"])]}
             for key in set(shared) - used:
                 (staging / shared[key]["path"]).unlink(missing_ok=True)
             result["assets"] = [record for key, record in shared.items() if key in used]

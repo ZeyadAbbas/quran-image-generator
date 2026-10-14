@@ -277,7 +277,7 @@ def plan_elements(scene: Scene, layer: Layer, digest: str, *, preferred_size: fl
     raise FitError(layer.role, last_bounds, allowed, sizes[-1], last_lines)
 
 
-def paint_elements(scene: Scene, plan: LayerPlan, image: Image.Image) -> None:
+def paint_elements(scene: Scene, plan: LayerPlan, image: Image.Image, *, word_paint: Any | None = None) -> None:
     layer = plan.layer
     scale = dimension_scale(scene, layer)
     for category in ("body", "quotes", "markers"):
@@ -291,6 +291,8 @@ def paint_elements(scene: Scene, plan: LayerPlan, image: Image.Image) -> None:
                 layer_font(font_layer, run["font_size"]).paint(glyphs, run["text"], run["x"], run["y"], "#FFFFFF")
             style = runs[0]["style"]
             opacity = style["opacity"]
+            if category == "body" and word_paint is not None:
+                word_paint.paint_backgrounds(image, opacity)
             with glyphs.getchannel("A") as mask:
                 if style["shadow_opacity"]:
                     with mask.filter(ImageFilter.GaussianBlur(style["shadow_blur"] * scale)) as blur, Image.new("L", image.size) as moved:
@@ -300,4 +302,7 @@ def paint_elements(scene: Scene, plan: LayerPlan, image: Image.Image) -> None:
                 if stroke:
                     with mask.filter(ImageFilter.MaxFilter(2 * stroke + 1)) as outline:
                         _color_mask(image, outline, style["outline_color"], opacity)
-                _color_mask(image, mask, style["color"], opacity)
+                if category == "body" and word_paint is not None:
+                    word_paint.paint_fill(image, mask, style["color"], opacity)
+                else:
+                    _color_mask(image, mask, style["color"], opacity)
