@@ -8,9 +8,10 @@ from pathlib import Path
 
 import jsonschema
 import pytest
+from fontTools.feaLib.builder import addOpenTypeFeaturesFromString
 from fontTools.ttLib import TTCollection, TTFont
 from image_helpers import rgba_pixels
-from PIL import Image, ImageChops, ImageDraw
+from PIL import Image, ImageChops, ImageDraw, ImageFont
 from test_api import fixture_request
 from test_font_controls import font_selector
 from test_group_layout import group_request
@@ -23,6 +24,7 @@ from quran_image_generator.api import (
 )
 from quran_image_generator.caption_editor import CaptionDocument, compose_caption
 from quran_image_generator.contract_schema import REQUEST_SCHEMA, RESPONSE_SCHEMA
+from quran_image_generator.excerpts import ExcerptRequest, select_excerpt
 from quran_image_generator.references import ReferenceError, SourceSpan
 from quran_image_generator.render_cache import CaptionRenderCache
 from quran_image_generator.requests import (
@@ -893,3 +895,56 @@ def test_hidden_arabic_and_reserved_font_feature_report_useful_errors(tmp_path):
     result = execute_request(data).to_dict()
     assert result["cues"][0]["error"]["code"] == "unsupported_word_emphasis_font"
     assert result["cues"][0]["error"]["details"]["feature"] == "QIGW"
+
+
+def test_ligature_crossing_source_word_boundary_is_atomic_even_with_disjoint_masks(
+    tmp_path,
+):
+    text = select_excerpt(ExcerptRequest("cluster", (SourceSpan(1, 1, 1, 4),))).text
+    first, second, *_ = text.split()
+    path = tmp_path / "cross-word.ttf"
+    with TTFont(FONTS / "ScheherazadeNew-Regular.ttf") as font:
+        del font["GSUB"]
+        cmap = font.getBestCmap()
+        names = " ".join(sorted({cmap[ord(ch)] for ch in text if not ch.isspace()}))
+        noop = f"sub [{names}] by [{names}];"
+        # Keep nominal forms in this purpose-built fixture and replace the
+        # first word's tail, separator, and second word's initial with one glyph.
+        features = "".join(
+            f"feature {tag} {{ {noop} }} {tag};"
+            for tag in ("init", "medi", "fina", "isol")
+        )
+        cluster = first[-2:] + " " + second[0]
+        components = " ".join(cmap[ord(ch)] for ch in cluster)
+        features += (
+            f"feature rlig {{ sub {components} by {cmap[ord(first[-2])]}; }} rlig;"
+        )
+        addOpenTypeFeaturesFromString(font, features, tables=["GSUB"])
+        font.save(path)
+    face = ImageFont.truetype(str(path), 30, layout_engine=ImageFont.Layout.RAQM)
+    assert face.getlength(text, direction="rtl") < face.getlength(
+        text, direction="rtl", features=["-rlig"]
+    )
+    data = request(tmp_path, spans=[asdict(SourceSpan(1, 1, 1, 4))], layout="elements")
+    data["assets"] = {"arabic": font_selector(path)}
+    baseline = checked(data)
+    data["word_emphasis"] = {}
+    result = checked(data)
+    group = result["cues"][0]["word_emphasis"]["units"][0]
+    assert group["atomic"] and "shaping_cluster" in group["atomic_reasons"]
+    assert [member["source_word"] for member in group["members"]] == [1, 2]
+    with (
+        compose_caption(baseline, 0, (576, 1024)) as before,
+        compose_word_state(result, 0, "all") as after,
+    ):
+        same(before, after)
+    data["cues"][0]["word_states"] = [
+        {
+            "state_id": "split",
+            "default_weight": 0,
+            "words": [{"span_occurrence": 0, "source_word": 2, "weight": 1}],
+        }
+    ]
+    assert (
+        execute_request(data).payload["cues"][0]["error"]["code"] == "atomic_word_split"
+    )

@@ -18,6 +18,7 @@ from io import BytesIO
 from typing import Any
 
 from fontTools.otlLib.builder import buildLookup, buildSinglePos, buildValue
+from fontTools.pens.boundsPen import BoundsPen
 from fontTools.ttLib import TTFont, newTable
 from fontTools.ttLib.tables import otTables as ot
 from PIL import Image, ImageChops, ImageDraw, ImageFont
@@ -36,6 +37,25 @@ MAX_PROBES = 4096
 _fonts: RenderCache[tuple, ImageFont.FreeTypeFont] = RenderCache(
     32, max_bytes=32 * 1024 * 1024
 )
+_nominal_ink: RenderCache[tuple, bool] = RenderCache(256)
+
+
+def _has_nominal_outline(font: ImageFont.FreeTypeFont, character: str) -> bool:
+    """Check glyph outlines without shaping an isolated source word/letter."""
+    key = hashlib.sha256(font.font_bytes).hexdigest(), character
+    cached = _nominal_ink.get(key)
+    if cached is not None:
+        return cached
+    with TTFont(BytesIO(font.font_bytes)) as face:
+        name = (face.getBestCmap() or {}).get(ord(character))
+        glyphs = face.getGlyphSet()
+        pen = BoundsPen(glyphs)
+        if name:
+            glyphs[name].draw(pen)
+        box = pen.bounds
+        result = bool(box and box[2] > box[0] and box[3] > box[1])
+    _nominal_ink.put(key, result)
+    return result
 
 
 def error(code: str, message: str, **details: Any) -> ReferenceError:
@@ -553,9 +573,37 @@ def extract_units(
         if probe.size[0] * probe.size[1] * (len(selected) + 20) > MAX_MASK_BYTES:
             raise error("resource_limit", "Word-mask working set exceeds 64 MiB")
         all_ranges = [value for _, ranges in selected for value in ranges]
+        owned = {i for a, b in all_ranges for i in range(a, b)}
+        # HarfBuzz can assign a cross-space ligature to its first character.
+        # Its two word masks then look disjoint even though the next word's
+        # initial letter was consumed. Probe that boundary in the full run;
+        # never mistake the missing initial for an independently paintable split.
+        for position, (index, ranges) in enumerate(selected):
+            initial = next(
+                (i for a, b in ranges for i in range(a, b) if run.text[i].isalpha()),
+                None,
+            )
+            if initial is None:
+                continue
+            with probe.mask([(ranges[0][0], initial + 1)]) as initial_ink:
+                visible = bool(initial_ink.getbbox())
+            if visible or not _has_nominal_outline(probe.font, run.text[initial]):
+                continue
+            previous = selected[position - 1] if position else None
+            if previous is None or any(
+                not run.text[i].isspace() and i not in owned
+                for i in range(previous[1][-1][1], initial)
+            ):
+                raise error(
+                    "word_decoration_atomic",
+                    "A source-word initial belongs to an unresolved static/word shaping boundary",
+                    members=units[index].members,
+                    line_index=run.line_index,
+                    run_id=run.run_id,
+                )
+            join([previous[0], index], "shaping_cluster")
         body = probe.mask(all_ranges)
         # A shared source/decorative glyph cannot be recolored independently.
-        owned = {i for a, b in all_ranges for i in range(a, b)}
         fixed_ranges = [(i, i + 1) for i in range(len(run.text)) if i not in owned]
         fixed = probe.mask(fixed_ranges)
         if ImageChops.difference(ImageChops.add(body, fixed), probe.original).getbbox():

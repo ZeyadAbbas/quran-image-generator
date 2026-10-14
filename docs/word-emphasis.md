@@ -165,3 +165,8 @@ font must reproduce the normal raster exactly, and selected units must reconstru
 the complete original ink exactly before they are accepted. Horizontal scaling
 uses the original whole-run crop and resampling grid. Unsafe decompositions fail
 explicitly instead of returning approximate word positions.
+
+Full-run boundary probes also check consumed source initials against the font's
+nominal glyph outlines. A cross-word ligature can otherwise appear to belong
+entirely to its first word, with disjoint masks; such source words are grouped
+atomically. An unresolved boundary involving static decoration fails explicitly.
