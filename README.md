@@ -136,7 +136,7 @@ Arabic-only images. Translation material remains subject to
 
 ## Static caption layers and integration
 
-Renderer 0.4.0 exposes a versioned static-caption Python/JSON API. It supports
+Renderer 0.5.0 exposes a versioned static-caption Python/JSON API. It supports
 verified partial source spans, reviewed offline English bindings, independent
 transparent title/caption/logo assets and isolated batches. Start with
 `quran-caption-render --capabilities` and `--preflight`; see
@@ -152,6 +152,12 @@ joint caption layout and [translation tracks/labels](docs/translation-tracks.md)
 in renderer 0.3.13 and later, schema 1. Capabilities report the selected backend's
 supported controls. QuranScribe owns its product editor, presets and video
 timeline; the renderer supplies verified static assets.
+
+Opt-in [source-word emphasis states](docs/word-emphasis.md) support current-word,
+cumulative, and weighted fills/backgrounds over the same approved Arabic layout.
+Pillow RAQM retains complete-line shaping and reports indivisible source/ink
+groups. The [public example](examples/word_emphasis.py) composes checksum-verified
+states and consumer-controlled fades; existing requests retain their pixels.
 
 Pillow is the default for faster previews. Select `render backend: imagemagick`
 in YAML, `render_backend` in caption JSON, or the GUI's backend control to retain

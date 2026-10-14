@@ -22,6 +22,7 @@ or PyPI publication. The unchanged measured sample requests remain in the
 | Per-language or shared readability panels | Line/block/region solid panels, padding, rounded corners, border and shadow; group backplates | [#78](https://github.com/ZeyadAbbas/quran-image-generator/issues/78), 0.3.11; [panels](caption-panels.md) |
 | Real ink/block positioning, multilingual flow and combined fit | Explicit anchors/scale basis; ordered flow; coordinated ratios/minima; collision/overflow diagnostics; revalidation helper for common sizes | [#80](https://github.com/ZeyadAbbas/quran-image-generator/issues/80), 0.3.12; [groups](caption-groups.md) |
 | Independently styled languages/editions and separate references/labels | Stable instance IDs; per-track exact reviewed binding revision, dataset/snapshot/font/style; truthful source references; bounded approved annotations | [#79](https://github.com/ZeyadAbbas/quran-image-generator/issues/79), 0.3.13; [tracks](translation-tracks.md) |
+| Source-occurrence current/cumulative/weighted emphasis | Opt-in renderer-painted fill/background states, immutable layout, explicit atomic groups, checksum/crop-aware composition and consumer-controlled fades | [#91](https://github.com/ZeyadAbbas/quran-image-generator/issues/91), 0.5.0; [word emphasis](word-emphasis.md) |
 | Ordinary text visibility, fill/alpha, stroke/shadow, preferred/minimum size, max lines, horizontal scale and normalized region | Existing per-layer styles, preserved by the additions above | [profiles](caption-profiles.md), [fit](caption-fit.md) |
 | Arabic/Latin titles and image or font-glyph branding | Existing independent/persistent roles with pinned assets and recorded terms | [overlays](overlays.md) |
 | Reference-only Quran, offline reviewed translations, repeat deduplication and exact exported PNGs | Canonical/source identity; reviewed bindings; immutable manifests/assets; cropped offsets; progress/cancel/deadline and failure policies | [references](source-references.md), [translations](phrase-translations.md), [batch ownership](batch-ownership.md) |
@@ -39,8 +40,10 @@ annotation and group collections are currently exposed through JSON dialogs.
 - Independent Quran decoration layout currently supports RTL paragraph flow.
   Safe nonzero tracking supports LTR Latin graphemes only. Whole-layer fallback
   preserves shaping context; it does not combine complementary fonts by letter.
-- Gradient panels and static/timed word highlighting are not implemented.
-  Discovery retains `gradient_panels=false` and `word_highlighting=false`.
+- Renderer 0.5.0 exposes source-word paint states on Pillow RAQM; check
+  `word_emphasis.supported` and its version/schema. Consumers own timestamps,
+  current/cumulative selection, resets, and fades. ImageMagick reports this
+  option as unsupported. Gradient panels remain `gradient_panels=false`.
 - Default dimensions use width/576, with explicit short-side or pixel scaling
   available. Keep effect/font units explicit; minimum sizes constrain joint fit.
 - Limits include 8 tracks, 4 annotations and 16 total output layers including

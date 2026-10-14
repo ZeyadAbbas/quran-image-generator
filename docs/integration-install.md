@@ -1,6 +1,6 @@
 # Independent QuranScribe handoff
 
-Install renderer **0.4.0**, schema **1** in a separate environment. The integrated
+Install renderer **0.5.0**, schema **1** in a separate environment. The integrated
 baseline release tag is `v0.3.3`; translation preparation requires 0.3.4 or later;
 canonical word positions without spelling approval require 0.3.6
 (a pinned merged commit or built wheel is supported).
@@ -9,6 +9,11 @@ The completed style-editor primitives and independent translation tracks require
 features. The older `v0.3.3` example below installs only the historical baseline.
 There is no claim of PyPI publication. Pick the executable/environment
 explicitly, check `--capabilities`, and reject incompatible schema/renderer versions.
+
+[Source-word emphasis states](word-emphasis.md) require 0.5.0 and Pillow RAQM.
+Use an immutable merged commit or inspected wheel and check the advertised
+word-emphasis contract before enabling timed selections. This version change
+does not imply a new release tag or PyPI publication.
 
 For the new editor, the verified 0.3.13 implementation is pinned to merged commit
 `cea800389be79bed8f9703bcde9d81cbe2206ba3`. Install that immutable source and

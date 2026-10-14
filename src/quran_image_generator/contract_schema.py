@@ -20,6 +20,27 @@ def obj(properties: dict[str, Any], required: tuple[str, ...] = ()) -> dict[str,
 
 TEXT = {"type": "string", "minLength": 1, "maxLength": 128}
 HASH = {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+WORD_COLOR = {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"}
+WORD_EMPHASIS = obj({
+    "mode": {"enum": ["fill", "background", "both"], "default": "fill"},
+    "active_color": WORD_COLOR, "inactive_color": WORD_COLOR,
+    "background": obj({
+        "color": {**WORD_COLOR, "default": "#FFD54F"},
+        "opacity": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.35},
+        "padding": {"type": "array", "items": {"type": "number", "minimum": 0, "maximum": 64}, "minItems": 2, "maxItems": 2, "default": [0.15, 0.08]},
+        "corner_radius": {"type": "number", "minimum": 0, "maximum": 64, "default": 0.12},
+        "unit": {"enum": ["em", "output_pixels"], "default": "em"},
+    }),
+})
+WORD_STATE = obj({
+    "state_id": {"type": "string", "minLength": 1, "maxLength": 64},
+    "default_weight": {"type": "number", "minimum": 0, "maximum": 1, "default": 1},
+    "words": {"type": "array", "maxItems": 512, "items": obj({
+        "span_occurrence": {"type": "integer", "minimum": 0, "maximum": 31},
+        "source_word": {"type": "integer", "minimum": 1},
+        "weight": {"type": "number", "minimum": 0, "maximum": 1},
+    }, ("span_occurrence", "source_word", "weight"))},
+}, ("state_id",))
 SPAN = obj(
     {
         "surah": {"type": "integer", "minimum": 0, "maximum": 114},
@@ -272,6 +293,7 @@ ANNOTATION_RESULT = obj(
 CUE = obj(
     {
         "cue_id": TEXT,
+        "word_states": {"type": "array", "items": WORD_STATE, "minItems": 1, "maxItems": 32},
         "spans": {"type": "array", "items": SPAN, "minItems": 1, "maxItems": 32},
         "translation_policy": {"enum": ["none", "review", "required"]},
         "translation_binding_id": TEXT,
@@ -296,6 +318,7 @@ REQUEST_SCHEMA = {
             "schema_version": {"const": 1},
             "request_id": TEXT,
             "render_backend": {"enum": ["pillow", "imagemagick"], "default": "pillow"},
+            "word_emphasis": WORD_EMPHASIS,
             "operation": {
                 "enum": [
                     "capabilities",
@@ -431,6 +454,39 @@ PIXEL_BOX = {
     "maxItems": 4,
 }
 POINT = {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}
+WORD_RANGE = {"type": "array", "items": {"type": "integer", "minimum": 0}, "minItems": 2, "maxItems": 2}
+WORD_PART = obj({
+    "line_index": {"type": "integer", "minimum": 0}, "run_id": TEXT,
+    "run_character_ranges": {"type": "array", "minItems": 1, "items": WORD_RANGE},
+    "run_text": {"type": "string"}, "ink_bounds": {**PIXEL_BOX, "type": "array"},
+    "mask_font_sha256": HASH, "protected_decoration_pixels": {"type": "integer", "minimum": 0},
+}, ("line_index", "run_id", "run_character_ranges", "run_text", "ink_bounds", "mask_font_sha256", "protected_decoration_pixels"))
+WORD_UNIT = obj({
+    "unit_id": TEXT,
+    "members": {"type": "array", "minItems": 1, "items": obj({
+        "cue_id": TEXT, "span_occurrence": {"type": "integer", "minimum": 0, "maximum": 31},
+        "surah": {"type": "integer", "minimum": 0, "maximum": 114}, "ayah": {"type": "integer", "minimum": 0, "maximum": 286},
+        "source_word": {"type": "integer", "minimum": 1},
+    }, ("cue_id", "span_occurrence", "surah", "ayah", "source_word"))},
+    "atomic": {"type": "boolean"},
+    "atomic_reasons": {"type": "array", "items": {"enum": ["source_display_group", "overlapping_ink", "shaping_cluster"]}},
+    "display_ranges": {"type": "array", "minItems": 1, "items": obj({"character_range": WORD_RANGE, "text": {"type": "string"}}, ("character_range", "text"))},
+    "parts": {"type": "array", "minItems": 1, "items": WORD_PART},
+    "backgrounds": {"type": "array", "minItems": 1, "items": obj({
+        "line_index": {"type": "integer", "minimum": 0}, "rect": {**PIXEL_BOX, "type": "array"},
+        "corner_radius_pixels": {"type": "number", "minimum": 0},
+    }, ("line_index", "rect", "corner_radius_pixels"))},
+}, ("unit_id", "members", "atomic", "atomic_reasons", "display_ranges", "parts", "backgrounds"))
+WORD_RESULT = obj({
+    "version": {"const": 1}, "representation": {"const": "selection_state_variants"},
+    "layout_id": HASH, "canvas": {**WORD_RANGE, "items": {"type": "integer", "minimum": 1}}, "options": WORD_EMPHASIS,
+    "units": {"type": "array", "minItems": 1, "maxItems": 128, "items": WORD_UNIT},
+    "states": {"type": "array", "minItems": 1, "maxItems": 32, "items": obj({
+        "state_id": WORD_STATE["properties"]["state_id"],
+        "weights": {"type": "array", "minItems": 1, "maxItems": 128, "items": obj({"unit_id": TEXT, "weight": {"type": "number", "minimum": 0, "maximum": 1}}, ("unit_id", "weight"))},
+        "asset_ids": {"type": "array", "items": HASH},
+    }, ("state_id", "weights", "asset_ids"))},
+}, ("version", "representation", "layout_id", "canvas", "options", "units", "states"))
 RESOLVED_SPAN = obj(
     {
         "source": SPAN,
@@ -608,6 +664,7 @@ RESPONSE_SCHEMA = {
                         },
                         "translation_tracks": {"type": "array", "maxItems": 8, "items": TRACK_RESULT},
                         "annotations": {"type": "array", "maxItems": 4, "items": ANNOTATION_RESULT},
+                        "word_emphasis": WORD_RESULT,
                         "metadata": {"type": "object"},
                         "layers": {"type": "array", "items": LAYER_PLAN},
                         "inspection": {"type": "object"},

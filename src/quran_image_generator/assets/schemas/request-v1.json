@@ -18,6 +18,74 @@
       ],
       "default": "pillow"
     },
+    "word_emphasis": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "fill",
+            "background",
+            "both"
+          ],
+          "default": "fill"
+        },
+        "active_color": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "inactive_color": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "background": {
+          "type": "object",
+          "properties": {
+            "color": {
+              "type": "string",
+              "pattern": "^#[0-9A-Fa-f]{6}$",
+              "default": "#FFD54F"
+            },
+            "opacity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.35
+            },
+            "padding": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 64
+              },
+              "minItems": 2,
+              "maxItems": 2,
+              "default": [
+                0.15,
+                0.08
+              ]
+            },
+            "corner_radius": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 64,
+              "default": 0.12
+            },
+            "unit": {
+              "enum": [
+                "em",
+                "output_pixels"
+              ],
+              "default": "em"
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
     "operation": {
       "enum": [
         "capabilities",
@@ -6998,6 +7066,60 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 128
+          },
+          "word_states": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "state_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "default_weight": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "default": 1
+                },
+                "words": {
+                  "type": "array",
+                  "maxItems": 512,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "span_occurrence": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 31
+                      },
+                      "source_word": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "weight": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    },
+                    "required": [
+                      "span_occurrence",
+                      "source_word",
+                      "weight"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "state_id"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 32
           },
           "spans": {
             "type": "array",
