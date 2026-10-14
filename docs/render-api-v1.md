@@ -1,4 +1,4 @@
-# Static caption API v1 (renderer 0.5.0)
+# Static caption API v1 (renderer 0.6.0)
 
 The [style contract](style-contract.md) defines machine-readable constraints and
 the output-free `inspect` operation alongside the existing schema-1 operations.
@@ -23,6 +23,16 @@ unsupported corpus hashes and oversized requests fail before image production.
 Sources use inclusive 1-based words. Target Unicode character ranges and pixel
 boxes are half-open. Pixel origin is upper left; x goes right, y goes down.
 Layer anchors/regions are normalized 0..1; styles use 576-pixel reference units.
+
+`arabic_script` defaults to `"uthmani"`, preserving existing text and pixels.
+Explicit `"simple"` selects the bundled, hash-verified Tanzil Simple Hafs 1.1
+edition with exact canonical word boundaries, including 2:267 word 1 (`يَا`).
+There is no automatic script fallback, span expansion, or Quran replacement-text
+field. Both scripts use the same source selectors, decorations, fonts, layout,
+translation approval, and emphasis states. Query `source_rendering` in
+capabilities/the style descriptor for both edition/hash/revision identities;
+responses identify the selected script under `corpus.display_script`.
+See [source references](source-references.md#verified-simple-display).
 
 ## Operations
 
@@ -63,7 +73,7 @@ the previous Arabic-only behavior remains. This never approves the wording;
   "schema_version": 1,
   "request_id": "english-source",
   "operation": "prepare_translations",
-  "source_corpus": {"name": "tanzil", "version": "1.1", "script": "simple", "sha256": "<capabilities hash>"},
+  "source_corpus": {"edition": "Tanzil Simple Hafs", "version": "1.1", "sha256": "<capabilities source_corpus hash>"},
   "translation_resource": "<resource_id from translation_catalog>",
   "snapshot_directory": "/absolute/source-cache",
   "source_license": "<source terms supplied by caller>",

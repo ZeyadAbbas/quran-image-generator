@@ -21,7 +21,7 @@ import PIL
 from PIL import features
 
 from .batching import AssetCache, BatchControl, BatchProgress
-from .bindings import BindingDataset
+from .bindings import BindingDataset, text_hash
 from .content import TANZIL_TEXT_SHA256
 from .contract_schema import REQUEST_SCHEMA, RESPONSE_SCHEMA, style_schema
 from .diagnostics import validate_schema
@@ -34,6 +34,7 @@ from .references import (
     CorpusIdentity,
     ReferenceError,
     SourceSpan,
+    source_rendering,
 )
 from .render_cache import CaptionRenderCache
 from .scenes import (
@@ -58,7 +59,7 @@ from .word_emphasis import PreparedWords, prepare_words, render_word_states
 from .word_emphasis import descriptor as word_descriptor
 
 SCHEMA_VERSION = 1
-RENDERER_VERSION = "0.5.0"
+RENDERER_VERSION = "0.6.0"
 MAX_REQUEST_BYTES = 8_000_000
 
 
@@ -170,6 +171,7 @@ def capabilities(backend: str = "pillow") -> dict[str, Any]:
         "mapping_revision": MAPPING_REVISION,
         "mapping_sha256": BRIDGE_SHA256,
         "source_corpus": asdict(CorpusIdentity()),
+        "source_rendering": source_rendering(),
         "target_corpus": {
             "edition": "Tanzil Uthmani Hafs",
             "version": "1.1",
@@ -264,6 +266,7 @@ def style_descriptor(backend: str = "pillow") -> dict[str, Any]:
         fields[name]["backend_support"] = {"pillow_raqm": True, "wand_raqm": False}
     return {
         "word_emphasis": word_descriptor(backend, runtime["pillow_raqm"]),
+        "source_rendering": source_rendering(),
         "descriptor_version": 1,
         "schema_version": 1,
         "fields": fields,
@@ -285,6 +288,7 @@ def style_descriptor(backend: str = "pillow") -> dict[str, Any]:
         "instance_index_adjusted_defaults": ["z_order"],
         "request_schema": REQUEST_SCHEMA,
         "request_defaults": {
+            "arabic_script": "uthmani",
             "render_backend": "pillow",
             "titles": False,
             "quotations": False,
@@ -397,6 +401,7 @@ def _prepare_cue(
             CorpusIdentity(**data["source_corpus"]),
             policy,
             cue.get("translation_binding_id"),
+            data.get("arabic_script", "uthmani"),
         )
     )
     translation = None
@@ -418,6 +423,9 @@ def _prepare_cue(
                 spans,
                 require_approved=policy == "required",
             )
+            if binding.arabic_sha256 != text_hash(excerpt.text):
+                raise ReferenceError("stale_translation", "Binding Arabic identity does not match the selected display script",
+                                     details={"path": "/translation_binding_id"})
             translation = {"source": asdict(dataset.source), "binding": asdict(binding)}
             if binding.review_status == "approved":
                 english = binding.text
@@ -801,6 +809,7 @@ def _execute_request(
                 if "word_emphasis" in data:
                     excerpt = select_excerpt(ExcerptRequest(
                         cue["cue_id"], tuple(SourceSpan(**span) for span in cue["spans"]),
+                        arabic_script=data.get("arabic_script", "uthmani"),
                     ))
                     word_job = prepare_words(
                         excerpt, scene, plans,
@@ -837,6 +846,8 @@ def _execute_request(
                     details["path"] = f"/cues/{index}" + details["path"]
                 if details.get("path", "").startswith("/word_states/"):
                     details["path"] = f"/cues/{index}" + details["path"]
+                if details.get("path") == "/translation_binding_id":
+                    details["path"] = f"/cues/{index}/translation_binding_id"
                 if details.get("path", "").startswith("/track_bindings/"):
                     details["path"] = f"/cues/{index}" + details["path"]
                 if details.get("layer_id") and details["layer_id"] in {item["track_id"] for item in data.get("translation_tracks", [])}:
@@ -870,11 +881,15 @@ def _execute_request(
             if any(cue["status"] == "needs_review" for cue in result["cues"])
             else "complete"
         )
+        script = data.get("arabic_script", "uthmani")
+        display = source_rendering()["scripts"][script]
         result["corpus"] = {
             "source": asdict(corpus),
-            "target_sha256": TANZIL_TEXT_SHA256,
-            "mapping_revision": MAPPING_REVISION,
-            "mapping_sha256": BRIDGE_SHA256,
+            "target_sha256": display["sha256"],
+            "mapping_revision": display["mapping_revision"],
+            "mapping_sha256": display["mapping_sha256"],
+            "display_script": script,
+            "display": {key: display[key] for key in ("edition", "version", "sha256")},
         }
         result["corpus"]["attribution"] = (
             "Tanzil Project, CC BY 3.0; original bundled notices preserved"

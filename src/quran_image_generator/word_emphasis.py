@@ -64,6 +64,7 @@ def descriptor(backend: str, shaping: bool) -> dict[str, Any]:
             "mask_probe_operations_per_cue": 4096,
         },
         "timing_owner": "consumer",
+        "source_scripts": ["uthmani", "simple"],
     }
 
 
@@ -137,6 +138,7 @@ class PreparedWords:
                         path=path + "/words",
                         members=unit.members,
                         reasons=sorted(unit.reasons),
+                        evidence=unit.evidence,
                     )
                 weights.append(float(resolved.pop()))
             result.append((identifier, weights))
@@ -163,6 +165,7 @@ class PreparedWords:
                     "members": unit.members,
                     "atomic": len(unit.members) > 1 or bool(unit.reasons),
                     "atomic_reasons": sorted(unit.reasons),
+                    "atomic_evidence": unit.evidence,
                     "display_ranges": [
                         {"character_range": [a, b], "text": self.plan.layer.text[a:b]}
                         for a, b in unit.ranges
@@ -290,6 +293,14 @@ def prepare_words(
             for unit in units
         ],
         "mask_fonts": [part.mask_font_sha256 for unit in units for part in unit.parts],
+        "display_source": [
+            {
+                "target_sha256": span.target_sha256,
+                "mapping_revision": span.mapping_revision,
+                "target_verse": span.target_verse,
+            }
+            for span in excerpt.spans
+        ],
     }
     layout_id = hashlib.sha256(canonical_bytes(identity)).hexdigest()
     return PreparedWords(scene, plan, units, options, layout_id, backgrounds)

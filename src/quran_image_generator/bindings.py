@@ -12,7 +12,13 @@ import jsonschema
 
 from .contract_schema import BINDING_DATASET
 from .excerpts import ExcerptRequest, select_excerpt
-from .references import MAPPING_REVISION, CorpusIdentity, ReferenceError, SourceSpan
+from .references import (
+    MAPPING_REVISION,
+    SIMPLE_DISPLAY_REVISION,
+    CorpusIdentity,
+    ReferenceError,
+    SourceSpan,
+)
 
 
 def text_hash(text: str) -> str:
@@ -107,13 +113,14 @@ class PhraseBinding:
         # The positional index keeps every previously selectable slice verbatim.
         # Existing bindings remain usable with their exact spans and Arabic hash.
         if self.mapping_revision not in (
-            MAPPING_REVISION, "simple-uthmani-4", "simple-uthmani-3"
+            MAPPING_REVISION, "simple-uthmani-4", "simple-uthmani-3", SIMPLE_DISPLAY_REVISION
         ):
             raise ReferenceError(
                 "stale_translation", "Binding mapping revision changed"
             )
         arabic = select_excerpt(
-            ExcerptRequest(self.binding_id, self.spans, corpus)
+            ExcerptRequest(self.binding_id, self.spans, corpus,
+                           arabic_script="simple" if self.mapping_revision == SIMPLE_DISPLAY_REVISION else "uthmani")
         ).text
         if self.arabic_sha256 != text_hash(arabic):
             raise ReferenceError(

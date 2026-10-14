@@ -1,4 +1,4 @@
-# Source-word emphasis states (renderer 0.5.0)
+# Source-word emphasis states (renderer 0.6.0)
 
 Schema 1 now has an opt-in `word_emphasis` configuration and per-cue `word_states`.
 The public representation is **selection_state_variants**, contract version 1.
@@ -90,6 +90,13 @@ weight, including unselected members resolved through `default_weight`.
 `atomic_word_split` reports the members and reasons rather than inventing a split.
 Build selections from the returned units, not by splitting Arabic on spaces.
 
+`atomic_evidence` records why a shaping/ink union was required: the full run,
+prepared and mask font hashes, contributing half-open character ranges, and
+whether a consumed initial, jointly restored missing ink, or shared fill pixels
+caused the union. Source/display groups report their verified mapping revision
+and source/display ranges. `atomic_word_split` also includes this evidence.
+These are conservative raster ownership tests, not exported HarfBuzz cluster IDs.
+
 Quotation ornaments and verse markers are independent. In legacy inline runs,
 separate word and ornament glyphs can share antialiased pixels: **static ornament
 pixels take precedence** and remain unchanged. Each part reports the count as
@@ -167,6 +174,27 @@ uses the original whole-run crop and resampling grid. Unsafe decompositions fail
 explicitly instead of returning approximate word positions.
 
 Full-run boundary probes also check consumed source initials against the font's
-nominal glyph outlines. A cross-word ligature can otherwise appear to belong
-entirely to its first word, with disjoint masks; such source words are grouped
-atomically. An unresolved boundary involving static decoration fails explicitly.
+nominal glyph outlines. In fonts such as DigitalKhatt Madina, cursive positioning
+can drag a singleton probe out of the tile even when all dependencies stay inside
+the same source word. A second full-run diagnostic disables only `curs` to
+distinguish this from consumption across a source boundary. Diagnostic pixels
+never enter rendering or geometry: original features, masks and exact full-ink
+reconstruction remain mandatory. This fixes the source-initial failure at 35:1
+words 11–13 and false adjacent-word unions reported in #95, without changing
+fonts, diacritics, quotation colors, or ordinary/all-active pixels.
+
+A real cross-word ligature can still belong entirely to its first word, with
+disjoint masks and a consumed initial even without cursive attachment; those
+words remain atomic with their contributing ranges recorded. Physically shared
+word ink and joined Uthmani display words also remain atomic. An unresolved static
+decoration boundary fails explicitly with source members, run/static ranges,
+font identities and run position. Use the actual returned groups for each pinned
+font/layout; there is no universal list of atomic source words. All valid Fatir
+excerpt pairs cited in #95 are separate in the tested signature preset. The
+report's 35:3 words 26–27 are outside that verse's canonical 22 words and remain
+`invalid_reference`.
+
+For exact canonical Simple boundaries inside joined Uthmani display words, choose
+explicit `arabic_script="simple"`; see [verified Simple display](source-references.md#verified-simple-display).
+No fallback or source expansion occurs. Both editions share the emphasis/state
+contract and preserve translations and static layer identities.

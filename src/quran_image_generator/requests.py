@@ -8,7 +8,7 @@ from typing import Any
 from .api import RenderRequest
 from .bindings import BindingDataset
 from .profiles import CaptionProfile
-from .references import CorpusIdentity, SourceSpan
+from .references import ArabicScript, CorpusIdentity, SourceSpan
 
 
 @dataclass(frozen=True, slots=True)
@@ -128,6 +128,7 @@ class BatchRequest:
     translation_tracks: tuple[TranslationTrack, ...] = ()
     annotations: tuple[Annotation, ...] = ()
     word_emphasis: dict[str, Any] | None = None
+    arabic_script: ArabicScript | None = None
 
     def to_request(self) -> RenderRequest:
         payload = asdict(self)
@@ -139,6 +140,7 @@ class BatchRequest:
             "translation_snapshot",
             "asset_cache_directory",
             "word_emphasis",
+            "arabic_script",
         ):
             if payload[key] is None:
                 del payload[key]

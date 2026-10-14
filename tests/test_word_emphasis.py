@@ -933,6 +933,13 @@ def test_ligature_crossing_source_word_boundary_is_atomic_even_with_disjoint_mas
     group = result["cues"][0]["word_emphasis"]["units"][0]
     assert group["atomic"] and "shaping_cluster" in group["atomic_reasons"]
     assert [member["source_word"] for member in group["members"]] == [1, 2]
+    evidence = next(e for e in group["atomic_evidence"] if e["kind"] == "consumed_source_initial")
+    assert evidence["reason"] == "shaping_cluster"
+    assert len(evidence["run_character_ranges"]) == 2
+    assert evidence["nominal_outline"] and not evidence["cursive_disabled_initial_visible"]
+    a, b = evidence["consumed_initial_range"]
+    assert evidence["run_text"][b - 1] == second[0] and a < b
+    assert evidence["prepared_font_sha256"] and evidence["mask_font_sha256"]
     with (
         compose_caption(baseline, 0, (576, 1024)) as before,
         compose_word_state(result, 0, "all") as after,

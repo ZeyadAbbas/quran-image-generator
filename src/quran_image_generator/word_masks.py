@@ -25,7 +25,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 from .backends import using_backend
 from .excerpts import Excerpt
-from .references import ReferenceError, bridge_data
+from .references import ReferenceError, source_word_groups
 from .render_cache import RenderCache
 from .scenes import Layer, LayerPlan, layer_font
 from .shaping import MixedMarkerFont, ShapedFont
@@ -191,6 +191,7 @@ class WordUnit:
     ranges: list[tuple[int, int]]
     reasons: set[str] = field(default_factory=set)
     parts: list[MaskPart] = field(default_factory=list)
+    evidence: list[dict[str, Any]] = field(default_factory=list)
 
 
 def source_units(
@@ -210,8 +211,7 @@ def source_units(
     for occurrence, span in enumerate(excerpt.spans):
         if pieces:
             cursor += 1
-        record = bridge_data()["verses"][f"{span.source.surah}:{span.source.ayah}"]
-        for group in record["groups"]:
+        for group in source_word_groups(span):
             first, last, start, end = group[:4]
             if first < span.source.word_start or last > span.source.word_end:
                 continue
@@ -239,6 +239,18 @@ def source_units(
                     if first != last
                     or len(layer.text[cursor + a : cursor + b].split()) > 1
                     else set(),
+                    evidence=[
+                        {
+                            "reason": "source_display_group",
+                            "kind": "verified_source_display_range",
+                            "mapping_revision": span.mapping_revision,
+                            "display_character_range": [cursor + a, cursor + b],
+                            "source_word_range": [first, last],
+                        }
+                    ]
+                    if first != last
+                    or len(layer.text[cursor + a : cursor + b].split()) > 1
+                    else [],
                 )
             )
         piece = span.text
@@ -385,7 +397,13 @@ def paint_runs(plan: LayerPlan) -> list[PaintRun]:
 
 
 class RunProbe:
-    def __init__(self, run: PaintRun, checkpoint: Callable[[], None]) -> None:
+    def __init__(
+        self,
+        run: PaintRun,
+        checkpoint: Callable[[], None],
+        *,
+        suppress_cursive: bool = False,
+    ) -> None:
         self.checkpoint = checkpoint
         checkpoint()
         if run.font.pillow is None or run.font.tracking:
@@ -394,7 +412,17 @@ class RunProbe:
                 "Word emphasis needs an untracked Pillow RAQM body font",
             )
         self.run = run
-        left, top, right, bottom = run.font._bbox(run.text)
+        self.prepared_font_sha256 = hashlib.sha256(
+            run.font.pillow.font_bytes
+        ).hexdigest()
+        self.options = dict(run.font.options)
+        if suppress_cursive:
+            self.options["features"] = [*self.options.get("features", []), "-curs"]
+            left, top, right, bottom = run.font.pillow.getbbox(
+                run.text, anchor="ls", direction=run.font.direction, **self.options
+            )
+        else:
+            left, top, right, bottom = run.font._bbox(run.text)
         if right - left > 16384 or bottom - top > 4096:
             raise error(
                 "resource_limit", "Word-mask raster exceeds the bounded line tile"
@@ -415,13 +443,13 @@ class RunProbe:
             self.offset = ox, oy
         self.font = _probe_font(run.font.pillow, self.size[1])
         self.font_sha256 = hashlib.sha256(self.font.font_bytes).hexdigest()
-        self.original = self._draw(run.font.pillow, run.font.options)
+        self.original = self._draw(run.font.pillow, self.options)
         self.ink = self.original.getbbox()
         neutral = self._draw(
             self.font,
             {
-                **run.font.options,
-                "features": [*run.font.options.get("features", []), TAG + "=0"],
+                **self.options,
+                "features": [*self.options.get("features", []), TAG + "=0"],
             },
         )
         with neutral, ImageChops.difference(neutral, self.original) as difference:
@@ -445,6 +473,21 @@ class RunProbe:
         )
         return result
 
+    def evidence(
+        self, kind: str, ranges: list[tuple[int, int]], **details: Any
+    ) -> dict[str, Any]:
+        """Record the actual full-context run and the test that required a union."""
+        return {
+            "kind": kind,
+            "line_index": self.run.line_index,
+            "run_id": self.run.run_id,
+            "run_text": self.run.text,
+            "run_character_ranges": ranges,
+            "prepared_font_sha256": self.prepared_font_sha256,
+            "mask_font_sha256": self.font_sha256,
+            **details,
+        }
+
     def mask(self, ranges: list[tuple[int, int]]) -> Image.Image:
         self.checkpoint()
         # Invisible separators can be positioning parents. They must not move
@@ -461,7 +504,7 @@ class RunProbe:
                 merged[-1] = merged[-1][0], max(b, merged[-1][1])
             else:
                 merged.append((a, b))
-        features = [*self.run.font.options.get("features", []), TAG + "=0"]
+        features = [*self.options.get("features", []), TAG + "=0"]
         cursor = 0
         for a, b in merged:
             if a > cursor:
@@ -469,7 +512,7 @@ class RunProbe:
             cursor = b
         if cursor < len(self.run.text):
             features.append(f"{TAG}[{cursor}:{len(self.run.text)}]=1")
-        raw = self._draw(self.font, {**self.run.font.options, "features": features})
+        raw = self._draw(self.font, {**self.options, "features": features})
         if ImageChops.subtract(raw, self.original).getbbox():
             # Any shifted glyph arriving in another word's tile is a hard error.
             raise error(
@@ -553,14 +596,16 @@ def extract_units(
             i = parents[i]
         return i
 
-    def join(indices: list[int], reason: str) -> None:
+    def join(indices: list[int], reason: str, evidence: dict[str, Any]) -> None:
         head = root(indices[0])
         for index in indices:
             other = root(index)
             if other != head:
                 units[head].reasons.update(units[other].reasons)
+                units[head].evidence.extend(units[other].evidence)
                 parents[other] = head
             units[head].reasons.add(reason)
+        units[head].evidence.append({"reason": reason, **evidence})
 
     for run in paint_runs(plan):
         probe = RunProbe(run, bounded_probe)
@@ -574,6 +619,7 @@ def extract_units(
             raise error("resource_limit", "Word-mask working set exceeds 64 MiB")
         all_ranges = [value for _, ranges in selected for value in ranges]
         owned = {i for a, b in all_ranges for i in range(a, b)}
+        cursive_diagnostic: RunProbe | None = None
         # HarfBuzz can assign a cross-space ligature to its first character.
         # Its two word masks then look disjoint even though the next word's
         # initial letter was consumed. Probe that boundary in the full run;
@@ -589,19 +635,52 @@ def extract_units(
                 visible = bool(initial_ink.getbbox())
             if visible or not _has_nominal_outline(probe.font, run.text[initial]):
                 continue
+            # A cursive attachment can pull the initial out of a singleton
+            # probe even when every dependency stays inside this source word.
+            # Classify the boundary on the complete run without cursive
+            # propagation; never use those diagnostic pixels for painting.
+            # Original-feature word masks must still reconstruct exact ink.
+            if cursive_diagnostic is None:
+                cursive_diagnostic = RunProbe(run, bounded_probe, suppress_cursive=True)
+            with cursive_diagnostic.mask([(ranges[0][0], initial + 1)]) as initial_ink:
+                if initial_ink.getbbox():
+                    continue
             previous = selected[position - 1] if position else None
             if previous is None or any(
                 not run.text[i].isspace() and i not in owned
                 for i in range(previous[1][-1][1], initial)
             ):
+                static = [
+                    i
+                    for i, char in enumerate(run.text)
+                    if not char.isspace() and i not in owned
+                ]
                 raise error(
-                    "word_decoration_atomic",
+                    "word_decoration_atomic" if static else "unsafe_word_mask",
                     "A source-word initial belongs to an unresolved static/word shaping boundary",
                     members=units[index].members,
                     line_index=run.line_index,
                     run_id=run.run_id,
+                    run_character_ranges=ranges,
+                    static_character_ranges=[(i, i + 1) for i in static],
+                    prepared_font_sha256=probe.prepared_font_sha256,
+                    mask_font_sha256=probe.font_sha256,
+                    font_identity=plan.font_info,
+                    run_position=[run.x, run.y],
                 )
-            join([previous[0], index], "shaping_cluster")
+            join(
+                [previous[0], index],
+                "shaping_cluster",
+                probe.evidence(
+                    "consumed_source_initial",
+                    previous[1] + ranges,
+                    consumed_initial_range=[ranges[0][0], initial + 1],
+                    initial_codepoint=f"U+{ord(run.text[initial]):04X}",
+                    nominal_outline=True,
+                    cursive_disabled_initial_visible=False,
+                    diagnostic_mask_font_sha256=cursive_diagnostic.font_sha256,
+                ),
+            )
         body = probe.mask(all_ranges)
         # A shared source/decorative glyph cannot be recolored independently.
         fixed_ranges = [(i, i + 1) for i in range(len(run.text)) if i not in owned]
@@ -621,7 +700,11 @@ def extract_units(
                     if _overlap(groups[i][2], groups[j][2]):
                         members = groups[i][0] + groups[j][0]
                         ranges = groups[i][1] + groups[j][1]
-                        join(members, "overlapping_ink")
+                        join(
+                            members,
+                            "overlapping_ink",
+                            probe.evidence("shared_fill_pixels", ranges),
+                        )
                         groups[i] = members, ranges, probe.mask(ranges)
                         del groups[j]
                         merged = True
@@ -647,7 +730,15 @@ def extract_units(
                     ]
                     joint = probe.mask(ranges)
                     if _overlap(joint, missing):
-                        join(members, "shaping_cluster")
+                        join(
+                            members,
+                            "shaping_cluster",
+                            probe.evidence(
+                                "joint_selection_restores_missing_ink",
+                                ranges,
+                                missing_ink_bounds=missing.getbbox(),
+                            ),
+                        )
                         groups[start : start + length] = [(members, ranges, joint)]
                         merged = True
                         break
@@ -737,12 +828,31 @@ def extract_units(
                                 )
                             )
                             if _overlap(ac, bc):
-                                join([i, j], "overlapping_ink")
+                                join(
+                                    [i, j],
+                                    "overlapping_ink",
+                                    {
+                                        "kind": "shared_placed_fill_pixels",
+                                        "ink_bounds": box,
+                                        "parts": [
+                                            {
+                                                "run_id": p.run_id,
+                                                "line_index": p.line_index,
+                                                "run_character_ranges": p.ranges,
+                                                "mask_font_sha256": p.mask_font_sha256,
+                                            }
+                                            for p in (ap, bp)
+                                        ],
+                                    },
+                                )
     result: dict[int, WordUnit] = {}
     for index, unit in enumerate(units):
         owner = root(index)
         combined_unit = result.setdefault(
-            owner, WordUnit([], [], set(units[owner].reasons))
+            owner,
+            WordUnit(
+                [], [], set(units[owner].reasons), evidence=list(units[owner].evidence)
+            ),
         )
         combined_unit.members.extend(unit.members)
         combined_unit.ranges.extend(unit.ranges)
