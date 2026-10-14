@@ -1,3 +1,5 @@
 src/quran_image_generator/assets/data/quran-uthmani-1.1.txt -text whitespace=-trailing-space
 src/quran_image_generator/assets/data/quran-simple-1.1.txt -text whitespace=-trailing-space
 src/quran_image_generator/assets/data/quran-data-1.0.xml -text whitespace=-trailing-space
+tests/fixtures/fonts/Amiri-OFL.txt -text whitespace=-trailing-space,-blank-at-eof
+tests/fixtures/fonts/DigitalKhattMadina-OFL.txt -text whitespace=-trailing-space,-blank-at-eof
