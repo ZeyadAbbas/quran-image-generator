@@ -38,7 +38,8 @@ def prepare_translation_source(
     chapters: set[int] = set()
     for cue in data["cues"]:
         spans = tuple(SourceSpan(**s) for s in cue["spans"])
-        excerpt = select_excerpt(ExcerptRequest(cue["cue_id"], spans, corpus))
+        excerpt = select_excerpt(ExcerptRequest(cue["cue_id"], spans, corpus,
+                                               arabic_script=data.get("arabic_script", "uthmani")))
         chapters.update(s.surah or 1 for s in spans)
         resolved.append((cue, spans, excerpt))
     directory = (root / data["snapshot_directory"]).resolve()
@@ -83,6 +84,7 @@ def prepare_translation_source(
             bindings[binding_id] = PhraseBinding(
                 binding_id, "1", spans, text_hash(excerpt.text), text, text_hash(text),
                 tuple(text.splitlines()), "needs_review", "", False,
+                mapping_revision=excerpt.spans[0].mapping_revision,
                 source_identity_sha256=source.identity_sha256)
         cues.append({"cue_id": cue["cue_id"], "spans": cue["spans"],
                      "binding_id": binding_id,

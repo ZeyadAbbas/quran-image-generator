@@ -11,7 +11,13 @@ from PIL import Image
 from .backends import require_pillow_shaping, using_backend
 from .bindings import BindingDataset
 from .content import _load_bundled_corpus
-from .references import CorpusIdentity, ReferenceError, bridge_data
+from .references import (
+    CorpusIdentity,
+    ReferenceError,
+    bridge_data,
+    simple_corpus,
+    source_rendering,
+)
 from .resources import asset_path
 from .scenes import Layer, check_glyphs, checked_asset, layer_font
 from .snapshots import SnapshotStore
@@ -37,9 +43,13 @@ def preflight(data: dict[str, Any], root: Path) -> dict[str, Any]:
     CorpusIdentity(**data.get("source_corpus", {})).validate()
     _load_bundled_corpus()
     bridge_data()
+    script = data.get("arabic_script", "uthmani")
+    if script == "simple":
+        simple_corpus()
     checks: dict[str, Any] = {
         "native_runtime": runtime,
         "render_backend": backend,
+        "source_rendering": {"script": script, **source_rendering()["scripts"][script]},
         "corpus": "verified",
         "mapping": "verified",
         "assets": {},

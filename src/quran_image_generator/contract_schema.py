@@ -318,6 +318,7 @@ REQUEST_SCHEMA = {
             "schema_version": {"const": 1},
             "request_id": TEXT,
             "render_backend": {"enum": ["pillow", "imagemagick"], "default": "pillow"},
+            "arabic_script": {"enum": ["uthmani", "simple"], "default": "uthmani"},
             "word_emphasis": WORD_EMPHASIS,
             "operation": {
                 "enum": [
@@ -470,6 +471,7 @@ WORD_UNIT = obj({
     }, ("cue_id", "span_occurrence", "surah", "ayah", "source_word"))},
     "atomic": {"type": "boolean"},
     "atomic_reasons": {"type": "array", "items": {"enum": ["source_display_group", "overlapping_ink", "shaping_cluster"]}},
+    "atomic_evidence": {"type": "array", "items": {"type": "object"}},
     "display_ranges": {"type": "array", "minItems": 1, "items": obj({"character_range": WORD_RANGE, "text": {"type": "string"}}, ("character_range", "text"))},
     "parts": {"type": "array", "minItems": 1, "items": WORD_PART},
     "backgrounds": {"type": "array", "minItems": 1, "items": obj({

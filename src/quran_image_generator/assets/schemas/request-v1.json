@@ -18,6 +18,13 @@
       ],
       "default": "pillow"
     },
+    "arabic_script": {
+      "enum": [
+        "uthmani",
+        "simple"
+      ],
+      "default": "uthmani"
+    },
     "word_emphasis": {
       "type": "object",
       "properties": {

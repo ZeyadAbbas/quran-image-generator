@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 from .references import (
+    ArabicScript,
     CorpusIdentity,
     ReferenceError,
     ResolvedSpan,
@@ -20,6 +21,7 @@ class ExcerptRequest:
     corpus: CorpusIdentity = CorpusIdentity()
     translation_policy: Literal["none", "review", "required"] = "none"
     translation_binding_id: str | None = None
+    arabic_script: ArabicScript = "uthmani"
 
     def __post_init__(self) -> None:
         if not isinstance(self.cue_id, str) or not self.cue_id.strip() or len(self.cue_id) > 128:
@@ -30,6 +32,8 @@ class ExcerptRequest:
             raise ReferenceError("invalid_request", "Unknown translation policy")
         if self.translation_policy == "required" and not self.translation_binding_id:
             raise ReferenceError("missing_translation", "A phrase-specific translation binding is required")
+        if self.arabic_script not in ("uthmani", "simple"):
+            raise ReferenceError("invalid_request", "Unknown Arabic display script")
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,7 +55,7 @@ class Excerpt:
 
 def select_excerpt(request: ExcerptRequest) -> Excerpt:
     request.corpus.validate()
-    resolved = tuple(resolve_span(span, request.corpus) for span in request.spans)
+    resolved = tuple(resolve_span(span, request.corpus, arabic_script=request.arabic_script) for span in request.spans)
     status = {"none": "disabled", "review": "needs_review", "required": "binding_required"}[request.translation_policy]
     return Excerpt(request.cue_id, resolved, status)
 

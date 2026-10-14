@@ -8,7 +8,12 @@ from typing import Any
 
 from .excerpts import Excerpt
 from .layout import MeasuredLine, TextStyle, _wrap_words
-from .references import ReferenceError, SourceSpan, resolve_span
+from .references import (
+    SIMPLE_DISPLAY_REVISION,
+    ReferenceError,
+    SourceSpan,
+    resolve_span,
+)
 from .scenes import Scene
 
 
@@ -38,7 +43,8 @@ def apply_break_hints(excerpt: Excerpt, scene: Scene, hints: list[dict[str, Any]
         if not span.source.word_start <= word <= span.source.word_end:
             raise ReferenceError("invalid_break", "Break word is outside its occurrence", details={"path": path, "value": word})
         try:
-            prefix = resolve_span(SourceSpan(span.source.surah, span.source.ayah, span.source.word_start, word))
+            prefix = resolve_span(SourceSpan(span.source.surah, span.source.ayah, span.source.word_start, word),
+                                  arabic_script="simple" if span.mapping_revision == SIMPLE_DISPLAY_REVISION else "uthmani")
         except ReferenceError as error:
             raise ReferenceError("invalid_break", "Break splits an indivisible source/display word group", details={"path": path, "source": hint, "cause": error.code}) from error
         offset = ends[occurrence] if word == span.source.word_end else starts[occurrence] + len(prefix.text)

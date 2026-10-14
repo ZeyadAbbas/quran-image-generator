@@ -136,7 +136,7 @@ Arabic-only images. Translation material remains subject to
 
 ## Static caption layers and integration
 
-Renderer 0.5.0 exposes a versioned static-caption Python/JSON API. It supports
+Renderer 0.6.0 exposes a versioned static-caption Python/JSON API. It supports
 verified partial source spans, reviewed offline English bindings, independent
 transparent title/caption/logo assets and isolated batches. Start with
 `quran-caption-render --capabilities` and `--preflight`; see

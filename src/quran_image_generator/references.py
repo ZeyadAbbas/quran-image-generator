@@ -3,14 +3,19 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+import re
+from collections.abc import Mapping
+from dataclasses import asdict, dataclass
 from functools import lru_cache
-from typing import Any
+from types import MappingProxyType
+from typing import Any, Literal
 
 from .content import TANZIL_TEXT_SHA256, _load_bundled_corpus, _package_bytes
 
 SIMPLE_SHA256 = "f3268cfe7a400add8a8024fe23368d66f58cc8baa51773fe94e323625c66344b"
 MAPPING_REVISION = "simple-uthmani-5"
+SIMPLE_DISPLAY_REVISION = "simple-verbatim-1"
+ArabicScript = Literal["uthmani", "simple"]
 # Replaced by the reproducible builder's payload digest.
 BRIDGE_SHA256 = "0b732cdad3ed9650a2ca6262bfc8357d002f666f78dd6e4cb1806785d3ec3dc6"
 
@@ -71,8 +76,68 @@ def bridge_data() -> dict[str, Any]:
     return data
 
 
-def resolve_span(span: SourceSpan, corpus: CorpusIdentity | None = None) -> ResolvedSpan:
+@lru_cache(maxsize=1)
+def simple_corpus() -> Mapping[str, str]:
+    """Read only the bundled, byte-pinned Simple 1.1 edition; never caller text."""
+    raw = _package_bytes("assets/data/quran-simple-1.1.txt")
+    if hashlib.sha256(raw).hexdigest() != SIMPLE_SHA256:
+        raise ReferenceError("corrupt_corpus", "Tanzil Simple corpus failed integrity verification")
+    verses = {
+        ":".join(line.split("|", 2)[:2]): line.split("|", 2)[2]
+        for line in raw.decode("utf-8-sig").splitlines() if line and line[0].isdigit()
+    }
+    if len(verses) != 6236 or "1:1" not in verses:
+        raise ReferenceError("corrupt_corpus", "Tanzil Simple verse index is incomplete")
+    return MappingProxyType(verses)
+
+
+def simple_word_groups(span: SourceSpan) -> tuple[str, list[tuple[int, int, int, int]]]:
+    key = f"{span.surah}:{span.ayah}"
+    record = bridge_data()["verses"].get(key)
+    if record is None or span.word_end > record["word_count"]:
+        raise ReferenceError("invalid_reference", f"Unknown or out-of-bounds range {key}")
+    target = "1:1" if key == "0:0" else key
+    text = simple_corpus()[target]
+    words = list(re.finditer(r"\S+", text))
+    # Chapter-opening downloads prefix the separate basmala; canonical ayah
+    # references count the following words, exactly as the pinned index does.
+    if span.ayah == 1 and span.surah not in (1, 9):
+        words = words[4:]
+    if len(words) != record["word_count"]:
+        raise ReferenceError("corrupt_corpus", "Simple canonical word count does not match its pinned index")
+    return text, [(i + 1, i + 1, word.start(), word.end()) for i, word in enumerate(words)]
+
+
+def source_word_groups(span: ResolvedSpan) -> list[Any]:
+    if span.mapping_revision == SIMPLE_DISPLAY_REVISION:
+        return simple_word_groups(span.source)[1]
+    return list(bridge_data()["verses"][f"{span.source.surah}:{span.source.ayah}"]["groups"])
+
+
+def source_rendering() -> dict[str, Any]:
+    return {
+        "version": 1, "request_field": "arabic_script", "default": "uthmani",
+        "automatic_fallback": False, "replacement_text": False,
+        "scripts": {
+            "uthmani": {"edition": "Tanzil Uthmani Hafs", "version": "1.1", "sha256": TANZIL_TEXT_SHA256,
+                        "mapping_revision": MAPPING_REVISION, "mapping_sha256": BRIDGE_SHA256},
+            "simple": {**asdict(CorpusIdentity()), "mapping_revision": SIMPLE_DISPLAY_REVISION,
+                       "mapping_sha256": SIMPLE_SHA256, "verified_verbatim": True},
+        },
+    }
+
+
+def resolve_span(span: SourceSpan, corpus: CorpusIdentity | None = None, *, arabic_script: ArabicScript = "uthmani") -> ResolvedSpan:
     (corpus or CorpusIdentity()).validate()
+    if arabic_script not in ("uthmani", "simple"):
+        raise ReferenceError("invalid_request", "Unknown Arabic display script")
+    if arabic_script == "simple":
+        text, groups = simple_word_groups(span)
+        start, end = groups[span.word_start - 1][2], groups[span.word_end - 1][3]
+        target = "1:1" if span.surah == 0 else f"{span.surah}:{span.ayah}"
+        return ResolvedSpan(span, text[start:end], target, start, end,
+                            span.word_start == 1, span.word_end == len(groups),
+                            SIMPLE_DISPLAY_REVISION, SIMPLE_SHA256)
     key = f"{span.surah}:{span.ayah}"
     record = bridge_data()["verses"].get(key)
     if record is None or span.word_end > record["word_count"]:
