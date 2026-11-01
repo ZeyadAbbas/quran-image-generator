@@ -23,8 +23,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Exercise the oldest and newest versions declared in pyproject.toml.
-        python-version: ["3.10", "3.14"]
+        # Keep legacy Python compatibility and explicitly exercise Pillow 13.
+        include:
+          - python-version: "3.10"
+            pillow: "Pillow<13"
+          - python-version: "3.12"
+            pillow: "Pillow==13.0.0"
+          - python-version: "3.14"
+            pillow: "Pillow>=13,<14"
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -39,7 +45,7 @@ jobs:
           sudo apt-get install --yes --no-install-recommends \
             imagemagick libmagickcore-6.q16-7-extra xvfb xauth tk8.6
           python -m pip install --upgrade pip
-          python -m pip install -e ".[test]"
+          python -m pip install -e ".[test]" "${{ matrix.pillow }}"
       - name: Run tests
         run: xvfb-run -a python -m pytest
       - name: Compile package

@@ -23,7 +23,7 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-  "Pillow>=11.3,<13",
+  "Pillow>=11.3,<14",
   "fonttools>=4.59,<5",
   "jsonschema>=4.25,<5",
   "PyYAML>=6.0.2,<7",
