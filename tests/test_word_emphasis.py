@@ -869,7 +869,10 @@ def test_joint_fit_common_size_revalidation_and_cropped_state_reconstruction(tmp
         same(a, b)
 
 
-def test_hidden_arabic_and_reserved_font_feature_report_useful_errors(tmp_path):
+@pytest.mark.parametrize("reserved_feature", ["QIGW", "QIGM"])
+def test_hidden_arabic_and_reserved_font_feature_report_useful_errors(
+    tmp_path, reserved_feature
+):
     from fontTools.ttLib.tables import otTables as ot
 
     data = request(tmp_path, operation="layout", style={"enabled": False})
@@ -881,7 +884,7 @@ def test_hidden_arabic_and_reserved_font_feature_report_useful_errors(tmp_path):
     collision = tmp_path / "reserved.ttf"
     with TTFont(FONTS / "ScheherazadeNew-Regular.ttf") as font:
         record = ot.FeatureRecord()
-        record.FeatureTag, record.Feature = "QIGW", ot.Feature()
+        record.FeatureTag, record.Feature = reserved_feature, ot.Feature()
         (
             record.Feature.FeatureParams,
             record.Feature.LookupListIndex,
@@ -894,7 +897,7 @@ def test_hidden_arabic_and_reserved_font_feature_report_useful_errors(tmp_path):
     data["assets"] = {"arabic": font_selector(collision)}
     result = execute_request(data).to_dict()
     assert result["cues"][0]["error"]["code"] == "unsupported_word_emphasis_font"
-    assert result["cues"][0]["error"]["details"]["feature"] == "QIGW"
+    assert result["cues"][0]["error"]["details"]["feature"] == reserved_feature
 
 
 def test_ligature_crossing_source_word_boundary_is_atomic_even_with_disjoint_masks(
@@ -933,10 +936,14 @@ def test_ligature_crossing_source_word_boundary_is_atomic_even_with_disjoint_mas
     group = result["cues"][0]["word_emphasis"]["units"][0]
     assert group["atomic"] and "shaping_cluster" in group["atomic_reasons"]
     assert [member["source_word"] for member in group["members"]] == [1, 2]
-    evidence = next(e for e in group["atomic_evidence"] if e["kind"] == "consumed_source_initial")
+    evidence = next(
+        e for e in group["atomic_evidence"] if e["kind"] == "consumed_source_initial"
+    )
     assert evidence["reason"] == "shaping_cluster"
     assert len(evidence["run_character_ranges"]) == 2
-    assert evidence["nominal_outline"] and not evidence["cursive_disabled_initial_visible"]
+    assert (
+        evidence["nominal_outline"] and not evidence["cursive_disabled_initial_visible"]
+    )
     a, b = evidence["consumed_initial_range"]
     assert evidence["run_text"][b - 1] == second[0] and a < b
     assert evidence["prepared_font_sha256"] and evidence["mask_font_sha256"]

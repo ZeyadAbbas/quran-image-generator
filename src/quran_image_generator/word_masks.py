@@ -12,6 +12,7 @@ import hashlib
 import math
 import re
 import threading
+import unicodedata
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from io import BytesIO
@@ -31,6 +32,7 @@ from .scenes import Layer, LayerPlan, layer_font
 from .shaping import MixedMarkerFont, ShapedFont
 
 TAG = "QIGW"
+MARK_TAG = "QIGM"
 MAX_UNITS = 128
 MAX_MASK_BYTES = 64 * 1024 * 1024
 MAX_PROBES = 4096
@@ -94,41 +96,69 @@ def _probe_font(font: ImageFont.FreeTypeFont, height: int) -> ImageFont.FreeType
             table.ScriptList.ScriptRecord.append(script)
             table.ScriptList.ScriptCount = 1
         table = face["GPOS"].table
-        if any(record.FeatureTag == TAG for record in table.FeatureList.FeatureRecord):
+        reserved = next(
+            (
+                record.FeatureTag
+                for record in table.FeatureList.FeatureRecord
+                if record.FeatureTag in (TAG, MARK_TAG)
+            ),
+            None,
+        )
+        if reserved:
             raise error(
                 "unsupported_word_emphasis_font",
                 "Font already uses the reserved word-mask feature",
-                feature=TAG,
+                feature=reserved,
             )
+
         # Translate above the original tile. Use several legal int16 offsets
         # when unusually small fonts need more than one lookup.
-        total = math.ceil((height + 16) * face["head"].unitsPerEm / font.size)
-        count = math.ceil(total / 32767)
-        if count > 32:
-            raise error(
-                "resource_limit", "Word-mask font needs too many positioning lookups"
-            )
-        indices = []
-        for _ in range(count):
-            shift = min(total, 32767)
-            mapping = {
-                name: buildValue({"YPlacement": shift}) for name in face.getGlyphOrder()
-            }
-            indices.append(len(table.LookupList.Lookup))
-            table.LookupList.Lookup.append(
-                buildLookup(buildSinglePos(mapping, face.getReverseGlyphMap()))
-            )
-            total -= shift
-        table.LookupList.LookupCount = len(table.LookupList.Lookup)
-        record = ot.FeatureRecord()
-        record.FeatureTag, record.Feature = TAG, ot.Feature()
-        record.Feature.FeatureParams = None
-        record.Feature.LookupListIndex, record.Feature.LookupCount = (
-            indices,
-            len(indices),
+        def translated(names: list[str]) -> list[int]:
+            total = math.ceil((height + 16) * face["head"].unitsPerEm / font.size)
+            count = math.ceil(total / 32767)
+            if count > 32:
+                raise error(
+                    "resource_limit",
+                    "Word-mask font needs too many positioning lookups",
+                )
+            indices = []
+            for _ in range(count):
+                shift = min(total, 32767)
+                mapping = {name: buildValue({"YPlacement": shift}) for name in names}
+                if mapping:
+                    indices.append(len(table.LookupList.Lookup))
+                    table.LookupList.Lookup.append(
+                        buildLookup(buildSinglePos(mapping, face.getReverseGlyphMap()))
+                    )
+                total -= shift
+            return indices
+
+        gdef = face.get("GDEF")
+        classes = getattr(getattr(gdef, "table", None), "GlyphClassDef", None)
+        mark_names = {
+            name
+            for name, kind in getattr(classes, "classDefs", {}).items()
+            if kind == 3
+        }
+        mark_names.update(
+            name
+            for point, name in (face.getBestCmap() or {}).items()
+            if 0 <= point <= 0x10FFFF
+            and unicodedata.category(chr(point)).startswith("M")
         )
-        added = len(table.FeatureList.FeatureRecord)
-        table.FeatureList.FeatureRecord.append(record)
+        added = []
+        for tag, names in [(TAG, face.getGlyphOrder()), (MARK_TAG, sorted(mark_names))]:
+            indices = translated(names)
+            record = ot.FeatureRecord()
+            record.FeatureTag, record.Feature = tag, ot.Feature()
+            record.Feature.FeatureParams = None
+            record.Feature.LookupListIndex, record.Feature.LookupCount = (
+                indices,
+                len(indices),
+            )
+            added.append(len(table.FeatureList.FeatureRecord))
+            table.FeatureList.FeatureRecord.append(record)
+        table.LookupList.LookupCount = len(table.LookupList.Lookup)
         # Feature records must be sorted. Remap every reference, including
         # variable-font feature substitutions, without changing any old lookup.
         ordered = sorted(
@@ -146,7 +176,10 @@ def _probe_font(font: ImageFont.FreeTypeFont, height: int) -> ImageFont.FreeType
             ]:
                 if lang is not None:
                     lang.FeatureIndex = sorted(
-                        [*(remap[index] for index in lang.FeatureIndex), remap[added]]
+                        [
+                            *(remap[index] for index in lang.FeatureIndex),
+                            *(remap[index] for index in added),
+                        ]
                     )
                     lang.FeatureCount = len(lang.FeatureIndex)
                     if lang.ReqFeatureIndex != 0xFFFF:
@@ -449,7 +482,11 @@ class RunProbe:
             self.font,
             {
                 **self.options,
-                "features": [*self.options.get("features", []), TAG + "=0"],
+                "features": [
+                    *self.options.get("features", []),
+                    TAG + "=0",
+                    MARK_TAG + "=0",
+                ],
             },
         )
         with neutral, ImageChops.difference(neutral, self.original) as difference:
@@ -488,7 +525,9 @@ class RunProbe:
             **details,
         }
 
-    def mask(self, ranges: list[tuple[int, int]]) -> Image.Image:
+    def mask(
+        self, ranges: list[tuple[int, int]], *, suppress_marks: bool = False
+    ) -> Image.Image:
         self.checkpoint()
         # Invisible separators can be positioning parents. They must not move
         # and drag a selected mark even though they contribute no fill ink.
@@ -504,7 +543,11 @@ class RunProbe:
                 merged[-1] = merged[-1][0], max(b, merged[-1][1])
             else:
                 merged.append((a, b))
-        features = [*self.options.get("features", []), TAG + "=0"]
+        features = [
+            *self.options.get("features", []),
+            TAG + "=0",
+            MARK_TAG + ("=1" if suppress_marks else "=0"),
+        ]
         cursor = 0
         for a, b in merged:
             if a > cursor:
@@ -633,6 +676,14 @@ def extract_units(
                 continue
             with probe.mask([(ranges[0][0], initial + 1)]) as initial_ink:
                 visible = bool(initial_ink.getbbox())
+            # RAQM can keep a combining mark visible under a consumed base glyph.
+            # A diagnostic full-run mask hides marks without altering substitution,
+            # so mark-only ink cannot certify an independently paintable initial.
+            if visible:
+                with probe.mask(
+                    [(ranges[0][0], initial + 1)], suppress_marks=True
+                ) as base_ink:
+                    visible = bool(base_ink.getbbox())
             if visible or not _has_nominal_outline(probe.font, run.text[initial]):
                 continue
             # A cursive attachment can pull the initial out of a singleton
@@ -642,7 +693,9 @@ def extract_units(
             # Original-feature word masks must still reconstruct exact ink.
             if cursive_diagnostic is None:
                 cursive_diagnostic = RunProbe(run, bounded_probe, suppress_cursive=True)
-            with cursive_diagnostic.mask([(ranges[0][0], initial + 1)]) as initial_ink:
+            with cursive_diagnostic.mask(
+                [(ranges[0][0], initial + 1)], suppress_marks=True
+            ) as initial_ink:
                 if initial_ink.getbbox():
                     continue
             previous = selected[position - 1] if position else None

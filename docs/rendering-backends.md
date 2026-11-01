@@ -28,6 +28,14 @@ there is no silent change of rendering libraries or disconnected-letter fallback
 
 ## Pillow setup
 
+Pillow 13 is supported on Python 3.11 and newer. Hosted services should select
+the patched Pillow 13 series explicitly (`Pillow>=13,<14`). Python 3.10 remains
+installable for compatibility but resolves an older Pillow release; it cannot
+use the fixes in [Pillow 13](https://pillow.readthedocs.io/en/stable/releasenotes/13.0.0.html).
+Shaping-library upgrades can change hinted pixels, so record the runtime identity
+and verify representative output when upgrading. Fonts and source text are not
+substituted by this upgrade.
+
 Pillow needs RAQM, HarfBuzz and FriBiDi for complex text. Linux/macOS Pillow wheels
 normally provide these dependencies. On Windows, install a trusted standalone
 64-bit `fribidi.dll`, `fribidi-0.dll` or `libfribidi-0.dll` beside the virtual
